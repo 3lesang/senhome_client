@@ -5,26 +5,15 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel";
-import { API_URL, BANNER_COLLECTION, pb } from "@/lib/pocketbase";
-import { queryClient } from "@/stores/query";
-import { useStore } from "@nanostores/react";
-import { useSuspenseQuery } from "@tanstack/react-query";
+import { BANNER_COLLECTION } from "@/lib/pocketbase";
+import { convertImageUrl } from "@/lib/utils";
 import Autoplay from "embla-carousel-autoplay";
 
-function BannerCarousel() {
-  const client = useStore(queryClient);
+interface BannerCarouselProps {
+  banners: any[];
+}
 
-  const bannersQuery = useSuspenseQuery(
-    {
-      queryKey: [BANNER_COLLECTION],
-      queryFn: () =>
-        pb.collection(BANNER_COLLECTION).getFullList({ perPage: 5 }),
-    },
-    client
-  );
-
-  const banners = bannersQuery.data;
-
+function BannerCarousel({ banners }: BannerCarouselProps) {
   if (!banners?.length) return;
 
   return (
@@ -39,10 +28,10 @@ function BannerCarousel() {
       <CarouselContent className="">
         {banners?.map((item, index) => (
           <CarouselItem key={index} className="select-none">
-            <a href="/product">
+            <a href={item?.url}>
               <img
                 loading="lazy"
-                src={`${API_URL}/api/files/banners/${item?.id}/${item?.image}`}
+                src={convertImageUrl(BANNER_COLLECTION, item?.id, item?.image)}
                 alt=""
                 className="h-96 w-full object-cover"
               />

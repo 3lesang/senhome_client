@@ -5,7 +5,7 @@ import * as React from "react";
 
 // Replace the `Checkbox` component in `@components/ui/checkbox` with below component and use it here to support indeterminate.
 const Checkbox = React.forwardRef<
-  React.ElementRef<typeof CheckboxPrimitive.Root>,
+  React.ComponentRef<typeof CheckboxPrimitive.Root>,
   React.ComponentPropsWithoutRef<typeof CheckboxPrimitive.Root>
 >(({ className, ...props }, ref) => (
   <CheckboxPrimitive.Root

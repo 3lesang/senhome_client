@@ -1,5 +1,6 @@
 import type { OrderItemType } from "@/components/order-form";
 import { addToOrder } from "@/stores/order";
+import { useEffect } from "react";
 
 interface BuyNowButtonProps {
   item: OrderItemType;
@@ -7,15 +8,12 @@ interface BuyNowButtonProps {
 }
 
 function BuyNowButton({ item, className }: BuyNowButtonProps) {
+  useEffect(() => {
+    addToOrder(item);
+  }, []);
+
   return (
-    <a
-      href="/mua-ngay"
-      className={className}
-      onClick={() => {
-        console.log(item);
-        addToOrder(item);
-      }}
-    >
+    <a href="/mua-ngay" className={className}>
       Mua ngay
     </a>
   );

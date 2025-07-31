@@ -3,8 +3,12 @@ export const prerender = false;
 import BannerCarousel from "@/components/banner-carousel";
 import ProductCard from "@/components/product-card";
 import Main from "@/layouts/main.astro";
-import { pb, PRODUCT_COLLECTION } from "@/lib/pocketbase";
+import { BANNER_COLLECTION, pb, PRODUCT_COLLECTION } from "@/lib/pocketbase";
 import "@/styles/global.css";
+
+const banners = await pb
+  .collection(BANNER_COLLECTION)
+  .getFullList({ perPage: 5 });
 
 const latestProducts = await pb.collection(PRODUCT_COLLECTION).getList(1, 8, {
   fields: "id,name,gallery,price,slug,discount",
@@ -13,7 +17,7 @@ const latestProducts = await pb.collection(PRODUCT_COLLECTION).getList(1, 8, {
 ---
 
 <Main title="Trang chủ">
-  <BannerCarousel client:load />
+  <BannerCarousel client:load banners={banners} />
   <div class="max-w-6xl mx-auto px-2 md:px-0">
     <div class="md:mt-24 mt-8">
       <div class="flex justify-between">

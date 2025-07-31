@@ -1,32 +1,67 @@
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  type CarouselApi,
+} from "@/components/ui/carousel";
 import { cn } from "@/lib/utils";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
-const images = [
-  "https://b0m772h91854471.pocketbasecloud.com/api/files/products/uq2t191uhfk9e9f/v1_393439440908352_uhicnq8iiy.avif",
-  "https://b0m772h91854471.pocketbasecloud.com/api/files/products/0s9k7l5t800yh3m/168793578898856862_cut4rhea3q.avif",
-];
+interface ImageGalleryProps {
+  images?: string[];
+}
 
-function ImageGallery() {
+function ImageGallery({ images }: ImageGalleryProps) {
+  const [api, setApi] = useState<CarouselApi>();
   const [current, setCurrent] = useState(0);
+
+  useEffect(() => {
+    if (!api) {
+      return;
+    }
+
+    setCurrent(api.selectedScrollSnap());
+
+    api.on("select", () => {
+      setCurrent(api.selectedScrollSnap());
+    });
+  }, [api]);
+
+  const handleClick = (index: number) => {
+    api?.scrollTo(index);
+  };
+
   return (
     <div className="flex gap-2">
       <div className="flex flex-col gap-1">
-        {images.map((item, index) => (
+        {images?.map((item, index) => (
           <div
-            onMouseEnter={() => setCurrent(index)}
+            onMouseEnter={() => handleClick(index)}
             key={index}
             className={cn(
-              "cursor-pointer border-2 border-transparent rounded-md overflow-hidden",
+              "w-14 h-14 cursor-pointer border-2 border-transparent rounded-md overflow-hidden",
               index == current ? " border-blue-500" : ""
             )}
           >
-            <img className="w-14 object-cover" src={item} alt="" />
+            <img
+              className="w-full object-cover hover:scale-105 transition-all duration-150"
+              src={item}
+              alt=""
+            />
           </div>
         ))}
       </div>
-      <div className="flex-1">
+      <div className="flex-1 h-[600px]">
         <div className="rounded-lg overflow-hidden">
-          <img className="w-full object-cover" src={images[current]} alt="" />
+          <Carousel setApi={setApi}>
+            <CarouselContent>
+              {images?.map((item, index) => (
+                <CarouselItem key={index}>
+                  <img className="w-full object-cover" src={item} alt="" />
+                </CarouselItem>
+              ))}
+            </CarouselContent>
+          </Carousel>
         </div>
       </div>
     </div>

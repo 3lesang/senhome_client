@@ -20,8 +20,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { API_URL } from "@/lib/pocketbase";
-import { cn, formatVND } from "@/lib/utils";
+import { PRODUCT_COLLECTION } from "@/lib/pocketbase";
+import { cn, convertImageUrl, formatVND } from "@/lib/utils";
 import type { CheckedState } from "@radix-ui/react-checkbox";
 import { MinusIcon, PlusIcon, Trash2Icon } from "lucide-react";
 import { useState } from "react";
@@ -157,7 +157,11 @@ function OrderItemTable({ data, onChange }: OrderItemTable) {
                 />
                 <img
                   className="h-12 w-12 object-cover rounded-md"
-                  src={`${API_URL}/api/files/products/${item.id}/${item.thumbnail}`}
+                  src={convertImageUrl(
+                    PRODUCT_COLLECTION,
+                    item?.id,
+                    item?.thumbnail
+                  )}
                   alt={item.name}
                 />
                 <a className="hover:underline" href={`/san-pham/${item.slug}`}>

@@ -3,10 +3,12 @@ import CartBadge from "@/components/cart-badge";
 import { buttonVariants } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { CATEGORY_COLLECTION, pb } from "@/lib/pocketbase";
-import { cn } from "@/lib/utils";
-import { SearchIcon } from "lucide-react";
+import { buildCategoryTree, cn } from "@/lib/utils";
+import { ChevronDownIcon, SearchIcon } from "lucide-react";
 
 const categories = await pb.collection(CATEGORY_COLLECTION).getFullList();
+
+const tree = buildCategoryTree(categories);
 ---
 
 <header class="px-2 md:px-0 bg-white py-4">
@@ -42,10 +44,33 @@ const categories = await pb.collection(CATEGORY_COLLECTION).getFullList();
   <div class="mt-4"></div>
   <div class="max-w-6xl mx-auto flex items-center flex-1 gap-8 text-sm">
     {
-      categories?.map((item) => (
-        <a href="" class="hover:underline">
-          {item?.name}
-        </a>
+      tree?.map((item) => (
+        <div class="relative group">
+          <div class="flex items-center gap-1 font-medium group-hover:text-blue-400">
+            <a href={`/danh-muc/${item?.slug}`}>{item?.name}</a>
+            {item?.children.length > 0 && (
+              <ChevronDownIcon
+                size={16}
+                className="group-hover:rotate-180 transition-all duration-150"
+              />
+            )}
+          </div>
+
+          {item?.children.length > 0 && (
+            <div class="absolute top-full left-0 w-96 z-50 h-0 group-hover:h-fit transition-all duration-200 overflow-hidden shadow">
+              <div class="rounded bg-white p-4">
+                {item.children.map((child: any) => (
+                  <a
+                    href={`/danh-muc/${child?.slug}`}
+                    class="font-medium hover:text-blue-400"
+                  >
+                    {child.name}
+                  </a>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
       ))
     }
   </div>

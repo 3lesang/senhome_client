@@ -1,8 +1,8 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { API_URL } from "@/lib/pocketbase";
-import { formatVND } from "@/lib/utils";
+import { PRODUCT_COLLECTION } from "@/lib/pocketbase";
+import { convertImageUrl, formatVND } from "@/lib/utils";
 import { addToCart } from "@/stores/cart";
 import { PlusIcon } from "lucide-react";
 import { toast } from "./toast";
@@ -18,10 +18,6 @@ interface ProductCardProps {
 
 function ProductCard(item: ProductCardProps) {
   const { id, name, price = 0, thumbnail, discount, slug } = item;
-  const src = thumbnail
-    ? `${API_URL}/api/files/products/${id}/${thumbnail}`
-    : "/empty.png";
-
   const handleAddToCart = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     addToCart({
@@ -51,12 +47,12 @@ function ProductCard(item: ProductCardProps) {
     <Card className="rounded-md border-none shadow-none overflow-hidden group">
       <div className="rounded-md overflow-hidden relative">
         <img
-          src={src}
+          src={convertImageUrl(PRODUCT_COLLECTION, id, thumbnail)}
           loading="lazy"
           decoding="async"
           height={100}
           alt="product_image"
-          className="aspect-square w-full bg-gray-200 object-cover group-hover:scale-105 xl:aspect-7/8 transition-all duration-300 ease-in-out"
+          className="aspect-square w-full bg-gray-200 object-cover group-hover:scale-105 xl:aspect-1/1 transition-all duration-300 ease-in-out"
         />
         <div className="bottom-4 right-4 absolute opacity-0 group-hover:opacity-100 transition-opacity duration-300 ease-in-out">
           <Button className="cursor-pointer" onClick={handleAddToCart}>
