@@ -1,0 +1,29 @@
+function PostCard() {
+  return (
+    <div className="w-full h-full relative rounded-md overflow-hidden group cursor-pointer">
+      <img
+        className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-300 ease-in-out"
+        src="https://prs.ohousecdn.com/apne2/content/uploads/cards/project/v1-388405372264448.jpg?w=850&h=510&c=c"
+        alt=""
+      />
+      <div className="absolute top-0 left-0 w-full h-full bg-black/30 flex items-end p-16">
+        <div>
+          <h2 className="text-3xl md:text-4xl font-bold text-white">
+            Storage is Quality! A Minimalist 33 Pyeong House for Raising
+            Children
+          </h2>
+          <div>
+            <img
+              className="rounded-full h-6 w-6 inline mr-2"
+              src="https://github.com/shadcn.png"
+              alt=""
+            />
+            <span className="text-white">wooizip</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export default PostCard;

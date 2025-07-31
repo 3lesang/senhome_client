@@ -1,0 +1,52 @@
+---
+import CartBadge from "@/components/cart-badge";
+import { buttonVariants } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { CATEGORY_COLLECTION, pb } from "@/lib/pocketbase";
+import { cn } from "@/lib/utils";
+import { SearchIcon } from "lucide-react";
+
+const categories = await pb.collection(CATEGORY_COLLECTION).getFullList();
+---
+
+<header class="px-2 md:px-0 bg-white py-4">
+  <div class="max-w-6xl mx-auto flex items-center">
+    <a href="/">
+      <!-- <img src="/logo.png" alt="Logo" class="h-16" /> -->
+      <h1 class="text-2xl font-bold">SENHOME</h1>
+    </a>
+
+    <div class="flex justify-center w-full">
+      <form action="/tim-kiem" method="GET" class="relative">
+        <div
+          class="absolute left-0 top-1/2 -translate-y-1/2 w-12 flex justify-center text-gray-500"
+        >
+          <SearchIcon size={18} />
+        </div>
+        <Input
+          type="text"
+          name="q"
+          placeholder="Tìm kiếm sản phẩm"
+          className="w-96 pr-10 pl-10 shadow-none rounded-full"
+        />
+      </form>
+    </div>
+
+    <div class="flex items-center ml-auto gap-1">
+      <CartBadge client:only />
+      <a href="/dang-nhap" class={cn(buttonVariants({ variant: "ghost" }))}>
+        Đăng nhập
+      </a>
+    </div>
+  </div>
+  <div class="mt-4"></div>
+  <div class="max-w-6xl mx-auto flex items-center flex-1 gap-8 text-sm">
+    {
+      categories?.map((item) => (
+        <a href="" class="hover:underline">
+          {item?.name}
+        </a>
+      ))
+    }
+  </div>
+</header>

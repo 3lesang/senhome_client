@@ -1,0 +1,13 @@
+---
+import { buttonVariants } from "@/components/ui/button";
+import Blank from "@/layouts/blank.astro";
+import { cn } from "@/lib/utils";
+import "@/styles/global.css";
+---
+
+<Blank title="404 Not Found">
+  <main class="text-center mt-96">
+    <p class="">404 Not Found</p>
+    <a href="/" class={cn(buttonVariants({ variant: "link" }))}> Go to home </a>
+  </main>
+</Blank>

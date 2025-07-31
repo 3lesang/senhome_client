@@ -1,0 +1,30 @@
+---
+import Toaster from "@/components/toast";
+import Footer from "@/layouts/footer.astro";
+import Header from "@/layouts/header.astro";
+import "@/styles/fonts.css";
+import "@/styles/global.css";
+import LoadingIndicator from "astro-loading-indicator/component";
+import { ClientRouter } from "astro:transitions";
+
+const { title } = Astro.props;
+---
+
+<html lang="en" transition:animate="none">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <link rel="icon" type="image/svg+xml" href="/logo.png" />
+    <title>{title}</title>
+    <ClientRouter />
+    <LoadingIndicator color="#00a6f4" />
+  </head>
+  <body class="flex flex-col h-screen">
+    <Toaster client:load />
+    <Header />
+    <main class="flex-1">
+      <slot />
+    </main>
+    <Footer />
+  </body>
+</html>

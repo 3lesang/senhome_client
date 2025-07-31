@@ -1,0 +1,48 @@
+---
+export const prerender = false;
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbList,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb";
+import Main from "@/layouts/main.astro";
+
+const query = Astro.url.searchParams.get("q");
+---
+
+<Main title="Tìm kiếm">
+  <div class="bg-gray-50">
+    <div class="max-w-6xl mx-auto py-4">
+      <Breadcrumb className="mb-2">
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <a href="/">Trang chủ</a>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>Kết quả tìm kiếm "{query}"</BreadcrumbItem>
+        </BreadcrumbList>
+      </Breadcrumb>
+
+      <div class="flex justify-between">
+        <div class="flex-1"></div>
+      </div>
+      <div>
+        <div class="grid grid-cols-4 gap-2">
+          <!-- {
+        data?.map((item, index: number) => (
+          <a href="/product/$id">
+            <ProductCard
+              id={item?.id}
+              name={item?.name}
+              thumbnail={item?.gallery[0]}
+              price={item?.price}
+            />
+          </a>
+        ))
+      } -->
+        </div>
+      </div>
+    </div>
+  </div>
+</Main>

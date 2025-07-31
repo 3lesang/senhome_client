@@ -1,0 +1,10 @@
+---
+import BuyNowForm from "@/components/buy-now-form";
+import Main from "@/layouts/main.astro";
+---
+
+<Main title="Mua hàng">
+  <div class="bg-gray-50 h-full">
+    <BuyNowForm client:only />
+  </div>
+</Main>

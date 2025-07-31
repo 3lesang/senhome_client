@@ -1,0 +1,130 @@
+---
+export const prerender = false;
+
+import BuyNowButton from "@/components/buy-now-button";
+import ImageGallery from "@/components/image-gallery";
+import { Badge } from "@/components/ui/badge";
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb";
+import { Button, buttonVariants } from "@/components/ui/button";
+import Main from "@/layouts/main.astro";
+import { pb, PRODUCT_COLLECTION } from "@/lib/pocketbase";
+import { cn, formatVND } from "@/lib/utils";
+import { MinusIcon, PlusIcon } from "lucide-react";
+
+const { slug } = Astro.params;
+
+let product = null;
+try {
+  product = await pb
+    .collection(PRODUCT_COLLECTION)
+    .getFirstListItem(`slug = "${slug}"`, {
+      expand: "category",
+    });
+} catch (error) {}
+---
+
+<Main title={product?.name}>
+  <div class="bg-gray-50">
+    <div class="max-w-6xl mx-auto pb-8">
+      <Breadcrumb className="py-4">
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink
+              href="/"
+              className="hover:underline hover:text-blue-500"
+            >
+              Trang chủ
+            </BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbLink
+              href="/components"
+              className="hover:underline hover:text-blue-500"
+              >{product?.expand?.category?.name}</BreadcrumbLink
+            >
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbPage>{product?.name}</BreadcrumbPage>
+          </BreadcrumbItem>
+        </BreadcrumbList>
+      </Breadcrumb>
+      <div class="grid grid-cols-12 gap-4">
+        <div class="col-span-6">
+          <ImageGallery client:load />
+        </div>
+        <div class="col-span-6">
+          <div class="space-y-1">
+            <p class="text-lg font-medium">{product?.name}</p>
+            {
+              product?.discount > 0 && (
+                <p class="text-gray-600 text-sm">
+                  <Badge className="font-bold">
+                    -{product?.discount * 100}%
+                  </Badge>
+                  <span class="line-through">{formatVND(product?.price)}</span>
+                </p>
+              )
+            }
+            <p class="text-2xl font-bold">
+              {formatVND(product?.price - product?.price * product?.discount)}
+            </p>
+          </div>
+          <div class="flex items-center mt-8 gap-4">
+            <Button
+              type="button"
+              size="icon"
+              variant="outline"
+              className="cursor-pointer"
+            >
+              <MinusIcon />
+            </Button>
+            <div
+              class={cn(
+                buttonVariants({ variant: "outline" }),
+                "select-none text-center"
+              )}
+            >
+              1
+            </div>
+            <Button
+              type="button"
+              size="icon"
+              variant="outline"
+              className="cursor-pointer"
+            >
+              <PlusIcon />
+            </Button>
+          </div>
+          <div class="mt-8">
+            <Button variant="secondary" className="cursor-pointer"
+              >Thêm vào giỏ hàng</Button
+            >
+            <BuyNowButton
+              client:load
+              item={{
+                id: product?.id || "",
+                name: product?.name || "",
+                price: product?.price || 0,
+                discount: product?.discount || 0,
+                slug: product?.slug || "",
+                thumbnail: product?.gallery?.[0],
+                quantity: 1,
+                selected: true,
+              }}
+              className={cn(buttonVariants())}
+            />
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</Main>

@@ -1,0 +1,10 @@
+---
+import CartForm from "@/components/cart-form";
+import Main from "@/layouts/main.astro";
+---
+
+<Main title="Giỏ hàng">
+  <div class="bg-gray-50 h-full">
+    <CartForm client:only />
+  </div>
+</Main>

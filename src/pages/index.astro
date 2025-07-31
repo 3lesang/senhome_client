@@ -1,0 +1,53 @@
+---
+export const prerender = false;
+import BannerCarousel from "@/components/banner-carousel";
+import ProductCard from "@/components/product-card";
+import Main from "@/layouts/main.astro";
+import { pb, PRODUCT_COLLECTION } from "@/lib/pocketbase";
+import "@/styles/global.css";
+
+const latestProducts = await pb.collection(PRODUCT_COLLECTION).getList(1, 8, {
+  fields: "id,name,gallery,price,slug,discount",
+  sort: "-created",
+});
+---
+
+<Main title="Trang chủ">
+  <BannerCarousel client:load />
+  <div class="max-w-6xl mx-auto px-2 md:px-0">
+    <div class="md:mt-24 mt-8">
+      <div class="flex justify-between">
+        <h3 class="text-xl font-bold">Mới nhất</h3>
+        <a href="/" class="text-blue-500 font-semibold text-sm hover:underline"
+          >xem thêm</a
+        >
+      </div>
+      <div class="grid grid-cols-2 md:grid-cols-4 md:gap-6 gap-2">
+        {
+          latestProducts?.items?.map((item) => (
+            <a href={`/san-pham/${item?.slug}`}>
+              <ProductCard
+                client:load
+                id={item?.id}
+                name={item?.name}
+                thumbnail={item?.gallery[0]}
+                price={item?.price}
+                discount={item?.discount}
+                slug={item?.slug}
+              />
+            </a>
+          ))
+        }
+      </div>
+    </div>
+    <div class="md:mt-24 mt-8">
+      <div class="flex justify-between">
+        <h3 class="text-xl font-bold">Nổi bật nhất</h3>
+        <a href="/" class="text-blue-500 font-semibold text-sm hover:underline"
+          >xem thêm</a
+        >
+      </div>
+      <div class="grid grid-cols-2 md:grid-cols-4 md:gap-6 gap-2"></div>
+    </div>
+  </div>
+</Main>
