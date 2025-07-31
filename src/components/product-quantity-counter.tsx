@@ -29,7 +29,7 @@ function ProductQuantityCounter() {
         type="button"
         size="icon"
         variant="outline"
-        className="cursor-pointer"
+        className="cursor-pointer border-gray-700"
         onClick={handleMinus}
       >
         <MinusIcon />
@@ -37,7 +37,7 @@ function ProductQuantityCounter() {
       <div
         className={cn(
           buttonVariants({ variant: "outline" }),
-          "select-none text-center"
+          "select-none text-center border-gray-400"
         )}
       >
         {order?.quantity}
@@ -47,7 +47,7 @@ function ProductQuantityCounter() {
         type="button"
         size="icon"
         variant="outline"
-        className="cursor-pointer"
+        className="cursor-pointer border-gray-400"
         onClick={handlePlus}
       >
         <PlusIcon />

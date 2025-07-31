@@ -2,6 +2,8 @@ import {
   Carousel,
   CarouselContent,
   CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
   type CarouselApi,
 } from "@/components/ui/carousel";
 import { cn } from "@/lib/utils";
@@ -32,8 +34,8 @@ function ImageGallery({ images }: ImageGalleryProps) {
   };
 
   return (
-    <div className="flex gap-2">
-      <div className="flex flex-col gap-1">
+    <div className="flex flex-col-reverse lg:flex-row gap-2">
+      <div className="flex lg:flex-col gap-1">
         {images?.map((item, index) => (
           <div
             onMouseEnter={() => handleClick(index)}
@@ -61,6 +63,8 @@ function ImageGallery({ images }: ImageGalleryProps) {
                 </CarouselItem>
               ))}
             </CarouselContent>
+            <CarouselPrevious />
+            <CarouselNext />
           </Carousel>
         </div>
       </div>

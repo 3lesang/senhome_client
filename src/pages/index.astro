@@ -10,7 +10,7 @@ const banners = await pb
   .collection(BANNER_COLLECTION)
   .getFullList({ perPage: 5 });
 
-const latestProducts = await pb.collection(PRODUCT_COLLECTION).getList(1, 8, {
+const latestProducts = await pb.collection(PRODUCT_COLLECTION).getList(1, 4, {
   fields: "id,name,gallery,price,slug,discount",
   sort: "-created",
 });

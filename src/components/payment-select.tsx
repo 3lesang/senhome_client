@@ -42,7 +42,7 @@ function PaymentSelect({ value, onChange }: PaymentSelectProps) {
   return (
     <RadioGroup.Root
       defaultValue={value}
-      className="w-full grid grid-cols-5 gap-4"
+      className="w-full grid lg:grid-cols-5 grid-cols-2 gap-4"
       onValueChange={onChange}
     >
       {Object.values(PAYMENT_OPTIONS).map((option) => (

@@ -33,14 +33,14 @@ function BannerCarousel({ banners }: BannerCarouselProps) {
                 loading="lazy"
                 src={convertImageUrl(BANNER_COLLECTION, item?.id, item?.image)}
                 alt=""
-                className="h-96 w-full object-cover"
+                className="h-56 lg:h-96 w-full object-cover"
               />
             </a>
           </CarouselItem>
         ))}
       </CarouselContent>
-      <CarouselPrevious className="border-none left-80" />
-      <CarouselNext className="border-none right-80" />
+      <CarouselPrevious className="left-2 border-none lg:left-80" />
+      <CarouselNext className="right-2 border-none lg:right-80" />
     </Carousel>
   );
 }

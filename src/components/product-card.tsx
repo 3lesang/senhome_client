@@ -63,7 +63,7 @@ function ProductCard(item: ProductCardProps) {
       </div>
 
       <p className="line-clamp-2 group-hover:text-gray-600">{name}</p>
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-2 flex-wrap">
         <p className="text-lg font-bold">
           {formatVND(price - price * (discount || 0))}
         </p>

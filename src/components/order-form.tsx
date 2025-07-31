@@ -3,7 +3,6 @@ import OrderItemTable from "@/components/order-item-table";
 import PaymentSelect from "@/components/payment-select";
 import ProvinceSelect from "@/components/province-select";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Form,
   FormControl,
@@ -187,38 +186,32 @@ function OrderForm({
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(handleSubmit)}>
-        <Card className="border-0 shadow-none">
-          <CardHeader className="">
-            <CardTitle>Đơn hàng</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <FormField
-              control={form.control}
-              name="items"
-              render={({ field }) => (
-                <FormItem>
-                  <FormControl>
-                    <OrderItemTable
-                      data={field.value}
-                      onChange={(items) => {
-                        form.setValue("items", items);
-                        onItemsChange?.(items);
-                      }}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </CardContent>
-        </Card>
+        <div>
+          <p className="font-bold my-4">Đơn hàng</p>
+          <FormField
+            control={form.control}
+            name="items"
+            render={({ field }) => (
+              <FormItem>
+                <FormControl>
+                  <OrderItemTable
+                    data={field.value}
+                    onChange={(items) => {
+                      form.setValue("items", items);
+                      onItemsChange?.(items);
+                    }}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
         <div className="mt-4" />
-        <Card className="border-0 shadow-none">
-          <CardHeader>
-            <CardTitle>Thông tin khách hàng</CardTitle>
-          </CardHeader>
-          <CardContent className="grid grid-cols-2 gap-4">
-            <div className="col-span-1">
+        <div>
+          <p className="font-bold my-4">Thông tin khách hàng</p>
+          <div className="grid grid-cols-2 gap-4">
+            <div className="col-span-3 lg:col-span-1">
               <FormField
                 control={form.control}
                 name="name"
@@ -233,7 +226,7 @@ function OrderForm({
                 )}
               />
             </div>
-            <div className="col-span-1">
+            <div className="col-span-3 lg:col-span-1">
               <FormField
                 control={form.control}
                 name="phone"
@@ -267,15 +260,13 @@ function OrderForm({
                 )}
               />
             </div>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
         <div className="mt-4" />
-        <Card className="border-0 shadow-none">
-          <CardHeader>
-            <CardTitle>Địa chỉ nhận hàng</CardTitle>
-          </CardHeader>
-          <CardContent className="grid grid-cols-3 gap-4">
-            <div className="col-span-1">
+        <div>
+          <p className="font-bold my-4">Địa chỉ nhận hàng</p>
+          <div className="grid grid-cols-6 gap-4">
+            <div className="col-span-3 lg:col-span-2">
               <FormField
                 control={form.control}
                 name="province"
@@ -293,7 +284,7 @@ function OrderForm({
                 )}
               />
             </div>
-            <div className="col-span-1">
+            <div className="col-span-3 lg:col-span-2">
               <FormField
                 control={form.control}
                 name="district"
@@ -312,7 +303,7 @@ function OrderForm({
                 )}
               />
             </div>
-            <div className="col-span-1">
+            <div className="col-span-6 lg:col-span-2">
               <FormField
                 control={form.control}
                 name="ward"
@@ -331,7 +322,7 @@ function OrderForm({
                 )}
               />
             </div>
-            <div className="col-span-3">
+            <div className="col-span-6">
               <FormField
                 control={form.control}
                 name="street"
@@ -350,7 +341,7 @@ function OrderForm({
                 )}
               />
             </div>
-            <div className="col-span-3">
+            <div className="col-span-6">
               <FormField
                 control={form.control}
                 name="memo"
@@ -369,37 +360,31 @@ function OrderForm({
                 )}
               />
             </div>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
         <div className="mt-4" />
-        <Card className="border-0 shadow-none">
-          <CardHeader>
-            <CardTitle>Hình thức thanh toán</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <FormField
-              control={form.control}
-              name="payment"
-              render={({ field }) => (
-                <FormItem>
-                  <FormControl>
-                    <PaymentSelect
-                      value={field.value}
-                      onChange={field.onChange}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </CardContent>
-        </Card>
+        <div>
+          <p className="font-bold my-4">Hình thức thanh toán</p>
+          <FormField
+            control={form.control}
+            name="payment"
+            render={({ field }) => (
+              <FormItem>
+                <FormControl>
+                  <PaymentSelect
+                    value={field.value}
+                    onChange={field.onChange}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
         <div className="mt-4" />
-        <Card className="border-0 shadow-none">
-          <CardHeader>
-            <CardTitle>Chi tiết thanh toán</CardTitle>
-          </CardHeader>
-          <CardContent>
+        <div>
+          <p className="font-bold my-4">Chi tiết thanh toán</p>
+          <div>
             <div className="flex justify-between items-center">
               <p>Tạm tính</p>
               <p className="">{formatVND(totalPrice)}</p>
@@ -417,8 +402,8 @@ function OrderForm({
               <p>Thành tiền</p>
               <p className="font-bold">{formatVND(finalPrice)}</p>
             </div>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
         <div className="mt-4" />
         <Button
           className="w-full h-10 cursor-pointer"
