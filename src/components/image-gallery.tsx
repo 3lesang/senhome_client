@@ -2,8 +2,6 @@ import {
   Carousel,
   CarouselContent,
   CarouselItem,
-  CarouselNext,
-  CarouselPrevious,
   type CarouselApi,
 } from "@/components/ui/carousel";
 import { cn } from "@/lib/utils";
@@ -34,14 +32,23 @@ function ImageGallery({ images }: ImageGalleryProps) {
   };
 
   return (
-    <div className="flex flex-col-reverse lg:flex-row gap-2">
-      <div className="flex lg:flex-col gap-1">
+    <div className="space-y-2">
+      <Carousel setApi={setApi}>
+        <CarouselContent>
+          {images?.map((item, index) => (
+            <CarouselItem key={index}>
+              <img className="w-full object-cover" src={item} alt="" />
+            </CarouselItem>
+          ))}
+        </CarouselContent>
+      </Carousel>
+      <div className="space-x-2">
         {images?.map((item, index) => (
           <div
             onMouseEnter={() => handleClick(index)}
             key={index}
             className={cn(
-              "w-14 h-14 cursor-pointer border-2 border-transparent rounded-md overflow-hidden",
+              "w-20 h-20 cursor-pointer border-2 border-transparent overflow-hidden inline-block",
               index == current ? " border-blue-500" : ""
             )}
           >
@@ -52,21 +59,6 @@ function ImageGallery({ images }: ImageGalleryProps) {
             />
           </div>
         ))}
-      </div>
-      <div className="flex-1 h-[600px]">
-        <div className="rounded-lg overflow-hidden">
-          <Carousel setApi={setApi}>
-            <CarouselContent>
-              {images?.map((item, index) => (
-                <CarouselItem key={index}>
-                  <img className="w-full object-cover" src={item} alt="" />
-                </CarouselItem>
-              ))}
-            </CarouselContent>
-            <CarouselPrevious />
-            <CarouselNext />
-          </Carousel>
-        </div>
       </div>
     </div>
   );

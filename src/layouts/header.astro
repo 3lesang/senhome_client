@@ -1,79 +1,82 @@
 ---
 import CartBadge from "@/components/cart-badge";
-import { buttonVariants } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { CATEGORY_COLLECTION, pb } from "@/lib/pocketbase";
-import { buildCategoryTree, cn } from "@/lib/utils";
-import { ChevronDownIcon, SearchIcon } from "lucide-react";
+import { buildCategoryTree } from "@/lib/utils";
+import {
+  SiFacebook,
+  SiTiktok,
+  SiYoutube,
+} from "@icons-pack/react-simple-icons";
+import { HeadsetIcon, SearchIcon } from "lucide-react";
 
-const categories = await pb.collection(CATEGORY_COLLECTION).getFullList();
+const data = await pb
+  .collection(CATEGORY_COLLECTION)
+  .getFullList({ perPage: 10 });
 
-const tree = buildCategoryTree(categories);
+const categories = buildCategoryTree(data);
 ---
 
-<header class="px-2 md:px-0 bg-white py-4">
+<header class="px-2 md:px-0 py-4 space-y-4">
+  <div class="max-w-6xl mx-auto flex items-center text-xs">
+    <p class="space-x-1">
+      <span>Kết nối</span>
+      <a href="">
+        <SiFacebook size={16} className="inline" />
+      </a>
+      <a href="">
+        <SiTiktok size={16} className="inline" />
+      </a>
+      <a href="">
+        <SiYoutube size={16} className="inline" />
+      </a>
+    </p>
+    <div class="ml-auto space-x-1">
+      <a href="/dang-nhap"> Đăng nhập </a>
+    </div>
+  </div>
   <div class="max-w-6xl mx-auto flex items-center">
-    <a href="/">
-      <!-- <img src="/logo.png" alt="Logo" class="h-16" /> -->
-      <h1 class="text-2xl font-bold">SENHOME</h1>
-    </a>
-
-    <div class="hidden lg:flex justify-center w-full">
-      <form action="/tim-kiem" method="GET" class="relative">
+    <div>
+      <a href="/">
+        <h1 class="text-2xl font-bold">SENHOME</h1>
+      </a>
+    </div>
+    <div class="flex-1 mx-32 space-y-1">
+      <form action="/tim-kiem" method="GET" class="w-full relative">
         <div
           class="absolute left-0 top-1/2 -translate-y-1/2 w-12 flex justify-center text-gray-500"
         >
-          <SearchIcon size={18} />
+          <SearchIcon size={16} />
         </div>
-        <Input
+        <input
           type="text"
           name="q"
           placeholder="Tìm kiếm sản phẩm"
-          className="w-96 pr-10 pl-10 shadow-none rounded-full"
+          class="text-sm py-2 w-full pr-10 pl-10 bg-gray-50 rounded"
         />
       </form>
+      <div class="text-gray-500 text-xs space-x-1">
+        <a href="/tim-kiem?q=Rỗ đựng muỗng đủa">Rỗ đựng muỗng đủa</a>
+        <a href="/tim-kiem?q=Kệ bếp">Kệ bếp</a>
+      </div>
     </div>
-
     <div class="flex items-center ml-auto gap-1">
       <CartBadge client:only />
-      <a href="/dang-nhap" class={cn(buttonVariants({ variant: "ghost" }))}>
-        Đăng nhập
-      </a>
     </div>
   </div>
-  <div class="mt-4"></div>
-  <div
-    class="hidden max-w-6xl mx-auto lg:flex items-center flex-1 gap-8 text-sm"
-  >
-    {
-      tree?.map((item) => (
-        <div class="relative group">
-          <div class="flex items-center gap-1 font-medium group-hover:text-blue-400">
-            <a href={`/danh-muc/${item?.slug}`}>{item?.name}</a>
-            {item?.children.length > 0 && (
-              <ChevronDownIcon
-                size={16}
-                className="group-hover:rotate-180 transition-all duration-150"
-              />
-            )}
-          </div>
 
-          {item?.children.length > 0 && (
-            <div class="absolute top-full left-0 w-96 z-50 h-0 group-hover:h-fit transition-all duration-200 overflow-hidden shadow">
-              <div class="rounded bg-white p-4">
-                {item.children.map((child: any) => (
-                  <a
-                    href={`/danh-muc/${child?.slug}`}
-                    class="font-medium hover:text-blue-400"
-                  >
-                    {child.name}
-                  </a>
-                ))}
-              </div>
-            </div>
-          )}
-        </div>
-      ))
-    }
+  <div
+    class="hidden lg:flex justify-between space-x-4 text-sm text-gray-700 font-medium max-w-6xl mx-auto"
+  >
+    <div class="flex flex-1 justify-center space-x-4">
+      {
+        categories?.map((item) => (
+          <a href={`/danh-muc/${item?.slug}`}>{item?.name}</a>
+        ))
+      }
+    </div>
+    <div class="ml-auto">
+      <HeadsetIcon size={16} className="inline" />
+      <span>+84 933 108 680</span>
+    </div>
   </div>
 </header>

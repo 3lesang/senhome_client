@@ -1,6 +1,13 @@
 ---
 export const prerender = false;
 import ProductCard from "@/components/product-card";
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb";
 import Main from "@/layouts/main.astro";
 import { CATEGORY_COLLECTION, pb, PRODUCT_COLLECTION } from "@/lib/pocketbase";
 
@@ -15,24 +22,50 @@ const products = await pb.collection(PRODUCT_COLLECTION).getList(1, 20, {
 });
 ---
 
-<Main>
+<Main title={category?.name}>
   <div class="max-w-6xl mx-auto">
+    <Breadcrumb className="my-4">
+      <BreadcrumbList>
+        <BreadcrumbItem>
+          <BreadcrumbLink
+            href="/"
+            className="hover:underline hover:text-blue-500"
+          >
+            Trang chủ
+          </BreadcrumbLink>
+        </BreadcrumbItem>
+        <BreadcrumbSeparator />
+        <BreadcrumbItem>
+          <BreadcrumbLink
+            href={`/danh-muc/${category?.slug}`}
+            className="hover:underline hover:text-blue-500"
+            >{category?.name}</BreadcrumbLink
+          >
+        </BreadcrumbItem>
+      </BreadcrumbList>
+    </Breadcrumb>
+
     <h3 class="text-xl font-bold">{category?.name}</h3>
-    <div class="grid grid-cols-4 gap-2">
-      {
-        products?.items.map((item) => (
-          <a href={`/san-pham/${item?.slug}`}>
-            <ProductCard
-              id={item?.id}
-              name={item?.name}
-              thumbnail={item?.gallery[0]}
-              price={item?.price}
-              discount={item?.discount}
-              slug={item?.slug}
-            />
-          </a>
-        ))
-      }
-    </div>
+    <div class="h-4"></div>
+    {
+      Number(products?.totalItems) > 0 ? (
+        <div class="grid grid-cols-4 gap-2">
+          {products?.items.map((item) => (
+            <a href={`/san-pham/${item?.slug}`}>
+              <ProductCard
+                id={item?.id}
+                name={item?.name}
+                thumbnail={item?.gallery[0]}
+                price={item?.price}
+                discount={item?.discount}
+                slug={item?.slug}
+              />
+            </a>
+          ))}
+        </div>
+      ) : (
+        <p class="text-sm text-center text-gray-500">Chưa có sản phẩm</p>
+      )
+    }
   </div>
 </Main>

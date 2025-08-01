@@ -1,10 +1,9 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
 import { PRODUCT_COLLECTION } from "@/lib/pocketbase";
 import { convertImageUrl, formatVND } from "@/lib/utils";
 import { addToCart } from "@/stores/cart";
-import { PlusIcon } from "lucide-react";
+import { PlusIcon, StarIcon } from "lucide-react";
 import { toast } from "./toast";
 
 interface ProductCardProps {
@@ -44,8 +43,8 @@ function ProductCard(item: ProductCardProps) {
   };
 
   return (
-    <Card className="rounded-md border-none shadow-none overflow-hidden group">
-      <div className="rounded-md overflow-hidden relative">
+    <div className="group">
+      <div className="rounded overflow-hidden relative">
         <img
           src={convertImageUrl(PRODUCT_COLLECTION, id, thumbnail)}
           loading="lazy"
@@ -62,19 +61,30 @@ function ProductCard(item: ProductCardProps) {
         </div>
       </div>
 
-      <p className="line-clamp-2 group-hover:text-gray-600">{name}</p>
-      <div className="flex items-center gap-2 flex-wrap">
-        <p className="text-lg font-bold">
-          {formatVND(price - price * (discount || 0))}
-        </p>
-        {discount ? (
-          <Badge className="font-bold">-{discount * 100}%</Badge>
-        ) : null}
-        {discount ? (
-          <p className="text-gray-500 line-through">{formatVND(price)}</p>
-        ) : null}
+      <div className="mt-4 space-y-2">
+        <p className="line-clamp-2 group-hover:text-gray-600">{name}</p>
+
+        <div className="flex items-center gap-2 flex-wrap">
+          {Number(discount) > 0 && (
+            <Badge className="font-bold">-{discount * 100}%</Badge>
+          )}
+          <p className="text-lg font-bold">
+            {formatVND(price - price * (discount || 0))}
+          </p>
+
+          {Number(discount) && (
+            <p className="text-gray-500 line-through">{formatVND(price)}</p>
+          )}
+        </div>
+        <div className="text-xs space-x-1">
+          <StarIcon className="fill-blue-500 text-blue-500 inline" size={14} />
+          <span className="font-bold">4.8</span>
+          <span className="text-gray-700">
+            {new Intl.NumberFormat("en-US").format(2300)} đánh giá
+          </span>
+        </div>
       </div>
-    </Card>
+    </div>
   );
 }
 

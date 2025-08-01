@@ -4,7 +4,7 @@ export const prerender = false;
 import AddToCartButton from "@/components/add-to-cart-button";
 import BuyNowButton from "@/components/buy-now-button";
 import ImageGallery from "@/components/image-gallery";
-import ProductQuantityCounter from "@/components/product-quantity-counter";
+import ProductVariantForm from "@/components/product-variant-form";
 import { StarRating } from "@/components/star-rating";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -17,10 +17,14 @@ import {
 } from "@/components/ui/breadcrumb";
 import { Button, buttonVariants } from "@/components/ui/button";
 import Main from "@/layouts/main.astro";
-import { pb, PRODUCT_COLLECTION } from "@/lib/pocketbase";
-import { cn, convertImageUrl, formatVND } from "@/lib/utils";
+import {
+  pb,
+  PRODUCT_COLLECTION,
+  PRODUCT_VARIANT_COLLECTION,
+} from "@/lib/pocketbase";
+import { cn, convertImageUrl, formatVND, getUniqueVariants } from "@/lib/utils";
 import "@/styles/content.css";
-import { Share2Icon } from "lucide-react";
+import { Share2Icon, ShieldCheck, ShieldCheckIcon } from "lucide-react";
 
 const { slug } = Astro.params;
 
@@ -32,6 +36,13 @@ try {
       expand: "category",
     });
 } catch (error) {}
+
+const variants = await pb.collection(PRODUCT_VARIANT_COLLECTION).getFullList({
+  filter: `product = "${product?.id}"`,
+  expand: "color,size,material",
+});
+
+const { colors, sizes, materials } = getUniqueVariants(variants);
 ---
 
 <Main title={product?.name}>
@@ -70,17 +81,27 @@ try {
             )}
           />
         </div>
-        <div class="col-span-12 lg:col-span-5">
+        <div class="col-span-12 lg:col-span-5 space-y-4">
           <div class="space-y-1">
-            <p class="text-lg font-medium inline">{product?.name}</p>
-            <Button size="icon" variant="ghost" className="cursor-pointer"
-              ><Share2Icon /></Button
-            >
-            <div class="flex items-center gap-2">
-              <StarRating rating={3} />
-              <span class="text-xs font-bold text-blue-500">404 đánh giá</span>
+            <div>
+              <p class="text-xl font-medium inline">{product?.name}</p>
+              <Button size="icon" variant="ghost" className="cursor-pointer"
+                ><Share2Icon /></Button
+              >
             </div>
 
+            <div class="space-x-4">
+              <span class="space-x-1">
+                <StarRating rating={3} className="inline" />
+                <span class="text-sm font-bold text-blue-500">404 đánh giá</span
+                >
+              </span>
+
+              <span class="text-sm">
+                <span class="text-gray-600">Đã bán</span>
+                <span class="font-bold">1k</span>
+              </span>
+            </div>
             {
               product?.discount > 0 && (
                 <p class="text-gray-600 text-sm">
@@ -95,13 +116,36 @@ try {
               {formatVND(product?.price - product?.price * product?.discount)}
             </p>
           </div>
-          <ProductQuantityCounter client:only />
-          <div class="flex mt-8 gap-2">
+
+          <div class="space-x-4 text-sm text-gray-600">
+            <span>Vận chuyển</span>
+            <span class=""> </span>
+          </div>
+          <div class="space-x-4 text-sm text-gray-600">
+            <span>Chính sách</span>
+            <span class="space-x-2">
+              <span class="">
+                <ShieldCheckIcon className="inline" size={18} />
+                Trả hàng miễn phí</span
+              >
+              <span>Miễn phí vẫn chuyển</span>
+            </span>
+          </div>
+          <div>
+            <ProductVariantForm
+              client:only
+              sizes={sizes}
+              colors={colors}
+              materials={materials}
+            />
+          </div>
+
+          <div class="flex gap-2">
             <AddToCartButton
               client:load
               className={cn(
                 buttonVariants({ variant: "outline", size: "lg" }),
-                "flex-1 cursor-pointer border-gray-400"
+                "flex-1 cursor-pointer"
               )}
             />
             <BuyNowButton

@@ -1,59 +1,20 @@
----
-const social = [
-  {
-    url: "",
-    image: "https://cdn.jsdelivr.net/npm/simple-icons@v15/icons/facebook.svg",
-  },
-  {
-    url: "",
-    image: "https://cdn.jsdelivr.net/npm/simple-icons@v15/icons/instagram.svg",
-  },
-  {
-    url: "",
-    image: "https://cdn.jsdelivr.net/npm/simple-icons@v15/icons/youtube.svg",
-  },
-  {
-    url: "",
-    image: "https://cdn.jsdelivr.net/npm/simple-icons@v15/icons/tiktok.svg",
-  },
-];
----
-
-<footer class="">
-  <div class="py-8 max-w-6xl mx-auto px-2 lg:px-0">
-    <div class="grid grid-cols-2 gap-6">
-      <div class="col-span-2 md:col-span-1">
-        <h1 class="text-sm lg:text-xl font-bold lg:leading-16">SENHOME</h1>
-        <div class="text-xs lg:text-sm leading-6 lg:leading-8">
-          <p>Tên doanh nghiệp: Công Ty TNHH Nhất Tâm Senhome</p>
-          <p>Địa chỉ: Phú Xuân, Nhà Bè, Hồ Chí Minh</p>
-          <p>Số điện thoại: 0933 108 680</p>
-          <p>
-            © {new Date().getFullYear()}. Senhome All rights reserved.
-          </p>
-        </div>
-
-        <div class="flex items-center gap-4">
-          {
-            social.map((item) => (
-              <a href={item.url} class="bg-white p-2 rounded-full">
-                <img class="w-6 h-6" src={item.image} />
-              </a>
-            ))
-          }
-        </div>
-      </div>
-      <div class="col-span-2 md:col-span-1">
-        <h1 class="text-sm lg:text-xl font-bold lg:leading-16">CHÍNH SÁCH</h1>
-        <div class="text-xs lg:text-sm leading-6 lg:leading-8">
-          <a href="/" class="block"> Chính sách bảo mật </a>
-          <a href="/" class="block">
-            Chính sách giao hàng, đổi hàng, hoàn tiền
-          </a>
-          <a href="/" class="block"> Các điều khoản và điều kiện </a>
-          <a href="/" class="block"> Chính sách bảo hành sản phẩm </a>
-        </div>
-      </div>
+<footer class="hidden lg:block bg-gray-50">
+  <div class="py-8 max-w-6xl mx-auto px-2 lg:px-0 text-center">
+    <p class="text-gray-600 text-xs space-x-4 mb-8">
+      <a href="/chinh-sach-van-chuyen">CHÍNH SÁCH VẬN CHUYỂN</a>
+      <span>|</span>
+      <a href="/chinh-sach-tra-hang-hoan-tien"
+        >CHÍNH SÁCH TRẢ HÀNG VÀ HOÀN TIỀN</a
+      >
+    </p>
+    <div class="text-gray-600 text-xs">
+      <p class="mb-8">Công Ty TNHH Nhất Tâm Senhome</p>
+      <p>Địa chỉ: Phú Xuân, Nhà Bè, Hồ Chí Minh</p>
+      <p>Số điện thoại: 0933 108 680</p>
+      <p>
+        © {new Date().getFullYear()} - Bản quyền thuộc về Công Ty TNHH Nhất Tâm
+        Senhome
+      </p>
     </div>
   </div>
 </footer>

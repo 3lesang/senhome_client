@@ -54,3 +54,55 @@ export const buildCategoryTree = (flat: any[]): any[] => {
 
   return tree;
 };
+
+type Variant = {
+  id: string;
+  expand?: {
+    color?: { id: string; name: string; hex_code?: string };
+    size?: { id: string; name: string };
+    material?: { id: string; name: string };
+  };
+};
+
+export function getUniqueVariants(variants: Variant[]) {
+  const colorMap = new Map<
+    string,
+    { id: string; name: string; hex_code?: string }
+  >();
+  const sizeMap = new Map<string, { id: string; name: string }>();
+  const materialMap = new Map<string, { id: string; name: string }>();
+
+  for (const variant of variants) {
+    const color = variant.expand?.color;
+    const size = variant.expand?.size;
+    const material = variant.expand?.material;
+
+    if (color && !colorMap.has(color.id)) {
+      colorMap.set(color.id, {
+        id: color.id,
+        name: color.name,
+        hex_code: color.hex_code,
+      });
+    }
+
+    if (size && !sizeMap.has(size.id)) {
+      sizeMap.set(size.id, {
+        id: size.id,
+        name: size.name,
+      });
+    }
+
+    if (material && !materialMap.has(material.id)) {
+      materialMap.set(material.id, {
+        id: material.id,
+        name: material.name,
+      });
+    }
+  }
+
+  return {
+    colors: Array.from(colorMap.values()),
+    sizes: Array.from(sizeMap.values()),
+    materials: Array.from(materialMap.values()),
+  };
+}

@@ -18,10 +18,10 @@ function BannerCarousel({ banners }: BannerCarouselProps) {
 
   return (
     <Carousel
-      className=""
+      className="group"
       plugins={[
         Autoplay({
-          delay: 10000,
+          delay: 5000,
         }),
       ]}
     >
@@ -33,14 +33,14 @@ function BannerCarousel({ banners }: BannerCarouselProps) {
                 loading="lazy"
                 src={convertImageUrl(BANNER_COLLECTION, item?.id, item?.image)}
                 alt=""
-                className="h-56 lg:h-96 w-full object-cover"
+                className="h-56 lg:h-[380px] w-full object-cover"
               />
             </a>
           </CarouselItem>
         ))}
       </CarouselContent>
-      <CarouselPrevious className="left-2 border-none lg:left-80" />
-      <CarouselNext className="right-2 border-none lg:right-80" />
+      <CarouselPrevious className="hidden group-hover:flex left-2 border-none lg:left-80" />
+      <CarouselNext className="hidden group-hover:flex right-2 border-none lg:right-80" />
     </Carousel>
   );
 }
