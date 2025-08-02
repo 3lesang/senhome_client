@@ -29,8 +29,9 @@ export const getTotalPriceItems = (items: any[]) => {
   }, 0);
 };
 
-export const convertImageUrl = (type?: string, id?: string, name?: string) => {
-  return name ? `${API_URL}/api/files/${type}/${id}/${name}` : "/empty.png";
+export const convertImageUrl = (image: any) => {
+  if (!image?.id) return;
+  return `${API_URL}/api/files/${image?.collectionName}/${image?.id}/${image?.image}`;
 };
 
 export const buildCategoryTree = (flat: any[]): any[] => {

@@ -1,0 +1,75 @@
+---
+import AddToCartButton from "@/components/add-to-cart-button";
+import { Badge } from "@/components/ui/badge";
+import { buttonVariants } from "@/components/ui/button";
+import { cn, convertImageUrl, formatVND } from "@/lib/utils";
+import { StarIcon } from "lucide-react";
+
+const { id, thumbnail, discount, price, name } = Astro.props;
+
+const imageUrl = convertImageUrl(thumbnail);
+---
+
+<div class="group">
+  <div class="rounded overflow-hidden relative">
+    {
+      imageUrl ? (
+        <img
+          src={imageUrl}
+          loading="lazy"
+          decoding="async"
+          height={100}
+          alt="product_image"
+          class="aspect-square w-full bg-gray-200 object-cover group-hover:scale-105 xl:aspect-1/1 transition-all duration-300 ease-in-out"
+        />
+      ) : (
+        <div class="h-[270px] w-[270px] bg-gray-100" />
+      )
+    }
+    <div
+      class="bottom-4 right-4 absolute opacity-0 group-hover:opacity-100 transition-opacity duration-300 ease-in-out"
+    >
+      <AddToCartButton
+        data={{
+          id,
+          thumbnail,
+          discount,
+          price,
+          name,
+          quantity: 1,
+          selected: true,
+        }}
+        className={cn(buttonVariants(), "cursor-pointer")}
+        client:only
+      />
+    </div>
+  </div>
+
+  <div class="mt-4 space-y-2">
+    <p class="line-clamp-2 group-hover:text-gray-600">{name}</p>
+
+    <div class="flex items-center gap-2 flex-wrap">
+      {
+        Number(discount) > 0 && (
+          <Badge className="font-bold">-{discount * 100}%</Badge>
+        )
+      }
+      <p class="text-lg font-bold">
+        {formatVND(price - price * (discount || 0))}
+      </p>
+
+      {
+        Number(discount) > 0 && (
+          <p class="text-gray-500 line-through">{formatVND(price)}</p>
+        )
+      }
+    </div>
+    <div class="text-xs space-x-1">
+      <StarIcon className="fill-blue-500 text-blue-500 inline" size={14} />
+      <span class="font-bold">4.8</span>
+      <span class="text-gray-700">
+        {new Intl.NumberFormat("en-US").format(2300)} đánh giá
+      </span>
+    </div>
+  </div>
+</div>

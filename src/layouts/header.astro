@@ -3,16 +3,26 @@ import CartBadge from "@/components/cart-badge";
 import { CATEGORY_COLLECTION, pb } from "@/lib/pocketbase";
 import { buildCategoryTree } from "@/lib/utils";
 import { HeadsetIcon, SearchIcon } from "lucide-react";
-import { Facebook, Tiktok, Youtube } from "simple-icons-astro";
 
-let data = null;
-let categories = null;
-try {
-  data = await pb.collection(CATEGORY_COLLECTION).getFullList({ perPage: 10 });
-  categories = buildCategoryTree(data || []);
-} catch (error) {
-  throw new Error("");
+async function fetchCategories() {
+  try {
+    const response = await pb.collection(CATEGORY_COLLECTION).getFullList({
+      perPage: 10,
+    });
+
+    if (!Array.isArray(response)) {
+      return { data: [], categories: [], error: "Invalid response format" };
+    }
+
+    const data = buildCategoryTree(response);
+
+    return { data, error: null };
+  } catch (error) {
+    return { data: [], categories: [], error };
+  }
 }
+
+const { data: categories } = await fetchCategories();
 ---
 
 <header class="px-2 md:px-0 py-4 space-y-4">
@@ -20,13 +30,28 @@ try {
     <p class="space-x-1">
       <span>Kết nối</span>
       <a href="">
-        <Facebook size={16} className="inline" />
+        <img
+          class="inline"
+          height="14"
+          width="14"
+          src="https://cdn.simpleicons.org/facebook/black"
+        />
       </a>
       <a href="">
-        <Tiktok size={16} className="inline" />
+        <img
+          class="inline"
+          height="14"
+          width="14"
+          src="https://cdn.simpleicons.org/tiktok/black"
+        />
       </a>
       <a href="">
-        <Youtube size={16} className="inline" />
+        <img
+          class="inline"
+          height="14"
+          width="14"
+          src="https://cdn.simpleicons.org/youtube/black"
+        />
       </a>
     </p>
     <div class="ml-auto space-x-1">

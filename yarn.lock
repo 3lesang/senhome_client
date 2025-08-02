@@ -4580,11 +4580,6 @@ signal-exit@^4.0.1:
   resolved "https://registry.yarnpkg.com/signal-exit/-/signal-exit-4.1.0.tgz#952188c1cbd546070e2dd20d0f41c0ae0530cb04"
   integrity sha512-bzyZ1e88w9O1iNJbKnOlvYTrWPDl46O1bG0D3XInv+9tkPrxrN8jUUTiFlDkkmKWgn1M6CfIA13SuGqOa9Korw==
 
-simple-icons-astro@^15.8.0:
-  version "15.8.0"
-  resolved "https://registry.yarnpkg.com/simple-icons-astro/-/simple-icons-astro-15.8.0.tgz#eb02a71fb76e40d7452babb5ed44dfea6530396b"
-  integrity sha512-AhpfL1EBE0UCVnyy5/wv4Y1+/62Wqhp9+Xjb4v2jcCiyMc6NSeIFn2QYVRU8UiCrYXEoa1qKH86u9z7m8i3lrQ==
-
 simple-swizzle@^0.2.2:
   version "0.2.2"
   resolved "https://registry.yarnpkg.com/simple-swizzle/-/simple-swizzle-0.2.2.tgz#a4da6b635ffcccca33f70d17cb92592de95e557a"
