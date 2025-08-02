@@ -5,20 +5,31 @@ import ProductCard from "@/components/product-card";
 import Main from "@/layouts/main.astro";
 import { BANNER_COLLECTION, pb, PRODUCT_COLLECTION } from "@/lib/pocketbase";
 import "@/styles/global.css";
-import { BadgePercentIcon, DollarSignIcon, HeadphonesIcon, TruckIcon } from "lucide-react";
+import {
+  BadgePercentIcon,
+  DollarSignIcon,
+  HeadphonesIcon,
+  TruckIcon,
+} from "lucide-react";
 
-const banners = await pb
-  .collection(BANNER_COLLECTION)
-  .getFullList({ perPage: 5 });
+let banners = null;
 
-const latestProducts = await pb.collection(PRODUCT_COLLECTION).getList(1, 3, {
-  fields: "id,name,gallery,price,slug,discount",
-  sort: "-created",
-});
+try {
+  banners = await pb.collection(BANNER_COLLECTION).getFullList({ perPage: 5 });
+} catch (error) {}
+
+let latestProducts = null;
+
+try {
+  latestProducts = await pb.collection(PRODUCT_COLLECTION).getList(1, 3, {
+    fields: "id,name,gallery,price,slug,discount",
+    sort: "-created",
+  });
+} catch (error) {}
 ---
 
 <Main title="Trang chủ">
-  <BannerCarousel client:load banners={banners} />
+  <BannerCarousel client:load banners={banners || []} />
   <div class="max-w-6xl mx-auto px-2 md:px-0">
     <div class="h-16"></div>
     <section class="flex justify-between space-x-4">

@@ -9,11 +9,12 @@ import {
 } from "@icons-pack/react-simple-icons";
 import { HeadsetIcon, SearchIcon } from "lucide-react";
 
-const data = await pb
-  .collection(CATEGORY_COLLECTION)
-  .getFullList({ perPage: 10 });
+let data = null;
+try {
+  data = await pb.collection(CATEGORY_COLLECTION).getFullList({ perPage: 10 });
+} catch (error) {}
 
-const categories = buildCategoryTree(data);
+const categories = buildCategoryTree(data || []);
 ---
 
 <header class="px-2 md:px-0 py-4 space-y-4">
