@@ -4,19 +4,14 @@ import BannerCarousel from "@/components/banner-carousel";
 import ProductCard from "@/components/product-card";
 import Main from "@/layouts/main.astro";
 import { BANNER_COLLECTION, pb, PRODUCT_COLLECTION } from "@/lib/pocketbase";
-import "@/styles/global.css";
-import {
-  BadgePercentIcon,
-  DollarSignIcon,
-  HeadphonesIcon,
-  TruckIcon,
-} from "lucide-react";
 
 let banners = null;
 
 try {
   banners = await pb.collection(BANNER_COLLECTION).getFullList({ perPage: 5 });
-} catch (error) {}
+} catch (error) {
+  throw new Error("");
+}
 
 let latestProducts = null;
 
@@ -25,14 +20,16 @@ try {
     fields: "id,name,gallery,price,slug,discount",
     sort: "-created",
   });
-} catch (error) {}
+} catch (error) {
+  throw new Error("");
+}
 ---
 
 <Main title="Trang chủ">
   <BannerCarousel client:load banners={banners || []} />
   <div class="max-w-6xl mx-auto px-2 md:px-0">
     <div class="h-16"></div>
-    <section class="flex justify-between space-x-4">
+    <!-- <section class="flex justify-between space-x-4">
       <div
         class="flex bg-gray-50 items-center justify-center gap-2 py-4 px-4 rounded-md flex-1"
       >
@@ -69,7 +66,7 @@ try {
           <p class="text-gray-500 text-xs">Contact us 24 hours a day</p>
         </div>
       </div>
-    </section>
+    </section> -->
     <section>
       <div class="flex justify-between my-8">
         <h3 class="text-xl font-bold">Danh mục</h3>
