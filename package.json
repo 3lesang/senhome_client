@@ -1,23 +1,19 @@
 {
-  "name": "sen",
+  "name": "sen_home_client",
   "type": "module",
   "version": "0.0.1",
   "scripts": {
     "dev": "astro dev",
     "build": "astro check && astro build",
     "preview": "astro preview",
-    "astro": "astro",
-    "serve": "serve dist"
+    "astro": "astro"
   },
   "dependencies": {
     "@astrojs/check": "^0.9.4",
     "@astrojs/mdx": "^4.3.3",
-    "@astrojs/netlify": "^6.5.5",
     "@astrojs/react": "^4.3.0",
-    "@astrojs/sitemap": "^3.4.2",
     "@astrojs/vercel": "^8.2.5",
     "@hookform/resolvers": "^5.2.1",
-    "@icons-pack/react-simple-icons": "^13.7.0",
     "@nanostores/react": "^1.0.0",
     "@radix-ui/react-avatar": "^1.1.10",
     "@radix-ui/react-checkbox": "^1.3.2",
@@ -33,7 +29,6 @@
     "@radix-ui/react-tabs": "^1.1.12",
     "@tailwindcss/vite": "^4.1.11",
     "@tanstack/react-query": "^5.84.1",
-    "@tanstack/react-query-devtools": "^5.84.1",
     "@types/canvas-confetti": "^1.9.0",
     "@types/react": "^19.1.9",
     "@types/react-dom": "^19.1.7",
@@ -49,21 +44,16 @@
     "lucide-react": "^0.536.0",
     "nanostores": "^1.0.1",
     "pocketbase": "^0.26.2",
-    "query-string": "^9.2.2",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
     "react-hook-form": "^7.62.0",
     "react-router": "^7.7.1",
-    "sanitize-html": "^2.17.0",
     "tailwind-merge": "^3.3.1",
     "tailwindcss": "^4.1.11",
     "typescript": "^5.9.2",
     "zod": "^4.0.14"
   },
   "devDependencies": {
-    "@types/sanitize-html": "^2.16.0",
-    "@vite-pwa/astro": "^1.1.0",
-    "serve": "^14.2.4",
     "tw-animate-css": "^1.3.6"
   },
   "license": "MIT"
