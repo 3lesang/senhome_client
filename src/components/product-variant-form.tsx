@@ -1,92 +1,84 @@
 import { Button } from "@/components/ui/button";
-import { pb, PRODUCT_VARIANT_COLLECTION } from "@/lib/pocketbase";
+import { pb, PRODUCT_VARIANT_ATTRIBUTES_COLLECTION } from "@/lib/pocketbase";
+import { cn } from "@/lib/utils";
 import { orderStore } from "@/stores/order";
 import { queryClient } from "@/stores/query";
-import "@/styles/content.css";
-import { zodResolver } from "@hookform/resolvers/zod";
 import { useStore } from "@nanostores/react";
 import { useQuery } from "@tanstack/react-query";
 import { MinusIcon, PlusIcon } from "lucide-react";
-import { useForm } from "react-hook-form";
-import z from "zod";
-import { Form } from "./ui/form";
+import { useState } from "react";
 
 interface ProductVariantFormProps {
-  colors?: { id: string; name: string; hex_code?: string }[];
-  sizes?: { id: string; name: string }[];
-  materials?: { id: string; name: string }[];
+  data: any[];
+  id: string;
 }
 
-const formSchema = z.object({
-  color: z.string().optional(),
-  size: z.string().optional(),
-  material: z.string().optional(),
-});
-
-type ProductVariantFormType = z.infer<typeof formSchema>;
-
-function buildVariantFilter({
-  size,
-  color,
-  material,
-}: {
-  size?: string;
-  color?: string;
-  material?: string;
-}) {
-  const conditions = [];
-
-  if (size) conditions.push(`size = "${size}"`);
-  if (color) conditions.push(`color = "${color}"`);
-  if (material) conditions.push(`material = "${material}"`);
-
-  return conditions.join(" && ");
-}
-
-function ProductVariantForm({
-  sizes,
-  colors,
-  materials,
-}: ProductVariantFormProps) {
+function ProductVariantForm({ id, data }: ProductVariantFormProps) {
   const order = useStore(orderStore);
   const client = useStore(queryClient);
+  const [options, setOptions] = useState<Record<string, string>>({});
 
-  const form = useForm<ProductVariantFormType>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      color: "",
-      size: "",
-      material: "",
-    },
-  });
-
-  const color = form.watch("color");
-  const size = form.watch("size");
-  const material = form.watch("material");
-
-  const { data } = useQuery(
+  const { data: totalStock } = useQuery(
     {
-      queryKey: [PRODUCT_VARIANT_COLLECTION, color, size, material],
+      queryKey: [PRODUCT_VARIANT_ATTRIBUTES_COLLECTION, id, options],
       queryFn: () =>
-        pb.collection(PRODUCT_VARIANT_COLLECTION).getFullList({
-          filter: buildVariantFilter({ color, size, material }),
-          fields: "stock_quantity",
+        pb.collection(PRODUCT_VARIANT_ATTRIBUTES_COLLECTION).getFullList({
+          filter: `variant.product="${id}"`,
+          expand: "variant",
+          fields:
+            "variant,attribute,attribute_value,expand.variant.id,expand.variant.stock_quantity",
         }),
+      select(data) {
+        const variantAttrMap = new Map<string, Map<string, string>>();
+        const variantStockMap = new Map<string, number>();
+
+        for (const item of data) {
+          const variantId = item.variant;
+          const attrId = item.attribute;
+          const valueId = item.attribute_value;
+          const variant = item.expand?.variant;
+
+          if (!variantId || !attrId || !valueId || !variant) continue;
+
+          if (!variantAttrMap.has(variantId)) {
+            variantAttrMap.set(variantId, new Map());
+            variantStockMap.set(variantId, Number(variant.stock_quantity) || 0);
+          }
+
+          variantAttrMap.get(variantId)?.set(attrId, valueId);
+        }
+
+        let total = 0;
+
+        for (const [variantId, attrMap] of variantAttrMap.entries()) {
+          const matches =
+            Object.keys(options).length === 0 ||
+            Object.entries(options).every(
+              ([attrId, valueId]) => attrMap.get(attrId) === valueId
+            );
+
+          if (matches) {
+            total += variantStockMap.get(variantId) ?? 0;
+          }
+        }
+
+        return total;
+      },
+      enabled: !!id,
     },
     client
   );
 
-  const stocks = data?.reduce((sum, item) => sum + item.stock_quantity, 0);
-
   const handlePlus = () => {
     if (!order) return;
-    if (!stocks) return;
-    if (order.quantity >= stocks) return;
+    if (!totalStock) return;
+    if (order.quantity >= totalStock) return;
     orderStore.set({
       ...order,
       quantity: (order.quantity += 1),
     });
   };
+
   const handleMinus = () => {
     if (!order) return;
     if (order.quantity <= 1) return;
@@ -97,98 +89,61 @@ function ProductVariantForm({
   };
 
   return (
-    <Form {...form}>
-      <div className="space-y-2 text-sm text-gray-600">
-        {Number(colors?.length) > 0 && (
-          <div className="space-x-4">
-            <span>Màu sắc</span>
-            <span className="">
-              {colors?.map((item) => (
-                <Button
-                  key={item?.id}
-                  variant={
-                    form.watch("color") == item?.id ? "secondary" : "ghost"
-                  }
-                  className="cursor-pointer"
-                  onClick={() => form.setValue("color", item.id)}
-                >
-                  {item?.name}
-                </Button>
-              ))}
-            </span>
-          </div>
-        )}
-        {Number(sizes?.length) > 0 && (
-          <div className="space-x-4">
-            <span>Kích thước</span>
-            <span className="">
-              {sizes?.map((item) => (
-                <Button
-                  key={item?.id}
-                  variant={
-                    form.watch("size") == item?.id ? "secondary" : "ghost"
-                  }
-                  className="cursor-pointer"
-                  onClick={() => form.setValue("size", item.id)}
-                >
-                  {item?.name}
-                </Button>
-              ))}
-            </span>
-          </div>
-        )}
-        {Number(materials?.length) > 0 && (
-          <div className="space-x-4">
-            <span>Chất liệu</span>
-            <span className="">
-              {materials?.map((item) => (
-                <Button
-                  key={item?.id}
-                  variant={
-                    form.watch("material") == item?.id ? "secondary" : "ghost"
-                  }
-                  className="cursor-pointer"
-                  onClick={() => form.setValue("material", item.id)}
-                >
-                  {item?.name}
-                </Button>
-              ))}
-            </span>
-          </div>
-        )}
-        <div className="space-x-4 select-none">
-          <span>Số lượng</span>
-          <span className="space-x-4">
-            <Button
-              disabled={Number(order?.quantity) <= 1}
-              type="button"
-              size="icon"
-              variant="outline"
-              className="cursor-pointer"
-              onClick={handleMinus}
-            >
-              <MinusIcon />
-            </Button>
-            <span className="select-none">{order?.quantity}</span>
-            <Button
-              disabled={stocks ? Number(order?.quantity) >= stocks : true}
-              type="button"
-              size="icon"
-              variant="outline"
-              className="cursor-pointer"
-              onClick={handlePlus}
-            >
-              <PlusIcon />
-            </Button>
+    <div className="space-y-2 text-sm text-gray-600">
+      {data?.map((attribute) => (
+        <div className="space-x-4" key={attribute?.attribute_id}>
+          <span>{attribute?.attribute_name}</span>
+          <span className="space-x-2">
+            {attribute?.values?.map((value: any) => (
+              <button
+                key={value?.id}
+                className={cn(
+                  "cursor-pointer inline border px-2 py-1 rounded hover:ring hover:border-transparent hover:text-blue-500 hover:ring-blue-500",
+                  value?.id == options?.[attribute?.attribute_id]
+                    ? "ring ring-blue-500 text-blue-500 border-transparent"
+                    : ""
+                )}
+                id={value?.id}
+                onClick={() =>
+                  setOptions((option: any) => ({
+                    ...option,
+                    [attribute?.attribute_id]: value?.id,
+                  }))
+                }
+              >
+                {value?.name}
+              </button>
+            ))}
           </span>
-          {Number(data?.length) > 0 ? (
-            <span>{stocks} sản phẩm có sẵn</span>
-          ) : (
-            <span>Hết hàng</span>
-          )}
         </div>
+      ))}
+      <div className="space-x-4 select-none">
+        <span>Số lượng</span>
+        <span className="space-x-4">
+          <Button
+            disabled={Number(order?.quantity) <= 1}
+            type="button"
+            size="icon"
+            variant="outline"
+            className="cursor-pointer"
+            onClick={handleMinus}
+          >
+            <MinusIcon />
+          </Button>
+          <span className="select-none">{order?.quantity}</span>
+          <Button
+            type="button"
+            size="icon"
+            variant="outline"
+            className="cursor-pointer"
+            onClick={handlePlus}
+          >
+            <PlusIcon />
+          </Button>
+        </span>
+        {Number(totalStock) > 0 && <span>{totalStock} sản phẩm có sẵn</span>}
       </div>
-    </Form>
+    </div>
   );
 }
 

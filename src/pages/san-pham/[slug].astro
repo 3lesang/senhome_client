@@ -20,11 +20,11 @@ import Main from "@/layouts/main.astro";
 import {
   pb,
   PRODUCT_COLLECTION,
-  PRODUCT_VARIANT_COLLECTION,
+  PRODUCT_VARIANT_ATTRIBUTES_COLLECTION,
 } from "@/lib/pocketbase";
-import { cn, convertImageUrl, formatVND, getUniqueVariants } from "@/lib/utils";
+import { cn, convertImageUrl, formatAttributes, formatVND } from "@/lib/utils";
 import "@/styles/content.css";
-import { Share2Icon, ShieldCheck, ShieldCheckIcon } from "lucide-react";
+import { Share2Icon, ShieldCheckIcon } from "lucide-react";
 
 const { slug } = Astro.params;
 
@@ -37,12 +37,15 @@ try {
     });
 } catch (error) {}
 
-const variants = await pb.collection(PRODUCT_VARIANT_COLLECTION).getFullList({
-  filter: `product = "${product?.id}"`,
-  expand: "color,size,material",
-});
+const attributes = await pb
+  .collection(PRODUCT_VARIANT_ATTRIBUTES_COLLECTION)
+  .getFullList({
+    filter: `variant.product = "${product?.id}"`,
+    expand: "attribute,attribute_value",
+    sort: "-attribute.order",
+  });
 
-const { colors, sizes, materials } = getUniqueVariants(variants);
+const result = formatAttributes(attributes);
 ---
 
 <Main title={product?.name}>
@@ -133,10 +136,9 @@ const { colors, sizes, materials } = getUniqueVariants(variants);
           </div>
           <div>
             <ProductVariantForm
+              id={product?.id || ""}
+              data={result}
               client:only
-              sizes={sizes}
-              colors={colors}
-              materials={materials}
             />
           </div>
 

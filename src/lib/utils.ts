@@ -55,54 +55,30 @@ export const buildCategoryTree = (flat: any[]): any[] => {
   return tree;
 };
 
-type Variant = {
-  id: string;
-  expand?: {
-    color?: { id: string; name: string; hex_code?: string };
-    size?: { id: string; name: string };
-    material?: { id: string; name: string };
-  };
+export const formatAttributes = (data: any[]) => {
+  const attributeMap = new Map();
+
+  data.forEach((record) => {
+    const attrId = record.attribute;
+    const attrName = record.expand?.attribute?.name;
+    const attrValue = record.expand?.attribute_value;
+
+    if (attrId && attrValue) {
+      if (!attributeMap.has(attrId)) {
+        attributeMap.set(attrId, {
+          name: attrName || "Unknown",
+          values: new Set(),
+        });
+      }
+      attributeMap.get(attrId).values.add(attrValue);
+    }
+  });
+
+  const result = Array.from(attributeMap.entries()).map(([id, data]) => ({
+    attribute_id: id,
+    attribute_name: data.name,
+    values: Array.from(data.values),
+  }));
+
+  return result;
 };
-
-export function getUniqueVariants(variants: Variant[]) {
-  const colorMap = new Map<
-    string,
-    { id: string; name: string; hex_code?: string }
-  >();
-  const sizeMap = new Map<string, { id: string; name: string }>();
-  const materialMap = new Map<string, { id: string; name: string }>();
-
-  for (const variant of variants) {
-    const color = variant.expand?.color;
-    const size = variant.expand?.size;
-    const material = variant.expand?.material;
-
-    if (color && !colorMap.has(color.id)) {
-      colorMap.set(color.id, {
-        id: color.id,
-        name: color.name,
-        hex_code: color.hex_code,
-      });
-    }
-
-    if (size && !sizeMap.has(size.id)) {
-      sizeMap.set(size.id, {
-        id: size.id,
-        name: size.name,
-      });
-    }
-
-    if (material && !materialMap.has(material.id)) {
-      materialMap.set(material.id, {
-        id: material.id,
-        name: material.name,
-      });
-    }
-  }
-
-  return {
-    colors: Array.from(colorMap.values()),
-    sizes: Array.from(sizeMap.values()),
-    materials: Array.from(materialMap.values()),
-  };
-}
