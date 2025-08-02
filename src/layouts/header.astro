@@ -3,6 +3,7 @@ import CartBadge from "@/components/cart-badge";
 import { CATEGORY_COLLECTION, pb } from "@/lib/pocketbase";
 import { buildCategoryTree } from "@/lib/utils";
 import { HeadsetIcon, SearchIcon } from "lucide-react";
+import { Facebook, Tiktok, Youtube } from "simple-icons-astro";
 
 let data = null;
 let categories = null;
@@ -18,15 +19,15 @@ try {
   <div class="max-w-6xl mx-auto flex items-center text-xs">
     <p class="space-x-1">
       <span>Kết nối</span>
-      <!-- <a href="">
-        <SiFacebook size={16} className="inline" />
+      <a href="">
+        <Facebook size={16} className="inline" />
       </a>
       <a href="">
-        <SiTiktok size={16} className="inline" />
+        <Tiktok size={16} className="inline" />
       </a>
       <a href="">
-        <SiYoutube size={16} className="inline" />
-      </a> -->
+        <Youtube size={16} className="inline" />
+      </a>
     </p>
     <div class="ml-auto space-x-1">
       <a href="/dang-nhap"> Đăng nhập </a>
