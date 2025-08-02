@@ -1,6 +1,6 @@
 ---
 export const prerender = false;
-import ProductCard from "@/components/product-card";
+import ProductCard from "@/components/product-card.astro";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -13,13 +13,33 @@ import { CATEGORY_COLLECTION, pb, PRODUCT_COLLECTION } from "@/lib/pocketbase";
 
 const { slug } = Astro.params;
 
-const category = await pb
-  .collection(CATEGORY_COLLECTION)
-  .getFirstListItem(`slug = "${slug}"`);
+async function getProductsByCategorySlug(
+  slug?: string,
+  page = 1,
+  perPage = 20
+) {
+  try {
+    const category = await pb
+      .collection(CATEGORY_COLLECTION)
+      .getFirstListItem(`slug = "${slug}"`);
 
-const products = await pb.collection(PRODUCT_COLLECTION).getList(1, 20, {
-  filter: `category = "${category?.id}"`,
-});
+    if (!category?.id) {
+      throw new Error("Category not found");
+    }
+
+    const products = await pb
+      .collection(PRODUCT_COLLECTION)
+      .getList(page, perPage, {
+        filter: `category = "${category.id}"`,
+      });
+
+    return { category, products };
+  } catch (error) {
+    throw error;
+  }
+}
+
+const { category, products } = await getProductsByCategorySlug(slug);
 ---
 
 <Main title={category?.name}>
@@ -55,7 +75,7 @@ const products = await pb.collection(PRODUCT_COLLECTION).getList(1, 20, {
               <ProductCard
                 id={item?.id}
                 name={item?.name}
-                thumbnail={item?.gallery[0]}
+                thumbnail={item?.gallery?.[0]}
                 price={item?.price}
                 discount={item?.discount}
                 slug={item?.slug}

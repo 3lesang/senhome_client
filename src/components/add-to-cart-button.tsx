@@ -1,18 +1,15 @@
 import { toast } from "@/components/toast";
 import { addToCart } from "@/stores/cart";
-import { orderStore } from "@/stores/order";
-import { useStore } from "@nanostores/react";
 
 interface AddToCartButtonProps {
   className?: string;
+  data: any;
 }
 
-function AddToCartButton({ className }: AddToCartButtonProps) {
-  const order = useStore(orderStore);
-
-  const handleAddToCart = () => {
-    if (!order) return;
-    addToCart(order);
+function AddToCartButton({ className, data }: AddToCartButtonProps) {
+  const handleAddToCart = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    addToCart(data);
     toast(
       <div className="bg-white shadow py-2 px-4 rounded-md">
         Đã thêm sản phẩm vào giỏ hàng

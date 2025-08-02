@@ -5,16 +5,15 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel";
-import { BANNER_COLLECTION } from "@/lib/pocketbase";
 import { convertImageUrl } from "@/lib/utils";
 import Autoplay from "embla-carousel-autoplay";
 
-interface BannerCarouselProps {
-  banners: any[];
+interface HomeCarouselProps {
+  data: any[];
 }
 
-function BannerCarousel({ banners }: BannerCarouselProps) {
-  if (!banners?.length) return;
+function HomeCarousel({ data }: HomeCarouselProps) {
+  if (!data?.length) return;
 
   return (
     <Carousel
@@ -26,12 +25,12 @@ function BannerCarousel({ banners }: BannerCarouselProps) {
       ]}
     >
       <CarouselContent className="">
-        {banners?.map((item, index) => (
+        {data?.map((item, index) => (
           <CarouselItem key={index} className="select-none">
             <a href={item?.url}>
               <img
                 loading="lazy"
-                src={convertImageUrl(BANNER_COLLECTION, item?.id, item?.image)}
+                src={convertImageUrl(item)}
                 alt=""
                 className="h-56 lg:h-[380px] w-full object-cover"
               />
@@ -45,4 +44,4 @@ function BannerCarousel({ banners }: BannerCarouselProps) {
   );
 }
 
-export default BannerCarousel;
+export default HomeCarousel;
