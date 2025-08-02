@@ -15,6 +15,7 @@
     "@astrojs/netlify": "^6.5.5",
     "@astrojs/react": "^4.3.0",
     "@astrojs/sitemap": "^3.4.2",
+    "@astrojs/vercel": "^8.2.5",
     "@hookform/resolvers": "^5.2.1",
     "@icons-pack/react-simple-icons": "^13.7.0",
     "@nanostores/react": "^1.0.0",

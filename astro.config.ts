@@ -5,7 +5,7 @@ import tailwindcss from "@tailwindcss/vite";
 import AstroPWA from "@vite-pwa/astro";
 import { defineConfig } from "astro/config";
 
-import netlify from "@astrojs/netlify";
+import vercel from "@astrojs/vercel";
 
 // https://astro.build/config
 export default defineConfig({
@@ -37,9 +37,5 @@ export default defineConfig({
     },
   },
 
-  server: {
-    port: 3000,
-  },
-
-  adapter: netlify(),
+  adapter: vercel(),
 });
