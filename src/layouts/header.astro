@@ -65,22 +65,24 @@ const { data: categories } = await fetchCategories();
       </a>
     </div>
     <div class="flex-1 mx-32 space-y-1">
-      <form action="/tim-kiem" method="GET" class="w-full relative">
-        <div
-          class="absolute left-0 top-1/2 -translate-y-1/2 w-12 flex justify-center text-gray-500"
-        >
-          <SearchIcon size={16} />
+      <div class="hidden lg:block">
+        <form action="/tim-kiem" method="GET" class="w-full relative">
+          <div
+            class="absolute left-0 top-1/2 -translate-y-1/2 w-12 flex justify-center text-gray-500"
+          >
+            <SearchIcon size={16} />
+          </div>
+          <input
+            type="text"
+            name="q"
+            placeholder="Tìm kiếm sản phẩm"
+            class="text-sm py-2 w-full pr-10 pl-10 bg-gray-50 rounded"
+          />
+        </form>
+        <div class="text-gray-500 text-xs space-x-1">
+          <a href="/tim-kiem?q=Rỗ đựng muỗng đủa">Rỗ đựng muỗng đủa</a>
+          <a href="/tim-kiem?q=Kệ bếp">Kệ bếp</a>
         </div>
-        <input
-          type="text"
-          name="q"
-          placeholder="Tìm kiếm sản phẩm"
-          class="text-sm py-2 w-full pr-10 pl-10 bg-gray-50 rounded"
-        />
-      </form>
-      <div class="text-gray-500 text-xs space-x-1">
-        <a href="/tim-kiem?q=Rỗ đựng muỗng đủa">Rỗ đựng muỗng đủa</a>
-        <a href="/tim-kiem?q=Kệ bếp">Kệ bếp</a>
       </div>
     </div>
     <div class="flex items-center ml-auto gap-1">
