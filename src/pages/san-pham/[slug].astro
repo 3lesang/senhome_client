@@ -4,7 +4,7 @@ export const prerender = false;
 import AddToCartButton from "@/components/add-to-cart-button";
 import BuyNowButton from "@/components/buy-now-button";
 import ImageGallery from "@/components/image-gallery";
-import ProductVariantForm from "@/components/product-variant-form";
+import ProductOptionSelect from "@/components/product-option-select";
 import { StarRating } from "@/components/star-rating";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -18,11 +18,12 @@ import {
 import { Button, buttonVariants } from "@/components/ui/button";
 import Main from "@/layouts/main.astro";
 import {
+  IMAGE_COLLECTION,
   pb,
   PRODUCT_COLLECTION,
   PRODUCT_VARIANT_ATTRIBUTES_COLLECTION,
 } from "@/lib/pocketbase";
-import { cn, formatAttributes, formatVND } from "@/lib/utils";
+import { cn, convertImageUrl, formatAttributes, formatVND } from "@/lib/utils";
 import "@/styles/content.css";
 import { Share2Icon, ShieldCheckIcon } from "lucide-react";
 
@@ -37,15 +38,24 @@ try {
     });
 } catch (error) {}
 
-const attributes = await pb
+const data = await pb
   .collection(PRODUCT_VARIANT_ATTRIBUTES_COLLECTION)
   .getFullList({
     filter: `variant.product = "${product?.id}"`,
-    expand: "attribute,attribute_value",
+    expand: "variant,attribute,attribute_value",
     sort: "-attribute.order",
   });
 
-const result = formatAttributes(attributes);
+const options = formatAttributes(data);
+
+const images = await pb.collection(IMAGE_COLLECTION).getFullList({
+  filter: `product="${product?.id}"||variant.product="${product?.id}"`,
+});
+
+const galleryData = images.map((item) => ({
+  id: item?.variant,
+  image: convertImageUrl(item) || "",
+}));
 ---
 
 <Main title={product?.name}>
@@ -78,7 +88,7 @@ const result = formatAttributes(attributes);
       <div class="h-4"></div>
       <div class="grid grid-cols-12 gap-8">
         <div class="col-span-12 lg:col-span-7">
-          <ImageGallery client:only images={[]} />
+          <ImageGallery client:only data={galleryData || []} />
         </div>
         <div class="col-span-12 lg:col-span-5 space-y-4">
           <div class="space-y-1">
@@ -131,10 +141,10 @@ const result = formatAttributes(attributes);
             </span>
           </div>
           <div>
-            <ProductVariantForm
-              id={product?.id || ""}
-              data={result}
+            <ProductOptionSelect
               client:only
+              product_id={product?.id || ""}
+              optionData={options}
             />
           </div>
 
