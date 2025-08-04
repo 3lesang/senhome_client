@@ -48,48 +48,55 @@ async function fetchLatestProducts() {
 
 const { data: banners } = await fetchBanners();
 const { data: latestProducts } = await fetchLatestProducts();
-console.log({ latestProducts, banners });
 ---
 
 <Main title="Trang chủ">
   <HomeCarousel client:load data={banners || []} />
   <div class="max-w-6xl mx-auto px-2 md:px-0">
     <div class="h-16"></div>
-    <section class="flex justify-between space-x-4">
-      <div
-        class="flex bg-gray-50 items-center justify-center gap-2 py-4 px-4 rounded-md flex-1"
-      >
-        <TruckIcon size={32} strokeWidth={1} />
-        <div>
-          <p class="font-semibold text-sm">Miễn phí vận chuyển</p>
-          <p class="text-gray-500 text-xs">Contact us 24 hours a day</p>
+    <section class="grid grid-cols-4 gap-2">
+      <div class="col-span-2 lg:col-span-1">
+        <div
+          class="flex bg-gray-50 items-center justify-center gap-2 py-4 px-4 rounded-md"
+        >
+          <TruckIcon size={32} strokeWidth={1} />
+          <div>
+            <p class="font-semibold text-sm">Miễn phí vận chuyển</p>
+            <p class="text-gray-500 text-xs">Contact us 24 hours a day</p>
+          </div>
         </div>
       </div>
-      <div
-        class="flex bg-gray-50 items-center justify-center gap-2 py-4 px-4 rounded-md flex-1"
-      >
-        <DollarSignIcon size={32} strokeWidth={1} />
-        <div>
-          <p class="font-semibold text-sm">Đổi trả & hoàn tiền</p>
-          <p class="text-gray-500 text-xs">Contact us 24 hours a day</p>
+      <div class="col-span-2 lg:col-span-1">
+        <div
+          class="flex bg-gray-50 items-center justify-center gap-2 py-4 px-4 rounded-md"
+        >
+          <DollarSignIcon size={32} strokeWidth={1} />
+          <div>
+            <p class="font-semibold text-sm">Đổi trả & hoàn tiền</p>
+            <p class="text-gray-500 text-xs">Contact us 24 hours a day</p>
+          </div>
         </div>
       </div>
-      <div
-        class="flex bg-gray-50 items-center justify-center gap-2 py-4 px-4 rounded-md flex-1"
-      >
-        <BadgePercentIcon size={32} strokeWidth={1} />
-        <div>
-          <p class="font-semibold text-sm">Giảm giá</p>
-          <p class="text-gray-500 text-xs">Contact us 24 hours a day</p>
+      <div class="col-span-2 lg:col-span-1">
+        <div
+          class="flex bg-gray-50 items-center justify-center gap-2 py-4 px-4 rounded-md"
+        >
+          <BadgePercentIcon size={32} strokeWidth={1} />
+          <div>
+            <p class="font-semibold text-sm">Giảm giá</p>
+            <p class="text-gray-500 text-xs">Contact us 24 hours a day</p>
+          </div>
         </div>
       </div>
-      <div
-        class="flex bg-gray-50 items-center justify-center gap-2 py-4 px-4 rounded-md flex-1"
-      >
-        <HeadphonesIcon size={32} strokeWidth={1} />
-        <div>
-          <p class="font-semibold text-sm">Hỗ trợ 24/7</p>
-          <p class="text-gray-500 text-xs">Contact us 24 hours a day</p>
+      <div class="col-span-2 lg:col-span-1">
+        <div
+          class="flex bg-gray-50 items-center justify-center gap-2 py-4 px-4 rounded-md"
+        >
+          <HeadphonesIcon size={32} strokeWidth={1} />
+          <div>
+            <p class="font-semibold text-sm">Hỗ trợ 24/7</p>
+            <p class="text-gray-500 text-xs">Contact us 24 hours a day</p>
+          </div>
         </div>
       </div>
     </section>

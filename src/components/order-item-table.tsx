@@ -20,7 +20,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { cn, formatVND } from "@/lib/utils";
+import { cn, convertImageUrl, formatVND } from "@/lib/utils";
 import type { CheckedState } from "@radix-ui/react-checkbox";
 import { MinusIcon, PlusIcon, Trash2Icon } from "lucide-react";
 import { useState } from "react";
@@ -96,16 +96,14 @@ function OrderItemTable({ data, onChange }: OrderItemTable) {
     <Table>
       <TableHeader>
         <TableRow>
-          <TableHead className="">
-            <div className="flex items-center gap-2">
-              <Checkbox
-                className="cursor-pointer"
-                checked={checked}
-                onCheckedChange={handleToggleSelectAll}
-              />
-              <span>Tất cả sản phẩm</span>
-            </div>
+          <TableHead>
+            <Checkbox
+              className="cursor-pointer"
+              checked={checked}
+              onCheckedChange={handleToggleSelectAll}
+            />
           </TableHead>
+          <TableHead>Tất cả sản phẩm</TableHead>
           <TableHead>Đơn giá</TableHead>
           <TableHead>Số lượng</TableHead>
           <TableHead className="text-right">Thành tiền</TableHead>
@@ -146,21 +144,33 @@ function OrderItemTable({ data, onChange }: OrderItemTable) {
       </TableHeader>
       <TableBody>
         {values?.map((item) => (
-          <TableRow key={item.id}>
-            <TableCell className="font-medium">
-              <div className="flex items-center gap-4">
-                <Checkbox
-                  className="cursor-pointer"
-                  checked={item.selected}
-                  onCheckedChange={() => handleSelectItem(item.id)}
-                />
-                <img
-                  className="h-12 w-12 object-cover rounded-md"
-                  src=""
-                  alt={item.name}
-                />
-                <a className="hover:underline" href={`/san-pham/${item.slug}`}>
-                  {item.name}
+          <TableRow
+            key={item.id}
+            className={cn(item?.selected && "bg-gray-50")}
+          >
+            <TableCell>
+              <Checkbox
+                className="cursor-pointer"
+                checked={item.selected}
+                onCheckedChange={() => handleSelectItem(item.id)}
+              />
+            </TableCell>
+            <TableCell className="">
+              <div className="flex items-center">
+                <div className="h-12 w-12 bg-gray-50 rounded-md overflow-hidden mr-2">
+                  {convertImageUrl(item?.thumbnail) && (
+                    <img
+                      className="w-full object-cover"
+                      src={convertImageUrl(item?.thumbnail)}
+                      alt={item.name}
+                    />
+                  )}
+                </div>
+                <a
+                  className="flex-1 hover:underline"
+                  href={`/san-pham/${item.slug}`}
+                >
+                  <p className="line-clamp-1 whitespace-normal">{item.name}</p>
                 </a>
               </div>
             </TableCell>

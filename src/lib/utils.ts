@@ -63,7 +63,7 @@ export const formatAttributes = (data: any[]) => {
     const attrId = record.attribute;
     const attrName = record.expand?.attribute?.name;
     const attrValue = record.expand?.attribute_value;
-
+    const variant = record?.expand?.variant;
     if (attrId && attrValue) {
       if (!attributeMap.has(attrId)) {
         attributeMap.set(attrId, {
@@ -71,7 +71,7 @@ export const formatAttributes = (data: any[]) => {
           values: new Set(),
         });
       }
-      attributeMap.get(attrId).values.add(attrValue);
+      attributeMap.get(attrId).values.add({ ...attrValue, variant });
     }
   });
 
@@ -82,4 +82,40 @@ export const formatAttributes = (data: any[]) => {
   }));
 
   return result;
+};
+
+export const formatVariantOption = (data: any, options: any) => {
+  const variantAttrMap = new Map<string, Map<string, string>>();
+  const variantStockMap = new Map<string, number>();
+
+  for (const item of data) {
+    const variantId = item.variant;
+    const attrId = item.attribute;
+    const valueId = item.attribute_value;
+    const variant = item.expand?.variant;
+
+    if (!variantId || !attrId || !valueId || !variant) continue;
+
+    if (!variantAttrMap.has(variantId)) {
+      variantAttrMap.set(variantId, new Map());
+      variantStockMap.set(variantId, Number(variant.stock_quantity) || 0);
+    }
+
+    variantAttrMap.get(variantId)?.set(attrId, valueId);
+  }
+
+  let total = 0;
+
+  for (const [variantId, attrMap] of variantAttrMap.entries()) {
+    const matches =
+      Object.keys(options).length === 0 ||
+      Object.entries(options).every(
+        ([attrId, valueId]) => attrMap.get(attrId) === valueId
+      );
+
+    if (matches) {
+      total += variantStockMap.get(variantId) ?? 0;
+    }
+  }
+  return total;
 };

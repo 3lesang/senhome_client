@@ -51,13 +51,13 @@ export function Combobox({
           role="combobox"
           aria-expanded={open}
           disabled={disabled}
-          className={cn("justify-between w-full border-gray-300", className)}
+          className={cn("justify-between w-full", className)}
         >
           {selectedLabel || placeholder}
           <ChevronDownIcon className="ml-2 h-4 w-4 opacity-50" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="p-0 border-0">
+      <PopoverContent className="p-0">
         <Command>
           <CommandInput placeholder="Tìm kiếm..." className="h-9" />
           <CommandList className="">
