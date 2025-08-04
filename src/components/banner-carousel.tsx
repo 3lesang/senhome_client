@@ -32,7 +32,7 @@ function HomeCarousel({ data }: HomeCarouselProps) {
                 loading="lazy"
                 src={convertImageUrl(item)}
                 alt=""
-                className="h-56 lg:h-[380px] w-full object-cover"
+                className="h-56 lg:h-[calc(100vh-120px)] w-full object-cover"
               />
             </a>
           </CarouselItem>

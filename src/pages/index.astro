@@ -13,36 +13,26 @@ import {
 
 async function fetchBanners() {
   try {
-    const response = await pb.collection(IMAGE_COLLECTION).getFullList({
+    const response = await pb.collection(IMAGE_COLLECTION).getList(1, 5, {
       filter: `type="banner"`,
-      perPage: 5,
     });
-
-    if (!Array.isArray(response)) {
-      return { banners: [], error: "Invalid banners response format" };
-    }
 
     return { data: response, error: null };
   } catch (error) {
-    return { data: [], error: error };
+    return { data: null, error: error };
   }
 }
 
 async function fetchLatestProducts() {
   try {
-    const response = await pb.collection(PRODUCT_COLLECTION).getFullList({
+    const response = await pb.collection(PRODUCT_COLLECTION).getList(1, 4, {
       fields: "id,name,gallery,price,slug,discount,expand.thumbnail",
       expand: "thumbnail",
       sort: "-created",
     });
-
-    if (!response || !Array.isArray(response)) {
-      return { data: [], error: "Invalid products response format" };
-    }
-
     return { data: response, error: null };
   } catch (error) {
-    return { data: [], error: error };
+    return { data: null, error: error };
   }
 }
 
@@ -51,10 +41,9 @@ const { data: latestProducts } = await fetchLatestProducts();
 ---
 
 <Main title="Trang chủ">
-  <HomeCarousel client:load data={banners || []} />
-  <div class="max-w-6xl mx-auto px-2 md:px-0">
-    <div class="h-16"></div>
-    <section class="grid grid-cols-4 gap-2">
+  <HomeCarousel client:load data={banners?.items || []} />
+  <div class="lg:max-w-6xl mx-auto px-4 md:px-4">
+    <section class="grid grid-cols-4 gap-2 my-4 lg:my-8">
       <div class="col-span-2 lg:col-span-1">
         <div
           class="flex bg-gray-50 items-center justify-center gap-2 py-4 px-4 rounded-md"
@@ -100,17 +89,17 @@ const { data: latestProducts } = await fetchLatestProducts();
         </div>
       </div>
     </section>
-    <section>
-      <div class="flex justify-between my-8">
+    <section class="my-4 lg:my-8">
+      <div class="flex justify-between mb-4">
         <h3 class="text-xl font-bold">Mới nhất</h3>
         <a href="/" class="text-blue-500 font-semibold text-sm hover:underline"
           >xem thêm</a
         >
       </div>
       {
-        Number(latestProducts?.length) > 0 && (
+        Number(latestProducts?.totalItems) > 0 && (
           <div class="grid grid-cols-2 md:grid-cols-4 md:gap-6 gap-2">
-            {latestProducts?.map((item) => (
+            {latestProducts?.items.map((item) => (
               <a href={`/san-pham/${item?.slug}`}>
                 <ProductCard
                   id={item?.id}
@@ -126,7 +115,5 @@ const { data: latestProducts } = await fetchLatestProducts();
         )
       }
     </section>
-
-    <div class="h-16"></div>
   </div>
 </Main>

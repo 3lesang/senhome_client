@@ -19,7 +19,7 @@ function BuyNowForm() {
   };
 
   return (
-    <div className="max-w-6xl mx-auto px-2 lg:px-0">
+    <div className="max-w-6xl mx-auto p-4 lg:p-0">
       <h3 className="font-bold text-lg">Mua Hàng</h3>
       <OrderForm defaultValues={defaultValues} />
     </div>

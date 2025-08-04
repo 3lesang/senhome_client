@@ -43,18 +43,22 @@ const ImageGallery = ({ data }: ImageGalleryProps) => {
         <CarouselContent>
           {data?.map((item, index) => (
             <CarouselItem key={index}>
-              <img className="w-full object-cover rounded" src={item.image} alt="" />
+              <img
+                className="w-full object-cover lg:rounded"
+                src={item.image}
+                alt=""
+              />
             </CarouselItem>
           ))}
         </CarouselContent>
       </Carousel>
-      <div className="space-x-2">
+      <div className="space-x-2 px-2 lg:px-0">
         {data?.map((item, index) => (
           <div
             onMouseEnter={() => handleClick(index)}
             key={index}
             className={cn(
-              "w-20 h-20 rounded cursor-pointer border-2 border-transparent overflow-hidden inline-block",
+              "w-12 h-12 lg:w-20 lg:h-20 rounded cursor-pointer border-2 border-transparent overflow-hidden inline-block",
               index == current ? " border-blue-500" : ""
             )}
           >

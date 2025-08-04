@@ -2,7 +2,7 @@
 import CartBadge from "@/components/cart-badge";
 import { CATEGORY_COLLECTION, pb } from "@/lib/pocketbase";
 import { buildCategoryTree } from "@/lib/utils";
-import { HeadsetIcon, SearchIcon } from "lucide-react";
+import { SearchIcon } from "lucide-react";
 
 async function fetchCategories() {
   try {
@@ -25,8 +25,8 @@ async function fetchCategories() {
 const { data: categories } = await fetchCategories();
 ---
 
-<header class="px-2 md:px-0 py-4 space-y-4">
-  <div class="max-w-6xl mx-auto flex items-center text-xs">
+<header class="px-2 md:px-0 py-4">
+  <div class="w-full lg:max-w-6xl mx-auto flex items-center text-xs">
     <p class="space-x-1">
       <span>Kết nối</span>
       <a href="">
@@ -58,13 +58,13 @@ const { data: categories } = await fetchCategories();
       <a href="/dang-nhap"> Đăng nhập </a>
     </div>
   </div>
-  <div class="max-w-6xl mx-auto flex items-center">
+  <div class="w-full lg:max-w-6xl mx-auto flex items-center">
     <div>
       <a href="/">
         <h1 class="text-2xl font-bold">SENHOME</h1>
       </a>
     </div>
-    <div class="flex-1 mx-32 space-y-1">
+    <div class="flex-1 lg:mx-32 space-y-1">
       <div class="hidden lg:block">
         <form action="/tim-kiem" method="GET" class="w-full relative">
           <div
@@ -85,13 +85,13 @@ const { data: categories } = await fetchCategories();
         </div>
       </div>
     </div>
-    <div class="flex items-center ml-auto gap-1">
+    <div class="">
       <CartBadge client:only />
     </div>
   </div>
 
   <div
-    class="hidden lg:flex justify-between space-x-4 text-sm text-gray-700 font-medium max-w-6xl mx-auto"
+    class="hidden lg:flex justify-between space-x-4 text-sm text-gray-700 font-medium max-w-6xl mx-auto mt-2"
   >
     <div class="flex flex-1 justify-center space-x-4">
       {
@@ -99,10 +99,6 @@ const { data: categories } = await fetchCategories();
           <a href={`/danh-muc/${item?.slug}`}>{item?.name}</a>
         ))
       }
-    </div>
-    <div class="ml-auto">
-      <HeadsetIcon size={16} className="inline" />
-      <span>+84 933 108 680</span>
     </div>
   </div>
 </header>
