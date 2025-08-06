@@ -23,29 +23,26 @@ function QuantityCounter({ onChange }: QuantityCounterProps) {
   }, [quantity]);
 
   return (
-    <span className="space-x-4 select-none">
-      <span>Số lượng</span>
-      <span className="space-x-4">
-        <Button
-          type="button"
-          size="icon"
-          variant="outline"
-          className="cursor-pointer"
-          onClick={handleMinus}
-        >
-          <MinusIcon />
-        </Button>
-        <span className="select-none">{quantity}</span>
-        <Button
-          type="button"
-          size="icon"
-          variant="outline"
-          className="cursor-pointer"
-          onClick={handlePlus}
-        >
-          <PlusIcon />
-        </Button>
-      </span>
+    <span className="flex items-center space-x-4">
+      <Button
+        type="button"
+        size="icon"
+        variant="outline"
+        className="cursor-pointer"
+        onClick={handleMinus}
+      >
+        <MinusIcon />
+      </Button>
+      <span className="select-none">{quantity}</span>
+      <Button
+        type="button"
+        size="icon"
+        variant="outline"
+        className="cursor-pointer"
+        onClick={handlePlus}
+      >
+        <PlusIcon />
+      </Button>
     </span>
   );
 }

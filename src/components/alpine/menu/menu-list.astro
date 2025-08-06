@@ -1,0 +1,11 @@
+<div
+  class="relative"
+  x-data="{ open: false }"
+  @mouseenter="open = true"
+  @mouseleave="open = false"
+>
+  <slot name="trigger" />
+  <div x-show="open" class="absolute z-10">
+    <slot />
+  </div>
+</div>

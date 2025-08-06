@@ -1,25 +1,15 @@
 import { buttonVariants } from "@/components/ui/button";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { cn } from "@/lib/utils";
-import { cartStore, clearCart, updateCart } from "@/stores/cart";
+import { cartStore, updateCart } from "@/stores/cart";
 import { useStore } from "@nanostores/react";
 import { ShoppingCartIcon } from "lucide-react";
-import OrderForm from "./order-form";
+import OrderItemTable from "./order-item-table";
+import ProductListMobile from "./product-list-mobile";
 
 function CartForm() {
   const cart = useStore(cartStore);
-
-  const defaultValues = {
-    name: "",
-    phone: "",
-    email: "",
-    province: { label: "", value: "" },
-    district: { label: "", value: "" },
-    ward: { label: "", value: "" },
-    street: "",
-    payment: "cash",
-    shippingFee: 25000,
-    items: cart.items,
-  };
+  const isMobile = useIsMobile();
 
   if (cart.items.length === 0) {
     return (
@@ -43,13 +33,16 @@ function CartForm() {
   }
 
   return (
-    <div className="max-w-6xl mx-auto p-4 lg:p-0">
+    <div className="lg:max-w-6xl mx-auto p-4 space-y-4">
       <h3 className="font-bold text-lg">Giỏ hàng</h3>
-      <OrderForm
-        defaultValues={defaultValues}
-        onSuccess={() => clearCart()}
-        onItemsChange={(values) => updateCart(values)}
-      />
+      {isMobile ? (
+        <ProductListMobile data={cart.items} />
+      ) : (
+        <OrderItemTable
+          data={cart?.items}
+          onChange={(data) => updateCart(data)}
+        />
+      )}
     </div>
   );
 }

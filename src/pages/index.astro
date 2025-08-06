@@ -1,15 +1,9 @@
 ---
 export const prerender = false;
-import HomeCarousel from "@/components/banner-carousel";
-import ProductCard from "@/components/product-card.astro";
+import ImageSlider from "@/components/alpine/image-slider.astro";
 import Main from "@/layouts/main.astro";
-import { IMAGE_COLLECTION, pb, PRODUCT_COLLECTION } from "@/lib/pocketbase";
-import {
-  BadgePercentIcon,
-  DollarSignIcon,
-  HeadphonesIcon,
-  TruckIcon,
-} from "lucide-react";
+import { IMAGE_COLLECTION, pb } from "@/lib/pocketbase";
+import { convertImageUrl } from "@/lib/utils";
 
 async function fetchBanners() {
   try {
@@ -23,97 +17,16 @@ async function fetchBanners() {
   }
 }
 
-async function fetchLatestProducts() {
-  try {
-    const response = await pb.collection(PRODUCT_COLLECTION).getList(1, 4, {
-      fields: "id,name,gallery,price,slug,discount,expand.thumbnail",
-      expand: "thumbnail",
-      sort: "-created",
-    });
-    return { data: response, error: null };
-  } catch (error) {
-    return { data: null, error: error };
-  }
-}
-
 const { data: banners } = await fetchBanners();
-const { data: latestProducts } = await fetchLatestProducts();
+
+const images = JSON.stringify(
+  banners?.items?.map((item) => ({
+    ctaUrl: item?.href,
+    imgSrc: convertImageUrl(item),
+  }))
+);
 ---
 
 <Main title="Trang chủ">
-  <HomeCarousel client:load data={banners?.items || []} />
-  <div class="lg:max-w-6xl mx-auto px-4 md:px-4">
-    <section class="grid grid-cols-4 gap-2 my-4 lg:my-8">
-      <div class="col-span-2 lg:col-span-1">
-        <div
-          class="flex bg-gray-50 items-center justify-center gap-2 py-4 px-4 rounded-md"
-        >
-          <TruckIcon size={32} strokeWidth={1} />
-          <div>
-            <p class="font-semibold text-sm">Miễn phí vận chuyển</p>
-            <p class="text-gray-500 text-xs">Contact us 24 hours a day</p>
-          </div>
-        </div>
-      </div>
-      <div class="col-span-2 lg:col-span-1">
-        <div
-          class="flex bg-gray-50 items-center justify-center gap-2 py-4 px-4 rounded-md"
-        >
-          <DollarSignIcon size={32} strokeWidth={1} />
-          <div>
-            <p class="font-semibold text-sm">Đổi trả & hoàn tiền</p>
-            <p class="text-gray-500 text-xs">Contact us 24 hours a day</p>
-          </div>
-        </div>
-      </div>
-      <div class="col-span-2 lg:col-span-1">
-        <div
-          class="flex bg-gray-50 items-center justify-center gap-2 py-4 px-4 rounded-md"
-        >
-          <BadgePercentIcon size={32} strokeWidth={1} />
-          <div>
-            <p class="font-semibold text-sm">Giảm giá</p>
-            <p class="text-gray-500 text-xs">Contact us 24 hours a day</p>
-          </div>
-        </div>
-      </div>
-      <div class="col-span-2 lg:col-span-1">
-        <div
-          class="flex bg-gray-50 items-center justify-center gap-2 py-4 px-4 rounded-md"
-        >
-          <HeadphonesIcon size={32} strokeWidth={1} />
-          <div>
-            <p class="font-semibold text-sm">Hỗ trợ 24/7</p>
-            <p class="text-gray-500 text-xs">Contact us 24 hours a day</p>
-          </div>
-        </div>
-      </div>
-    </section>
-    <section class="my-4 lg:my-8">
-      <div class="flex justify-between mb-4">
-        <h3 class="text-xl font-bold">Mới nhất</h3>
-        <a href="/" class="text-blue-500 font-semibold text-sm hover:underline"
-          >xem thêm</a
-        >
-      </div>
-      {
-        Number(latestProducts?.totalItems) > 0 && (
-          <div class="grid grid-cols-2 md:grid-cols-4 md:gap-6 gap-2">
-            {latestProducts?.items.map((item) => (
-              <a href={`/san-pham/${item?.slug}`}>
-                <ProductCard
-                  id={item?.id}
-                  name={item?.name}
-                  thumbnail={item?.expand?.thumbnail}
-                  price={item?.price}
-                  discount={item?.discount}
-                  slug={item?.slug}
-                />
-              </a>
-            ))}
-          </div>
-        )
-      }
-    </section>
-  </div>
+  <ImageSlider images={images} />
 </Main>

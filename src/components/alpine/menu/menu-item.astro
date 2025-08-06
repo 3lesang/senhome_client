@@ -1,0 +1,10 @@
+<div
+  x-data="{ open: false }"
+  @mouseenter="open = true"
+  @mouseleave="open = false"
+>
+  <slot name="trigger" />
+  <div x-show="open" class="absolute top-0 left-full h-full">
+    <slot />
+  </div>
+</div>

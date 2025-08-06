@@ -15,6 +15,7 @@ import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
 import WardSelect from "@/components/ward-select";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { navigate } from "@/lib/navigate";
 import { ORDER_COLLECTION, ORDER_ITEM_COLLECTION, pb } from "@/lib/pocketbase";
 import {
@@ -30,6 +31,7 @@ import confetti from "canvas-confetti";
 import { Loader2Icon } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
+import ProductListMobile from "./product-list-mobile";
 
 const orderItemSchema = z.object({
   id: z.string(),
@@ -118,7 +120,7 @@ function OrderForm({
     resolver: zodResolver(formSchema),
     defaultValues,
   });
-
+  const isMobile = useIsMobile();
   const items = form.watch("items").filter((item) => item?.selected);
 
   const discountTotal = getTotalDiscountPrice(items);
@@ -194,13 +196,17 @@ function OrderForm({
             render={({ field }) => (
               <FormItem>
                 <FormControl>
-                  <OrderItemTable
-                    data={field.value}
-                    onChange={(items) => {
-                      form.setValue("items", items);
-                      onItemsChange?.(items);
-                    }}
-                  />
+                  {isMobile ? (
+                    <ProductListMobile data={field.value} />
+                  ) : (
+                    <OrderItemTable
+                      data={field.value}
+                      onChange={(items) => {
+                        form.setValue("items", items);
+                        onItemsChange?.(items);
+                      }}
+                    />
+                  )}
                 </FormControl>
                 <FormMessage />
               </FormItem>

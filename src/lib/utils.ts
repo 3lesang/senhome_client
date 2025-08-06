@@ -34,15 +34,15 @@ export const convertImageUrl = (image: any) => {
   return `${API_URL}/api/files/${image?.collectionName}/${image?.id}/${image?.image}`;
 };
 
-export const buildCategoryTree = (flat: any[]): any[] => {
+export const buildTree = (data: any[]): any[] => {
   const map = new Map<string, any>();
   const tree: any[] = [];
 
-  flat.forEach((item) => {
+  data.forEach((item) => {
     map.set(item.id, { ...item, children: [] });
   });
 
-  flat.forEach((item) => {
+  data.forEach((item) => {
     if (item.parent) {
       const parent = map.get(item.parent);
       if (parent) {

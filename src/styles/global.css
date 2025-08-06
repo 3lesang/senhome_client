@@ -4,7 +4,28 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme {
-  --font-sans: "Montserrat", "sans-serif";
+  --default-font-family: "Inter";
+  /* Animations */
+  --animate-full-tl: full-tl 25s linear infinite;
+  --animate-full-tr: full-tr 25s linear infinite;
+
+  @keyframes full-tl {
+    0% {
+      transform: translateX(0);
+    }
+    100% {
+      transform: translateX(-100%);
+    }
+  }
+
+  @keyframes full-tr {
+    0% {
+      transform: translateX(0);
+    }
+    100% {
+      transform: translateX(100%);
+    }
+  }
 }
 
 @theme inline {
