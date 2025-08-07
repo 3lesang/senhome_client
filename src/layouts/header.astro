@@ -24,14 +24,14 @@ const { data } = await fetchFolders();
 
 <header>
   <nav>
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="flex justify-between items-center">
         <div class="flex items-center">
           <a href="/">
             <Image
               height={100}
               width={100}
-              class="size-20 object-cover"
+              class="lg:size-20 size-16 object-cover"
               src={logo}
               alt="logo"
               loading="eager"
@@ -142,9 +142,15 @@ const { data } = await fetchFolders();
             </a>
           </Tooltip>
           <Tooltip text="Giỏ hàng">
-            <a href="/" class="px-2" aria-label="Go to Page">
-              <ShoppingCartIcon size={16} className="inline" />
-            </a>
+            <div class="relative">
+              <a href="/" class="px-2" aria-label="Go to Page">
+                <ShoppingCartIcon size={16} className="inline" />
+              </a>
+              <span
+                class="absolute -right-2 -bottom-2 rounded-full bg-blue-500 text-white font-bold text-xs inline-flex justify-center items-center size-5"
+                >9</span
+              >
+            </div>
           </Tooltip>
         </div>
       </div>
