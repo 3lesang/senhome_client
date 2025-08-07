@@ -9,8 +9,8 @@ interface Props {
 const { data } = Astro.props;
 ---
 
-<nav>
-  <div class="hidden md:flex items-center space-x-4">
+<nav class="h-[-webkit-fill-available]">
+  <div class="hidden md:flex items-center space-x-4 h-full">
     {
       data?.map((item) => {
         const renderItem = (data: any) => {
@@ -34,7 +34,7 @@ const { data } = Astro.props;
                 >
                   {child?.name}
                 </a>
-                <div class="bg-white shadow w-48 relative h-full">
+                <div class="bg-white w-56 relative h-full shadow">
                   {renderItem(child?.children)}
                 </div>
               </MenuItem>
@@ -45,17 +45,24 @@ const { data } = Astro.props;
         if (item?.children?.length) {
           return (
             <MenuList>
-              <a href={item?.link} class="block px-4 py-2" slot="trigger">
+              <a
+                href={item?.link}
+                class="flex items-center px-4 py-2 font-bold uppercase h-full"
+                slot="trigger"
+              >
                 {item?.name}
               </a>
-              <div class="bg-white shadow w-48 relative h-full">
+              <div class="w-56 relative h-full text-sm bg-white shadow">
                 {renderItem(item?.children)}
               </div>
             </MenuList>
           );
         }
         return (
-          <a href={item?.link} class="hover:text-gray-900 px-3 py-2">
+          <a
+            href={item?.link}
+            class="hover:text-gray-900 px-3 py-2 font-bold uppercase"
+          >
             {item?.name}
           </a>
         );

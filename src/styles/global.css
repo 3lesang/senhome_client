@@ -1,14 +1,11 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
-[x-cloak] {
-  display: none;
-}
-
 @custom-variant dark (&:is(.dark *));
 
 @theme {
   --default-font-family: "Inter";
+  --font-sans: "Inter", "sans-serif";
   /* Animations */
   --animate-full-tl: full-tl 25s linear infinite;
   --animate-full-tr: full-tr 25s linear infinite;

@@ -1,0 +1,15 @@
+---
+import { ChevronLeftIcon } from "lucide-react";
+---
+
+<button
+  x-cloak
+  x-show="canPrev"
+  x-on:click="prev"
+  type="button"
+  class="text-white justify-center group absolute start-80 top-1/2 z-10 flex -translate-y-1/2 items-center rounded-full transition duration-150 ease-out active:bg-gray-100 cursor-pointer hover:bg-white hover:text-black size-10"
+  aria-label="Previous Image Slide"
+>
+  <ChevronLeftIcon size={18} />
+  <span class="sr-only">Previous</span>
+</button>

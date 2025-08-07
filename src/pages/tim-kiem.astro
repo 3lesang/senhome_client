@@ -38,14 +38,7 @@ const products = await pb.collection(PRODUCT_COLLECTION).getList(1, 20, {
           {
             products?.items.map((item) => (
               <a href={`/san-pham/${item?.slug}`}>
-                <ProductCard
-                  id={item?.id}
-                  name={item?.name}
-                  thumbnail={item?.gallery[0]}
-                  price={item?.price}
-                  discount={item?.discount}
-                  slug={item?.slug}
-                />
+                <ProductCard />
               </a>
             ))
           }

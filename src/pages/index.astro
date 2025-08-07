@@ -1,9 +1,20 @@
 ---
 export const prerender = false;
-import ImageSlider from "@/components/alpine/image-slider.astro";
+import ProductCard from "@/components/product-card.astro";
+import CarouselContainer from "@/components/slider/carousel-container.astro";
+import CarouselItem from "@/components/slider/carousel-item.astro";
+import CarouselNext from "@/components/slider/carousel-next.astro";
+import CarouselPrevious from "@/components/slider/carousel-previous.astro";
+import Carousel from "@/components/slider/carousel.astro";
 import Main from "@/layouts/main.astro";
-import { IMAGE_COLLECTION, pb } from "@/lib/pocketbase";
+import {
+  CATEGORY_COLLECTION,
+  IMAGE_COLLECTION,
+  pb,
+  PRODUCT_COLLECTION,
+} from "@/lib/pocketbase";
 import { convertImageUrl } from "@/lib/utils";
+import { Image } from "astro:assets";
 
 async function fetchBanners() {
   try {
@@ -19,14 +30,85 @@ async function fetchBanners() {
 
 const { data: banners } = await fetchBanners();
 
-const images = JSON.stringify(
-  banners?.items?.map((item) => ({
-    ctaUrl: item?.href,
-    imgSrc: convertImageUrl(item),
-  }))
-);
+const images = banners?.items?.map((item) => ({
+  ctaUrl: item?.href,
+  imgSrc: convertImageUrl(item),
+}));
+
+async function fetchProductGroupByCategory() {
+  const categories = await pb.collection(CATEGORY_COLLECTION).getList(1, 5);
+
+  for (const category of categories.items) {
+    const products = await pb.collection(PRODUCT_COLLECTION).getList(1, 5, {
+      filter: `category = "${category?.id}"`,
+      expand: "thumbnail",
+    });
+    category.products = products.items;
+  }
+  return categories;
+}
+
+const categories = await fetchProductGroupByCategory();
 ---
 
 <Main title="Trang chủ">
-  <ImageSlider images={images} />
+  <Carousel
+    options={{ loop: false, align: "start", containScroll: "trimSnaps" }}
+  >
+    <CarouselContainer>
+      {
+        images?.map((item: any) => (
+          <CarouselItem>
+            <a href={item?.ctaUrl}>
+              <Image
+                class="h-[calc(100vh-80px)] object-cover w-full"
+                height={100}
+                width={100}
+                src={item?.imgSrc ?? ""}
+                alt="slide"
+                loading="eager"
+              />
+            </a>
+          </CarouselItem>
+        ))
+      }
+    </CarouselContainer>
+    <CarouselNext slot="next" />
+    <CarouselPrevious slot="previous" />
+  </Carousel>
+  <section
+    class="mt-8 max-w-7xl mx-auto"
+    x-data=`{tabs: ${JSON.stringify(categories?.items)}, tab: 0}`
+  >
+    <div class="flex gap-6">
+      <template x-for="(value, index) in tabs">
+        <div>
+          <button
+            x-on:click="tab = index"
+            x-text="value.name"
+            type="button"
+            :class="tab == index ? 'bg-black text-white font-bold' : 'bg-gray-50 text-black'"
+            class="cursor-pointer rounded-full px-4 py-2"></button>
+        </div>
+      </template>
+    </div>
+    {
+      categories.items?.map((item, index) => (
+        <div x-show={`tab == ${index}`} class="w-full">
+          <div class="grid grid-cols-2 md:grid-cols-4 md:gap-6 gap-2 mt-6">
+            {item?.products?.map((product: any) => (
+              <ProductCard
+                data={{
+                  name: product?.name,
+                  price: product?.price,
+                  discount: product?.discount,
+                  thumbnail: convertImageUrl(product?.expand?.thumbnail),
+                }}
+              />
+            ))}
+          </div>
+        </div>
+      ))
+    }
+  </section>
 </Main>

@@ -10,10 +10,14 @@
     "prepare": "husky"
   },
   "dependencies": {
+    "@alpinejs/focus": "^3.14.9",
+    "@alpinejs/intersect": "^3.14.9",
+    "@astrojs/alpinejs": "^0.4.8",
     "@astrojs/check": "^0.9.4",
     "@astrojs/mdx": "^4.3.3",
     "@astrojs/react": "^4.3.0",
     "@astrojs/vercel": "^8.2.5",
+    "@fontsource/inter": "^5.2.6",
     "@hookform/resolvers": "^5.2.1",
     "@nanostores/react": "^1.0.0",
     "@radix-ui/react-avatar": "^1.1.10",
@@ -31,9 +35,11 @@
     "@radix-ui/react-tabs": "^1.1.12",
     "@tailwindcss/vite": "^4.1.11",
     "@tanstack/react-query": "^5.84.1",
+    "@types/alpinejs": "^3.13.11",
     "@types/canvas-confetti": "^1.9.0",
     "@types/react": "^19.1.9",
     "@types/react-dom": "^19.1.7",
+    "alpinejs": "^3.14.9",
     "astro": "^5.12.8",
     "astro-loading-indicator": "^0.7.0",
     "axios": "^1.11.0",
@@ -41,6 +47,7 @@
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "cmdk": "^1.1.1",
+    "embla-carousel": "^8.6.0",
     "embla-carousel-autoplay": "^8.6.0",
     "embla-carousel-react": "^8.6.0",
     "lucide-react": "^0.536.0",
@@ -56,6 +63,8 @@
     "zod": "^4.0.14"
   },
   "devDependencies": {
+    "@types/alpinejs__focus": "^3.13.4",
+    "@types/alpinejs__intersect": "^3.13.4",
     "husky": "^9.1.7",
     "tw-animate-css": "^1.3.6"
   },

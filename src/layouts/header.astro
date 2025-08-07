@@ -1,8 +1,10 @@
 ---
-import NavigationMenu from "@/components/alpine/menu/navigation-menu.astro";
-import Tooltip from "@/components/alpine/tooltip.astro";
+import logo from "@/assets/logo.png";
+import NavigationMenu from "@/components/menu/navigation-menu.astro";
+import Tooltip from "@/components/tooltip.astro";
 import { FOLDER_COLLECTION, pb } from "@/lib/pocketbase";
 import { buildTree } from "@/lib/utils";
+import { Image } from "astro:assets";
 import { SearchIcon, ShoppingCartIcon, UserIcon, XIcon } from "lucide-react";
 
 async function fetchFolders() {
@@ -25,12 +27,14 @@ const { data } = await fetchFolders();
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="flex justify-between items-center">
         <div class="flex items-center">
-          <a href="/" class="text-xl">
-            <img
+          <a href="/">
+            <Image
+              height={100}
+              width={100}
               class="size-20 object-cover"
-              src="/logo.png"
-              alt=""
-              srcset=""
+              src={logo}
+              alt="logo"
+              loading="eager"
             />
           </a>
         </div>
@@ -133,12 +137,12 @@ const { data } = await fetchFolders();
           </div>
 
           <Tooltip text="Đăng ký">
-            <a href="/" class="px-2">
+            <a href="/" class="px-2" aria-label="Go to Page">
               <UserIcon className="inline" size={16} />
             </a>
           </Tooltip>
           <Tooltip text="Giỏ hàng">
-            <a href="/" class="px-2">
+            <a href="/" class="px-2" aria-label="Go to Page">
               <ShoppingCartIcon size={16} className="inline" />
             </a>
           </Tooltip>
@@ -147,3 +151,8 @@ const { data } = await fetchFolders();
     </div>
   </nav>
 </header>
+<style>
+  [x-cloak] {
+    display: none;
+  }
+</style>

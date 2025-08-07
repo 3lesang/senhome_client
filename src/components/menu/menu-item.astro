@@ -1,11 +1,15 @@
 <div
-  class="relative"
   x-data="{ open: false }"
   @mouseenter="open = true"
   @mouseleave="open = false"
 >
   <slot name="trigger" />
-  <div x-show="open" class="absolute z-10">
+  <div x-cloak x-show="open" class="absolute top-0 left-full h-full">
     <slot />
   </div>
 </div>
+<style>
+  [x-cloak] {
+    display: none;
+  }
+</style>

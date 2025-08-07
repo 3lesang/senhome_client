@@ -4,6 +4,8 @@ import vercel from "@astrojs/vercel";
 import tailwindcss from "@tailwindcss/vite";
 import { defineConfig } from "astro/config";
 
+import alpinejs from "@astrojs/alpinejs";
+
 // https://astro.build/config
 export default defineConfig({
   build: {
@@ -12,7 +14,7 @@ export default defineConfig({
   vite: {
     plugins: [tailwindcss()],
   },
-  integrations: [react()],
+  integrations: [react(), alpinejs({ entrypoint: "/src/entrypoint" })],
   prefetch: {
     defaultStrategy: "hover",
     prefetchAll: true,
