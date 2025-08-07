@@ -1,11 +1,15 @@
 ---
 import logo from "@/assets/logo.png";
-import NavigationMenu from "@/components/menu/navigation-menu.astro";
-import Tooltip from "@/components/tooltip.astro";
 import { FOLDER_COLLECTION, pb } from "@/lib/pocketbase";
 import { buildTree } from "@/lib/utils";
 import { Image } from "astro:assets";
-import { SearchIcon, ShoppingCartIcon, UserIcon, XIcon } from "lucide-react";
+import {
+  ChevronDownIcon,
+  SearchIcon,
+  ShoppingCartIcon,
+  UserIcon,
+  XIcon,
+} from "lucide-react";
 
 async function fetchFolders() {
   try {
@@ -22,67 +26,166 @@ async function fetchFolders() {
 const { data } = await fetchFolders();
 ---
 
+<script>
+  import Alpine from "alpinejs";
+  interface CartItem {
+    id: string;
+    name: string;
+    price: number;
+    discount: number;
+    thumbnail: string;
+    slug: string;
+    quantity: number;
+    selected?: boolean | undefined;
+  }
+  interface CartType {
+    items: CartItem[];
+    total: number | null;
+    addToCart: (item: CartItem) => void;
+  }
+  Alpine.store("cart", {
+    items: [],
+    total: null,
+    addToCart(item: CartItem) {
+      this.items;
+      const existingIndex = this.items.findIndex((i) => i.id === item.id);
+      let newItems;
+
+      if (existingIndex > -1) {
+        const existing = this.items[existingIndex];
+        newItems = [
+          ...this.items.slice(0, existingIndex),
+          {
+            ...existing,
+            quantity: existing.quantity + item.quantity,
+          },
+          ...this.items.slice(existingIndex + 1),
+        ];
+      } else {
+        newItems = [...this.items, { ...item, selected: true }];
+      }
+    },
+  } as CartType);
+
+  Alpine.data("search", () => ({
+    open: false,
+    position: "top",
+    size: "md",
+
+    transitionClasses: {
+      "x-transition:enter-start"() {
+        if (this.position === "start") {
+          return "-translate-x-full rtl:translate-x-full";
+        } else if (this.position === "end") {
+          return "translate-x-full rtl:-translate-x-full";
+        } else if (this.position === "top") {
+          return "-translate-y-full";
+        } else if (this.position === "bottom") {
+          return "translate-y-full";
+        }
+      },
+      "x-transition:leave-end"() {
+        if (this.position === "start") {
+          return "-translate-x-full rtl:translate-x-full";
+        } else if (this.position === "end") {
+          return "translate-x-full rtl:-translate-x-full";
+        } else if (this.position === "top") {
+          return "-translate-y-full";
+        } else if (this.position === "bottom") {
+          return "translate-y-full";
+        }
+      },
+    },
+  }));
+</script>
+
 <header>
   <nav>
-    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative">
       <div class="flex justify-between items-center">
         <div class="flex items-center">
           <a href="/">
             <Image
               height={100}
               width={100}
-              class="lg:size-20 size-16 object-cover"
+              class="lg:size-18 size-16 object-cover"
               src={logo}
               alt="logo"
               loading="eager"
             />
           </a>
         </div>
-        <NavigationMenu data={data} />
-        <div class="">
+        <div
+          class="hidden lg:flex h-[-webkit-fill-available] group items-center group/outer"
+        >
+          {
+            data?.map((item) => (
+              <div
+                class={`h-full group/inner ${item?.children?.length > 0 ? "peer" : ""}`}
+              >
+                <div class="h-full hover:cursor-pointer px-4 peer flex items-center">
+                  <p>{item?.name}</p>
+                  {item?.children?.length > 0 && <ChevronDownIcon size={16} />}
+                </div>
+                {item?.children?.length > 0 && (
+                  <div class="hidden group-hover/inner:block absolute top-full start-0 end-0 h-96 z-60 p-4">
+                    <div class="grid grid-cols-4">
+                      {item?.children?.map((child: any) => (
+                        <div>
+                          <a
+                            href={child?.link}
+                            class="font-bold uppercase hover:text-blue-600"
+                          >
+                            {child?.name}
+                          </a>
+                          <div class="mt-4">
+                            {child?.children?.map((item: any) => (
+                              <a
+                                href={item?.link}
+                                class="text-gray-600 text-sm  hover:text-blue-600"
+                              >
+                                {item?.name}
+                              </a>
+                            ))}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            ))
+          }
+          <div
+            class="h-0 peer-hover:h-96 transition-all duration-200 absolute top-full start-0 end-0 z-50 bg-white rounded-b"
+          >
+          </div>
+        </div>
+
+        <div class="flex items-center">
           <div
             class="inline"
-            x-data="{
-              open: false,
-              position: 'top',
-              size: 'md',
-
-              // Set transition classes based on position
-              transitionClasses: {
-                'x-transition:enter-start'() {
-                    if (this.position === 'start') {
-                      return '-translate-x-full rtl:translate-x-full';
-                    } else if (this.position === 'end') {
-                      return 'translate-x-full rtl:-translate-x-full';
-                    } else if (this.position === 'top') {
-                      return '-translate-y-full';
-                    } else if (this.position === 'bottom') {
-                      return 'translate-y-full';
-                    }
-                  },
-                'x-transition:leave-end'() {
-                    if (this.position === 'start') {
-                      return '-translate-x-full rtl:translate-x-full';
-                    } else if (this.position === 'end') {
-                      return 'translate-x-full rtl:-translate-x-full';
-                    } else if (this.position === 'top') {
-                      return '-translate-y-full';
-                    } else if (this.position === 'bottom') {
-                      return 'translate-y-full';
-                    }
-                  },
-              },
-            }"
+            x-data="search"
             x-on:keydown.esc.prevent="open = false"
           >
             <button
               x-on:click="open = true; $nextTick(() => $refs.input.focus())"
               type="button"
-              class="inline-flex items-center cursor-pointer px-4 py-2 border border-gray-100 hover:border-gray-200 rounded-full space-x-8 text-gray-500"
+              class="hidden lg:inline-flex items-center cursor-pointer px-4 py-2 border border-gray-100 hover:border-gray-200 rounded-full space-x-8 text-gray-500"
             >
-              <span>Tìm kiếm sản phẩm</span>
+              <span class="inline">Tìm kiếm sản phẩm</span>
+
               <SearchIcon size={16} className="inline" />
             </button>
+
+            <button
+              x-on:click="open = true; $nextTick(() => $refs.input.focus())"
+              type="button"
+              class="lg:hidden"
+            >
+              <SearchIcon className="inline" size={16} />
+            </button>
+
             <div
               x-cloak
               x-show="open"
@@ -136,29 +239,26 @@ const { data } = await fetchFolders();
             </div>
           </div>
 
-          <Tooltip text="Đăng ký">
+          <a href="/" class="px-2 inline" aria-label="Go to Page">
+            <UserIcon className="inline" size={16} />
+          </a>
+          <div class="relative inline">
             <a href="/" class="px-2" aria-label="Go to Page">
-              <UserIcon className="inline" size={16} />
+              <ShoppingCartIcon size={16} className="inline" />
             </a>
-          </Tooltip>
-          <Tooltip text="Giỏ hàng">
-            <div class="relative">
-              <a href="/" class="px-2" aria-label="Go to Page">
-                <ShoppingCartIcon size={16} className="inline" />
-              </a>
-              <span
-                class="absolute -right-2 -bottom-2 rounded-full bg-blue-500 text-white font-bold text-xs inline-flex justify-center items-center size-5"
-                >9</span
-              >
-            </div>
-          </Tooltip>
+            <span
+              class="absolute -right-2 -bottom-2 rounded-full bg-blue-500 text-white font-bold text-xs inline-flex justify-center items-center size-5"
+              >9</span
+            >
+          </div>
         </div>
       </div>
     </div>
   </nav>
+
+  <style>
+    [x-cloak] {
+      display: none;
+    }
+  </style>
 </header>
-<style>
-  [x-cloak] {
-    display: none;
-  }
-</style>

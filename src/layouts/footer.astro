@@ -1,12 +1,13 @@
 ---
 import logo from "@/assets/logo.png";
 import { Image } from "astro:assets";
+import { MapPinIcon, PhoneIcon } from "lucide-react";
 ---
 
 <footer class="py-16">
   <div class="max-w-6xl mx-auto">
     <div class="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4">
-      <div class="col-span-2 flex flex-col items-start">
+      <div class="col-span-2">
         <a href="/" class="flex items-center mb-4">
           <Image
             height={100}
@@ -18,31 +19,66 @@ import { Image } from "astro:assets";
           />
         </a>
 
-        <p class="text-sm text-gray-700">
-          Tên doanh nghiệp: Công Ty TNHH Nhất Tâm Senhome
-        </p>
-        <p class="text-sm text-gray-700">
-          Địa chỉ: Phú Xuân, Nhà Bè, Hồ Chí Minh
-        </p>
-        <p class="text-sm text-gray-700">SDT: 0933 108 680</p>
+        <div class="space-y-4">
+          <a href="/" class="text-sm text-gray-600 block">
+            <MapPinIcon size={16} className="inline" /> Phú Xuân, Nhà Bè, Hồ Chí
+            Minh
+          </a>
 
-        <!-- Copyright -->
-        <span class="text-sm text-gray-700 text-center sm:text-right">
-          © {new Date().getFullYear()}
-          <a href="/" class="hover:underline">Senhome</a>. All Rights Reserved.
-        </span>
+          <a href="tel:0933108680" class="text-sm text-gray-600 block">
+            <PhoneIcon size={16} className="inline fill-gray-600" /> 0933 108 680
+          </a>
+
+          <!-- Social Media and Copyright -->
+          <div
+            class="flex flex-col sm:flex-row sm:items-center sm:justify-between"
+          >
+            <!-- Social Media Icons -->
+            <div
+              class="flex space-x-4 justify-center sm:justify-start mb-4 sm:mb-0"
+            >
+              <a href="/" aria-label="Facebook">
+                <Image
+                  alt="facebook"
+                  height="24"
+                  width="24"
+                  src="https://cdn.simpleicons.org/facebook"
+                  loading="lazy"
+                />
+              </a>
+              <a href="/" aria-label="Facebook">
+                <Image
+                  alt="tiktok"
+                  height="24"
+                  width="24"
+                  src="https://cdn.simpleicons.org/tiktok"
+                  loading="lazy"
+                />
+              </a>
+              <a href="/" aria-label="Youtube">
+                <Image
+                  alt="tiktok"
+                  height="24"
+                  width="24"
+                  src="https://cdn.simpleicons.org/youtube"
+                  loading="lazy"
+                />
+              </a>
+            </div>
+          </div>
+        </div>
       </div>
 
       <div class="col-span-2">
-        <h6 class="text-xl font-bold mb-4">Điều khoản sử dụng</h6>
+        <h6 class="font-bold mb-4">Chính sách</h6>
         <ul class="space-y-2">
           <li>
-            <a href="/" class="text-sm text-gray-700 hover:underline"
+            <a href="/" class="text-sm text-gray-600 hover:underline"
               >Chính sách giao hàng, đổi hàng, hoàn tiền</a
             >
           </li>
           <li>
-            <a href="/" class="text-sm text-gray-700 hover:underline"
+            <a href="/" class="text-sm text-gray-600 hover:underline"
               >Chính sách bảo hành sản phẩm</a
             >
           </li>
@@ -53,38 +89,9 @@ import { Image } from "astro:assets";
     <!-- Divider -->
     <hr class="my-6 border-0" />
 
-    <!-- Social Media and Copyright -->
-    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between">
-      <!-- Social Media Icons -->
-      <div class="flex space-x-4 justify-center sm:justify-start mb-4 sm:mb-0">
-        <a href="/" aria-label="Facebook">
-          <Image
-            alt="facebook"
-            height="24"
-            width="24"
-            src="https://cdn.simpleicons.org/facebook"
-            loading="lazy"
-          />
-        </a>
-        <a href="/" aria-label="Facebook">
-          <Image
-            alt="tiktok"
-            height="24"
-            width="24"
-            src="https://cdn.simpleicons.org/tiktok"
-            loading="lazy"
-          />
-        </a>
-        <a href="/" aria-label="Youtube">
-          <Image
-            alt="tiktok"
-            height="24"
-            width="24"
-            src="https://cdn.simpleicons.org/youtube"
-            loading="lazy"
-          />
-        </a>
-      </div>
-    </div>
+    <!-- Copyright -->
+    <span class="text-sm text-gray-600 text-center sm:text-right">
+      © {new Date().getFullYear()} Bản quyền thuộc về Senhome
+    </span>
   </div>
 </footer>
