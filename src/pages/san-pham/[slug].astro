@@ -38,15 +38,19 @@ try {
     });
 } catch (error) {}
 
-const data = await pb
-  .collection(PRODUCT_VARIANT_ATTRIBUTES_COLLECTION)
-  .getFullList({
-    filter: `variant.product = "${product?.id}"`,
-    expand: "variant,attribute,attribute_value",
-    sort: "-attribute.order",
-  });
+async function getProductOptions(id?: string) {
+  const data = await pb
+    .collection(PRODUCT_VARIANT_ATTRIBUTES_COLLECTION)
+    .getFullList({
+      filter: `variant.product = "${id}"`,
+      expand: "variant,attribute,attribute_value",
+      sort: "-attribute.order",
+    });
 
-const options = formatAttributes(data);
+  return formatAttributes(data);
+}
+
+const options = await getProductOptions(product?.id);
 
 const images = await pb.collection(IMAGE_COLLECTION).getFullList({
   filter: `product="${product?.id}"||variant.product="${product?.id}"`,

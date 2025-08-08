@@ -10,6 +10,7 @@ interface Props {
     price?: number;
     name?: string;
     slug?: string;
+    options?: any[];
   };
 }
 
@@ -18,8 +19,22 @@ const { data } = Astro.props;
 const cartData = JSON.stringify({ ...data, quantity: 1 });
 ---
 
+<script>
+  import Alpine from "alpinejs";
+
+  Alpine.data("product", () => ({
+    options: new Map<string, any>(),
+    select(data: any) {
+      this.options.set(data.id, data.value);
+    },
+    selected(option_id: string, value_id: string) {
+      if (!this.options.has(option_id)) return;
+      return this.options.get(option_id).id == value_id;
+    },
+  }));
+</script>
 <a href={`/san-pham/${data?.slug}`}>
-  <article x-data>
+  <article x-data="product">
     <div class="rounded overflow-hidden relative group">
       <slot name="image" />
       <div
@@ -33,6 +48,34 @@ const cartData = JSON.stringify({ ...data, quantity: 1 });
             >Thêm vào giỏ hàng <PlusIcon size={16} className="inline" /></span
           >
         </button>
+        <div>
+          {
+            data?.options?.map((item: any) => (
+              <div class="space-x-2 mt-2">
+                <span class="text-xs">{item?.attribute_name}</span>
+                {item?.values?.map((value: any) => {
+                  const data = JSON.stringify({
+                    id: item?.attribute_id,
+                    value: {
+                      id: value?.id,
+                      name: value?.name,
+                      attribute_name: item?.attribute_name,
+                    },
+                  });
+                  const checked = `selected(${JSON.stringify(item?.attribute_id)}, ${JSON.stringify(value?.id)})`;
+                  return (
+                    <button
+                    @click.prevent=`select(${data})`
+                    :class=`${checked} ? 'bg-blue-500 text-white' : 'bg-gray-50 hover:bg-blue-500 hover:text-white'`
+                    class="px-2 py-1 rounded-2xl text-xs cursor-pointer">
+                      {value?.name}
+                    </button>
+                  );
+                })}
+              </div>
+            ))
+          }
+        </div>
       </div>
     </div>
 

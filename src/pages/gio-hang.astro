@@ -1,10 +1,155 @@
 ---
-import CartForm from "@/components/cart-form";
 import Main from "@/layouts/main.astro";
+import { Image } from "astro:assets";
+import { MinusIcon, PlusIcon, Trash2Icon } from "lucide-react";
 ---
 
+<script>
+  import { formatVND } from "@/lib/utils";
+  declare global {
+    interface Window {
+      formatVND: (price: number) => string;
+    }
+  }
+  window.formatVND = formatVND;
+</script>
+
 <Main title="Giỏ hàng">
-  <div class="h-full">
-    <CartForm client:only />
+  <div class="h-full mx-auto lg:px-16" x-data>
+    <div
+      class="flex h-full justify-center items-center text-center"
+      x-show="!$store.cart.totalQuantity"
+    >
+      <div>
+        <Image
+          height={100}
+          width={100}
+          class="size-24 object-cover mx-auto"
+          src="https://cdn-icons-png.flaticon.com/512/11329/11329060.png"
+          alt=""
+          loading="eager"
+        />
+        <p class="text-center text-sm text-gray-600 leading-12">
+          Giỏ hàng trống
+        </p>
+      </div>
+    </div>
+    <div class="grid grid-cols-2">
+      <div class="col-span-1 mt-8">
+        <div>
+          <h3 class="text-2xl mb-8">Thông tin vận chuyển</h3>
+        </div>
+        <div>
+          <h3 class="text-2xl mb-8">Hình thức thanh toán</h3>
+        </div>
+      </div>
+      <div class="col-span-1 mt-8">
+        <h3 class="text-2xl font-bold mb-8">Giỏ hàng</h3>
+        <div class="flex items-center justify-between">
+          <div class="flex items-center mb-4">
+            <input
+              id="default-checkbox"
+              type="checkbox"
+              value=""
+              class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded-sm focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+            />
+            <label
+              for="default-checkbox"
+              class="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300"
+              >Tất cả sản phẩm</label
+            >
+          </div>
+          <button class="text-sm cursor-pointer">Xóa tất cả</button>
+        </div>
+
+        <template x-for="(item) in $store.cart.items">
+          <div>
+            <div class="flex justify-between items-center">
+              <div class="flex items-center gap-4 w-2/3">
+                <input
+                  id="default-checkbox"
+                  type="checkbox"
+                  value=""
+                  class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded-sm focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+                />
+                <Image
+                  height={100}
+                  width={100}
+                  src="/"
+                  :src="item.thumbnail"
+                  alt=""
+                  class="size-18 object-cover rounded"
+                  loading="eager"
+                />
+                <div>
+                  <div>
+                    <a
+                      :href="item?.slug"
+                      x-text="item?.name"
+                      class="text-sm text-gray-800"></a>
+                  </div>
+                  <button
+                    class="text-xs text-gray-600 cursor-pointer hover:text-red-500"
+                  >
+                    <Trash2Icon size={16} className="inline" />
+                    Xóa
+                  </button>
+                </div>
+              </div>
+              <div>
+                <div class="flex items-center">
+                  <button type="button" class="cursor-pointer">
+                    <MinusIcon size={14} />
+                  </button>
+                  <p class="text-sm px-6" x-text="item.quantity"></p>
+                  <button class="cursor-pointer">
+                    <PlusIcon size={14} />
+                  </button>
+                </div>
+              </div>
+              <div>
+                <p class="font-bold" x-text="formatVND(item.price)"></p>
+                <p
+                  x-show="item?.discount"
+                  class="text-gray-500 line-through text-sm"
+                  x-text="formatVND(item.price)"
+                >
+                </p>
+              </div>
+            </div>
+            <hr class="my-4 border-t" />
+          </div>
+        </template>
+
+        <div>
+          <h3 class="text-lg">Chi tiết thanh toán</h3>
+          <div class="flex justify-between my-8 text-gray-600 text-sm">
+            <span>Tạm tính</span>
+            <span>3.429.000đ</span>
+          </div>
+          <div class="flex justify-between text-gray-600 text-sm">
+            <span>Phí giao hàng</span>
+            <span>Miễn phí</span>
+          </div>
+          <hr class="border-t my-4">
+          <div class="flex justify-between">
+            <span>Thành tiền</span>
+            <span class="font-bold">3.429.000đ</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div
+    class="fixed shadow-lg h-20 left-0 right-1/2 bottom-0 text-right bg-blue-100"
+  >
+  </div>
+  <div class="fixed shadow-lg h-20 right-0 left-1/2 bottom-0 text-right">
+    <button
+      type="button"
+      class="h-full bg-black text-white font-bold uppercase px-8 cursor-pointer hover:bg-gray-950"
+    >
+      Đặt hàng
+    </button>
   </div>
 </Main>

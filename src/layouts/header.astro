@@ -104,7 +104,7 @@ const { data } = await fetchFolders();
   }));
 </script>
 
-<header>
+<header class="fixed top-0 start-0 end-0 z-40 bg-white shadow-xs border-b border-gray-200">
   <nav>
     <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative">
       <div class="flex justify-between items-center">
@@ -129,7 +129,7 @@ const { data } = await fetchFolders();
                 class={`h-full group/inner ${item?.children?.length > 0 ? "peer" : ""}`}
               >
                 <div class="h-full hover:cursor-pointer px-4 peer flex items-center">
-                  <p>{item?.name}</p>
+                  <p class="font-semibold text-sm">{item?.name}</p>
                   {item?.children?.length > 0 && <ChevronDownIcon size={16} />}
                 </div>
                 {item?.children?.length > 0 && (
@@ -176,9 +176,9 @@ const { data } = await fetchFolders();
             <button
               x-on:click="open = true; $nextTick(() => $refs.input.focus())"
               type="button"
-              class="hidden lg:inline-flex items-center cursor-pointer px-4 py-2 border border-gray-100 hover:border-gray-200 rounded-full space-x-8 text-gray-500"
+              class="hidden lg:inline-flex items-center cursor-pointer px-4 py-2 border border-gray-100 hover:border-gray-200 rounded-full text-gray-500 space-x-16"
             >
-              <span class="inline">Tìm kiếm sản phẩm</span>
+              <span class="inline text-sm">Tìm kiếm sản phẩm</span>
 
               <SearchIcon size={16} className="inline" />
             </button>
@@ -244,11 +244,11 @@ const { data } = await fetchFolders();
             </div>
           </div>
 
-          <a href="/" class="px-2 inline" aria-label="Go to Page">
+          <a href="/dang-ky" class="px-2 inline" aria-label="Go to Page">
             <UserIcon className="inline" size={16} />
           </a>
           <div class="relative inline" x-data>
-            <a href="/" class="px-2" aria-label="Go to Page">
+            <a href="/gio-hang" class="px-2" aria-label="Go to Page">
               <ShoppingCartIcon size={16} className="inline" />
             </a>
             <span

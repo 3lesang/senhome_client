@@ -6,15 +6,23 @@ import CarouselItem from "@/components/slider/carousel-item.astro";
 import CarouselNext from "@/components/slider/carousel-next.astro";
 import CarouselPrevious from "@/components/slider/carousel-previous.astro";
 import Carousel from "@/components/slider/carousel.astro";
+import Footer from "@/layouts/footer.astro";
 import Main from "@/layouts/main.astro";
 import {
   CATEGORY_COLLECTION,
   IMAGE_COLLECTION,
   pb,
   PRODUCT_COLLECTION,
+  PRODUCT_VARIANT_ATTRIBUTES_COLLECTION,
 } from "@/lib/pocketbase";
-import { convertImageUrl } from "@/lib/utils";
+import { convertImageUrl, formatAttributes } from "@/lib/utils";
 import { Image } from "astro:assets";
+import {
+  BadgePercentIcon,
+  DollarSignIcon,
+  HeadphonesIcon,
+  TruckIcon,
+} from "lucide-react";
 
 async function fetchBanners() {
   try {
@@ -52,12 +60,28 @@ async function fetchProductGroupByCategory() {
   }
 }
 
+async function getProductOptions(id?: string) {
+  const data = await pb
+    .collection(PRODUCT_VARIANT_ATTRIBUTES_COLLECTION)
+    .getFullList({
+      filter: `variant.product = "${id}"`,
+      expand: "variant,attribute,attribute_value",
+      sort: "-attribute.order",
+    });
+
+  return formatAttributes(data);
+}
+
 async function fetchLatestProducts() {
   try {
     const data = await pb.collection(PRODUCT_COLLECTION).getList(1, 4, {
       sort: "-created",
       expand: "thumbnail",
     });
+    for (const item of data.items) {
+      const opts = await getProductOptions(item?.id);
+      item.options = opts;
+    }
     return data;
   } catch (error) {
     return null;
@@ -93,6 +117,54 @@ const latestProducts = await fetchLatestProducts();
     <CarouselNext slot="next" />
     <CarouselPrevious slot="previous" />
   </Carousel>
+
+  <section class="grid grid-cols-4 gap-2 mt-16 max-w-6xl mx-auto">
+    <div class="col-span-2 lg:col-span-1">
+      <div
+        class="flex bg-gray-50 items-center justify-center gap-2 py-4 px-4 rounded-md"
+      >
+        <TruckIcon size={32} strokeWidth={1} />
+        <div>
+          <p class="font-semibold text-sm">Miễn phí vận chuyển</p>
+          <p class="text-gray-500 text-xs">Contact us 24 hours a day</p>
+        </div>
+      </div>
+    </div>
+    <div class="col-span-2 lg:col-span-1">
+      <div
+        class="flex bg-gray-50 items-center justify-center gap-2 py-4 px-4 rounded-md"
+      >
+        <DollarSignIcon size={32} strokeWidth={1} />
+        <div>
+          <p class="font-semibold text-sm">Đổi trả & hoàn tiền</p>
+          <p class="text-gray-500 text-xs">Contact us 24 hours a day</p>
+        </div>
+      </div>
+    </div>
+    <div class="col-span-2 lg:col-span-1">
+      <div
+        class="flex bg-gray-50 items-center justify-center gap-2 py-4 px-4 rounded-md"
+      >
+        <BadgePercentIcon size={32} strokeWidth={1} />
+        <div>
+          <p class="font-semibold text-sm">Giảm giá</p>
+          <p class="text-gray-500 text-xs">Contact us 24 hours a day</p>
+        </div>
+      </div>
+    </div>
+    <div class="col-span-2 lg:col-span-1">
+      <div
+        class="flex bg-gray-50 items-center justify-center gap-2 py-4 px-4 rounded-md"
+      >
+        <HeadphonesIcon size={32} strokeWidth={1} />
+        <div>
+          <p class="font-semibold text-sm">Hỗ trợ 24/7</p>
+          <p class="text-gray-500 text-xs">Contact us 24 hours a day</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <section
     class="mt-16 max-w-6xl mx-auto"
     x-data=`{tabs: ${JSON.stringify(categories?.items)}, tab: 0}`
@@ -117,24 +189,24 @@ const latestProducts = await fetchLatestProducts();
       categories?.items?.map((item, index) => (
         <div x-show={`tab == ${index}`} class="w-full">
           <div class="grid grid-cols-2 md:grid-cols-4 md:gap-6 gap-2 mt-6">
-            {item?.products?.map((product: any) => (
+            {item?.products?.map((item: any) => (
               <ProductCard
                 data={{
-                  id: product?.id,
-                  name: product?.name,
-                  price: product?.price,
-                  discount: product?.discount,
-                  slug: product?.slug,
-                  thumbnail: convertImageUrl(product?.expand?.thumbnail),
+                  id: item?.id,
+                  name: item?.name,
+                  price: item?.price,
+                  discount: item?.discount,
+                  slug: `/san-pham/${item?.slug}`,
+                  thumbnail: convertImageUrl(item?.expand?.thumbnail),
                 }}
               >
                 <Image
                   slot="image"
                   width={100}
                   height={100}
-                  src={convertImageUrl(product?.expand?.thumbnail) ?? "/"}
+                  src={convertImageUrl(item?.expand?.thumbnail) ?? "/"}
                   loading="lazy"
-                  alt={product?.name ?? "product_image"}
+                  alt={item?.name ?? "product_image"}
                   class="aspect-square w-full bg-gray-200 object-cover group-hover:scale-105 xl:aspect-1/1 transition-all duration-300 ease-in-out"
                 />
               </ProductCard>
@@ -150,24 +222,25 @@ const latestProducts = await fetchLatestProducts();
     </div>
     <div class="grid grid-cols-2 md:grid-cols-4 md:gap-6 gap-2 mt-6">
       {
-        latestProducts?.items?.map((product: any) => (
+        latestProducts?.items?.map((item: any) => (
           <ProductCard
             data={{
-              id: product?.id,
-              name: product?.name,
-              price: product?.price,
-              discount: product?.discount,
-              slug: product?.slug,
-              thumbnail: convertImageUrl(product?.expand?.thumbnail),
+              id: item?.id,
+              name: item?.name,
+              price: item?.price,
+              discount: item?.discount,
+              slug: `/san-pham/${item?.slug}`,
+              thumbnail: convertImageUrl(item?.expand?.thumbnail),
+              options: item?.options,
             }}
           >
             <Image
               slot="image"
               width={100}
               height={100}
-              src={convertImageUrl(product?.expand?.thumbnail) ?? "/"}
+              src={convertImageUrl(item?.expand?.thumbnail) ?? "/"}
               loading="lazy"
-              alt={product?.name ?? "product_image"}
+              alt={item?.name ?? "product_image"}
               class="aspect-square w-full bg-gray-200 object-cover group-hover:scale-105 xl:aspect-1/1 transition-all duration-300 ease-in-out"
             />
           </ProductCard>
@@ -182,4 +255,6 @@ const latestProducts = await fetchLatestProducts();
       >
     </div>
   </section>
+
+  <Footer slot="footer" />
 </Main>
