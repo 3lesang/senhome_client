@@ -15,6 +15,11 @@
   resolved "https://registry.yarnpkg.com/@alpinejs/intersect/-/intersect-3.14.9.tgz#2a0b3c56e660f3c939c30d0d0b92479fea61d41b"
   integrity sha512-6LLIqrESA5kxuTbDJshtItfHmZoiiDOpf8lOeRrNtYjSj/FkggDpnjD+ZFGF5btEOVSpWic2VmG2BejR/aMxDw==
 
+"@alpinejs/persist@^3.14.9":
+  version "3.14.9"
+  resolved "https://registry.yarnpkg.com/@alpinejs/persist/-/persist-3.14.9.tgz#12df7449b727b6f20469c40ac908265580cfef6f"
+  integrity sha512-Td9hWEUtFFguYCRjXhq06sDultW21wXUnVro7YWJm+vjGu/nV/v3hepOXyYVjkGvH/F+zjx5UkzWXXzr3UiQ/w==
+
 "@ampproject/remapping@^2.2.0", "@ampproject/remapping@^2.3.0":
   version "2.3.0"
   resolved "https://registry.yarnpkg.com/@ampproject/remapping/-/remapping-2.3.0.tgz#ed441b6fa600072520ce18b43d2c8cc8caecc7f4"
@@ -1561,6 +1566,13 @@
   version "3.13.4"
   resolved "https://registry.yarnpkg.com/@types/alpinejs__intersect/-/alpinejs__intersect-3.13.4.tgz#69be10992b798c2bd53a448be6a1a30a5850a978"
   integrity sha512-yoX6WO7AleeULOQvPz7rrx7FJmu6l033bM7QiGcWyvZjqF2KIut99ByUZO6OWUQuYmbRjxsKthGiUYNaAywHiA==
+  dependencies:
+    "@types/alpinejs" "*"
+
+"@types/alpinejs__persist@^3.13.4":
+  version "3.13.4"
+  resolved "https://registry.yarnpkg.com/@types/alpinejs__persist/-/alpinejs__persist-3.13.4.tgz#d4b5c78540c36dfd7adc1cadb87f54fece1d8187"
+  integrity sha512-H+cW7294EV5fGmIGD3BCJme54//KyWxZcP4uI9pk6W7fECR5hEwdO7j7wogz0o4vapS/kXiXiAjuqC9F+W0Vpw==
   dependencies:
     "@types/alpinejs" "*"
 

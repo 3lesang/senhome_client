@@ -1,6 +1,6 @@
 ---
 import { formatVND } from "@/lib/utils";
-import { StarIcon } from "lucide-react";
+import { PlusIcon } from "lucide-react";
 
 interface Props {
   data?: {
@@ -14,13 +14,28 @@ interface Props {
 }
 
 const { data } = Astro.props;
+
+const cartData = JSON.stringify({ ...data, quantity: 1 });
 ---
 
 <a href={`/san-pham/${data?.slug}`}>
   <article x-data>
     <div class="rounded overflow-hidden relative group">
       <slot name="image" />
+      <div
+        class="opacity-0 group-hover:opacity-100 transition-opacity duration-150 absolute bottom-2 start-2 end-2 rounded backdrop-blur-2xl z-50 text-center py-2"
+      >
+        <button
+          @click.prevent=`$store.cart.addToCart(${cartData})`
+          class="cursor-pointer text-center text-sm"
+        >
+          <span
+            >Thêm vào giỏ hàng <PlusIcon size={16} className="inline" /></span
+          >
+        </button>
+      </div>
     </div>
+
     <div class="mt-4 space-y-2">
       <p class="line-clamp-2 group-hover:text-gray-600 text-sm text-gray-900">
         {data?.name}

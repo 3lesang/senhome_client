@@ -1,3 +1,7 @@
+---
+import { ArrowRightIcon, XIcon } from "lucide-react";
+---
+
 <script>
   import Alpine from "alpinejs";
 
@@ -9,9 +13,8 @@
     transitionClasses: any;
     notifications: {
       id: number;
-      message: string;
+      data: any;
       type: string;
-      link: string;
       visible: boolean;
     }[];
     triggerNotification: (message: string, type: string, link: string) => void;
@@ -47,11 +50,9 @@
       },
     },
 
-    triggerNotification(message: string, type: string, link: string) {
+    triggerNotification(data: any, type: string) {
       const id = this.nextId++;
-
-      this.notifications.push({ id, message, type, link, visible: false });
-
+      this.notifications.push({ id, data, type, visible: false });
       setTimeout(() => {
         const index = this.notifications.findIndex((n: any) => n.id === id);
 
@@ -77,6 +78,7 @@
       }
     },
   } as NotificationType);
+
 </script>
 
 <div x-data>
@@ -85,7 +87,7 @@
     x-show="$store.notification.notifications.length > 0"
     role="region"
     aria-label="Notifications"
-    class="fixed z-50 flex w-72 gap-2"
+    class="fixed z-50 flex gap-2"
     x-bind:class="{
       'flex-col-reverse': $store.notification.position === 'top-start' || $store.notification.position === 'top-end',
       'flex-col': $store.notification.position === 'bottom-start' || $store.notification.position === 'bottom-end',
@@ -106,7 +108,6 @@
         x-transition:enter-end="opacity-100 translate-x-0"
         x-transition:leave="transition ease-in duration-200"
         x-transition:leave-start="opacity-100 translate-x-0"
-        class="flex items-center justify-between gap-4 rounded-lg border border-zinc-200/75 bg-white p-4 text-sm shadow-xs dark:border-zinc-700/75 dark:bg-zinc-800"
         role="alert"
         x-bind:aria-live="notification.type === 'error' ? 'assertive' : 'polite'"
       >
@@ -183,10 +184,28 @@
             </template>
             <!-- END Info Icon -->
           </div>
+          <button
+            @click="$store.notification.dismissNotification(notification.id)"
+            type="button"
+            class="flex-none text-zinc-500 hover:text-zinc-700 active:text-zinc-500 dark:text-zinc-400 dark:hover:text-zinc-300 dark:active:text-zinc-400"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 20 20"
+              fill="currentColor"
+              class="hi-mini hi-x-mark inline-block size-5"
+              aria-hidden="true"
+            >
+              <path
+                d="M6.28 5.22a.75.75 0 0 0-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 1 0 1.06 1.06L10 11.06l3.72 3.72a.75.75 0 1 0 1.06-1.06L11.06 10l3.72-3.72a.75.75 0 0 0-1.06-1.06L10 8.94 6.28 5.22Z"
+              ></path>
+            </svg>
+            <span class="sr-only">Close Notification</span>
+          </button>
         </template>
-        <div class="grow">
-          <div x-text="notification.message"></div>
-          <template x-if="notification.link">
+
+        <template x-if="notification.link">
+          <div class="grow">
             <a
               @click="notification.link === '#' ? $event.preventDefault() : null"
               :href="notification.link"
@@ -205,26 +224,68 @@
                   clip-rule="evenodd"></path>
               </svg>
             </a>
-          </template>
-        </div>
-        <button
-          @click="$store.notification.dismissNotification(notification.id)"
-          type="button"
-          class="flex-none text-zinc-500 hover:text-zinc-700 active:text-zinc-500 dark:text-zinc-400 dark:hover:text-zinc-300 dark:active:text-zinc-400"
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 20 20"
-            fill="currentColor"
-            class="hi-mini hi-x-mark inline-block size-5"
-            aria-hidden="true"
-          >
-            <path
-              d="M6.28 5.22a.75.75 0 0 0-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 1 0 1.06 1.06L10 11.06l3.72 3.72a.75.75 0 1 0 1.06-1.06L11.06 10l3.72-3.72a.75.75 0 0 0-1.06-1.06L10 8.94 6.28 5.22Z"
-            ></path>
-          </svg>
-          <span class="sr-only">Close Notification</span>
-        </button>
+            <button
+              @click="$store.notification.dismissNotification(notification.id)"
+              type="button"
+              class="flex-none text-zinc-500 hover:text-zinc-700 active:text-zinc-500 dark:text-zinc-400 dark:hover:text-zinc-300 dark:active:text-zinc-400"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 20 20"
+                fill="currentColor"
+                class="hi-mini hi-x-mark inline-block size-5"
+                aria-hidden="true"
+              >
+                <path
+                  d="M6.28 5.22a.75.75 0 0 0-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 1 0 1.06 1.06L10 11.06l3.72 3.72a.75.75 0 1 0 1.06-1.06L11.06 10l3.72-3.72a.75.75 0 0 0-1.06-1.06L10 8.94 6.28 5.22Z"
+                ></path>
+              </svg>
+              <span class="sr-only">Close Notification</span>
+            </button>
+          </div>
+        </template>
+
+        <!-- Info Cart -->
+        <template x-if="notification.type === 'cart'">
+          <div class="bg-white shadow-lg rounded-md border w-80">
+            <div class="p-4 flex justify-between items-center">
+              <p class="font-bold w-max">Đã thêm vào giỏ hàng thành công</p>
+              <button
+                class="cursor-pointer"
+                @click="$store.notification.dismissNotification(notification.id)"
+                type="button"><XIcon /></button
+              >
+            </div>
+            <div class="flex gap-4 p-4">
+              <img
+                height={100}
+                width={100}
+                class="size-16 rounded object-cover"
+                :src="notification.data.thumbnail"
+                alt="thumbnail"
+              />
+              <div>
+                <p class="text-sm" x-text="notification.data.name"></p>
+                <span class="font-bold" x-text="notification.data.priceDiscount"
+                ></span>
+                <span
+                  x-show="notification.data.discount"
+                  class="line-through text-gray-500"
+                  x-text="notification.data.price"
+                >
+                </span>
+              </div>
+            </div>
+            <div class="p-4">
+              <a
+                href="/gio-hang"
+                class="px-4 py-2 bg-blue-500 rounded-full hover:bg-blue-600 text-sm text-white"
+                >Xem giỏ hàng <ArrowRightIcon className="inline" size={16} /></a
+              >
+            </div>
+          </div>
+        </template>
+        <!-- END Info Cart -->
       </div>
     </template>
   </div>

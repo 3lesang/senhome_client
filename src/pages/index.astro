@@ -120,6 +120,7 @@ const latestProducts = await fetchLatestProducts();
             {item?.products?.map((product: any) => (
               <ProductCard
                 data={{
+                  id: product?.id,
                   name: product?.name,
                   price: product?.price,
                   discount: product?.discount,
@@ -152,10 +153,12 @@ const latestProducts = await fetchLatestProducts();
         latestProducts?.items?.map((product: any) => (
           <ProductCard
             data={{
+              id: product?.id,
               name: product?.name,
               price: product?.price,
               discount: product?.discount,
               slug: product?.slug,
+              thumbnail: convertImageUrl(product?.expand?.thumbnail),
             }}
           >
             <Image
