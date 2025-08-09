@@ -26,8 +26,9 @@ const products = await fetchProduct();
   interface SearchType {
     open: boolean;
     query: string;
-    data: any[] | null;
+    data: any[];
     totalItems: number;
+    loading: boolean;
     fetchResults(query: string): void;
   }
   Alpine.data(
@@ -35,19 +36,22 @@ const products = await fetchProduct();
     (): SearchType => ({
       open: false,
       query: "",
-      data: null,
+      data: [],
       totalItems: 0,
+      loading: false,
       async fetchResults() {
         if (!this.query.trim()) {
-          this.data = null;
+          this.data = [];
           return;
         }
         try {
+          this.loading = true;
           const res = await pb.collection(PRODUCT_COLLECTION).getList(1, 4, {
             filter: `name ~ "${this.query}"`,
             fields: "name,slug,expand,price,discount",
             expand: "thumbnail",
           });
+          this.loading = false;
           this.totalItems = res.totalItems;
           const convertData = res?.items?.map((item) => ({
             name: item?.name,
@@ -59,7 +63,7 @@ const products = await fetchProduct();
           }));
           this.data = convertData;
         } catch (error) {
-          this.data = null;
+          this.data = [];
           return;
         }
       },
@@ -123,7 +127,7 @@ const products = await fetchProduct();
       </div>
 
       <div
-        x-show="!data"
+        x-show="!query"
         class="w-full mt-2 bg-white max-w-5xl rounded-md px-16 py-8 mx-auto"
       >
         <div>
@@ -160,7 +164,7 @@ const products = await fetchProduct();
         </div>
       </div>
       <div
-        x-show="data"
+        x-show="query"
         class="w-full mt-2 bg-white max-w-5xl rounded-md px-16 py-8 mx-auto"
       >
         <p class="font-semibold">Kết quả tìm kiếm</p>
@@ -200,7 +204,7 @@ const products = await fetchProduct();
             >Xem thêm</a
           >
         </div>
-        <div class="totalItems = 0">
+        <div x-show="!loading && !totalItems">
           <p class="text-center text-sm text-gray-700">Không có sản phẩm</p>
         </div>
       </div>
