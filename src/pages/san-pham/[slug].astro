@@ -1,21 +1,10 @@
 ---
 export const prerender = false;
 
-import AddToCartButton from "@/components/add-to-cart-button";
-import BuyNowButton from "@/components/buy-now-button";
-import ImageGallery from "@/components/image-gallery";
-import ProductOptionSelect from "@/components/product-option-select";
-import { StarRating } from "@/components/star-rating";
-import { Badge } from "@/components/ui/badge";
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
-import { Button, buttonVariants } from "@/components/ui/button";
+import FreeShipIcon from "@/assets/free-ship.svg";
+import LocationIcon from "@/assets/location.svg";
+import PhoneIcon from "@/assets/phone.svg";
+import ReturnIcon from "@/assets/return-60.svg";
 import Main from "@/layouts/main.astro";
 import {
   IMAGE_COLLECTION,
@@ -23,174 +12,301 @@ import {
   PRODUCT_COLLECTION,
   PRODUCT_VARIANT_ATTRIBUTES_COLLECTION,
 } from "@/lib/pocketbase";
-import { cn, convertImageUrl, formatAttributes, formatVND } from "@/lib/utils";
+import { convertImageUrl, formatAttributes, formatVND } from "@/lib/utils";
 import "@/styles/content.css";
-import { Share2Icon, ShieldCheckIcon } from "lucide-react";
+import ShoppingCartIcon from "@lucide/astro/icons/shopping-cart";
+import { Image } from "astro:assets";
 
 const { slug } = Astro.params;
 
-let product = null;
-try {
-  product = await pb
-    .collection(PRODUCT_COLLECTION)
-    .getFirstListItem(`slug = "${slug}"`, {
-      expand: "category",
-    });
-} catch (error) {}
-
-async function getProductOptions(id?: string) {
-  const data = await pb
-    .collection(PRODUCT_VARIANT_ATTRIBUTES_COLLECTION)
-    .getFullList({
-      filter: `variant.product = "${id}"`,
-      expand: "variant,attribute,attribute_value",
-      sort: "-attribute.order",
-    });
-
-  return formatAttributes(data);
+async function getProduct(slug?: string) {
+  if (!slug) return null;
+  try {
+    return await pb
+      .collection(PRODUCT_COLLECTION)
+      .getFirstListItem(`slug = "${slug}"`, {
+        expand: "category",
+      });
+  } catch (error) {
+    return null;
+  }
 }
 
-const options = await getProductOptions(product?.id);
+async function getProductOptions(id?: string) {
+  try {
+    return await pb
+      .collection(PRODUCT_VARIANT_ATTRIBUTES_COLLECTION)
+      .getFullList({
+        filter: `variant.product = "${id}"`,
+        expand: "variant,attribute,attribute_value",
+        sort: "-attribute.order",
+      });
+  } catch (error) {
+    return null;
+  }
+}
 
-const images = await pb.collection(IMAGE_COLLECTION).getFullList({
-  filter: `product="${product?.id}"||variant.product="${product?.id}"`,
-});
+async function getImages(productId?: string) {
+  try {
+    return await pb.collection(IMAGE_COLLECTION).getFullList({
+      filter: `product="${productId}"||variant.product="${productId}"`,
+    });
+  } catch (error) {
+    return null;
+  }
+}
 
-const galleryData = images.map((item) => ({
+let product = await getProduct(slug);
+
+const optionData = await getProductOptions(product?.id);
+
+const images = await getImages(product?.id);
+
+const options = formatAttributes(optionData ?? []);
+
+const galleryData = images?.map((item) => ({
   id: item?.variant,
   image: convertImageUrl(item) || "",
 }));
 ---
 
 <Main title={product?.name}>
-  <div class="">
-    <div class="lg:max-w-6xl mx-auto">
-      <Breadcrumb className="py-4 px-2 lg:px-0">
-        <BreadcrumbList>
-          <BreadcrumbItem>
-            <BreadcrumbLink
-              href="/"
-              className="hover:underline hover:text-blue-500"
+  <div>
+    <div class="lg:max-w-7xl mx-auto">
+      <div class="mt-10 mb-6">
+        <nav
+          class="text-sm text-on-surface dark:text-on-surface-dark"
+          aria-label="breadcrumb"
+        >
+          <ol class="flex flex-wrap items-center gap-1">
+            <li class="flex items-center gap-1.5">
+              <a
+                href="/"
+                aira-label="home"
+                class="hover:text-on-surface-strong dark:hover:text-on-surface-dark-strong"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                  aria-hidden="true"
+                  class="size-4"
+                >
+                  <path
+                    fill-rule="evenodd"
+                    clip-rule="evenodd"
+                    d="M9.293 2.293a1 1 0 0 1 1.414 0l7 7A1 1 0 0 1 17 11h-1v6a1 1 0 0 1-1 1h-2a1 1 0 0 1-1-1v-3a1 1 0 0 0-1-1H9a1 1 0 0 0-1 1v3a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1v-6H3a1 1 0 0 1-.707-1.707l7-7Z"
+                  ></path>
+                </svg>
+              </a>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                aria-hidden="true"
+                stroke-width="2"
+                stroke="currentColor"
+                class="size-4"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="m8.25 4.5 7.5 7.5-7.5 7.5"></path>
+              </svg>
+            </li>
+            <li class="flex items-center gap-1">
+              <a
+                href={`/danh-muc/${product?.expand?.category?.slug}`}
+                class="hover:text-on-surface-strong dark:hover:text-on-surface-dark-strong"
+                >{product?.expand?.category?.name}</a
+              >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                aria-hidden="true"
+                stroke-width="2"
+                stroke="currentColor"
+                class="size-4"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="m8.25 4.5 7.5 7.5-7.5 7.5"></path>
+              </svg>
+            </li>
+            <li
+              class="flex items-center gap-1 text-on-surface-strong dark:text-on-surface-dark-strong"
+              aria-current="page"
             >
-              Trang chủ
-            </BreadcrumbLink>
-          </BreadcrumbItem>
-          <BreadcrumbSeparator />
-          <BreadcrumbItem>
-            <BreadcrumbLink
-              href="/components"
-              className="hover:underline hover:text-blue-500"
-              >{product?.expand?.category?.name}</BreadcrumbLink
-            >
-          </BreadcrumbItem>
-          <BreadcrumbSeparator />
-          <BreadcrumbItem>
-            <BreadcrumbPage className="line-clamp-1"
-              >{product?.name}</BreadcrumbPage
-            >
-          </BreadcrumbItem>
-        </BreadcrumbList>
-      </Breadcrumb>
-      <div class="grid grid-cols-12 gap-4">
-        <div class="col-span-12 lg:col-span-7">
-          <ImageGallery client:only data={galleryData || []} />
+              {product?.name}
+            </li>
+          </ol>
+        </nav>
+      </div>
+      <div class="grid grid-cols-12 gap-10" x-data="productCarousel">
+        <div class="col-span-12 lg:col-span-6">
+          <div class="flex gap-2">
+            <div class="flex flex-col gap-2">
+              {
+                galleryData?.map((item, index) => (
+                  <Image
+                    height={100}
+                    width={100}
+                    src={item?.image}
+                    alt=""
+                    class="min-w-10 h-14 object-cover rounded cursor-pointer"
+                    :class=`index == ${index} ? "opacity-100": "opacity-20"`
+                    @click=`scrollTo(${index})`
+                    loading="eager"
+                  />
+                ))
+              }
+            </div>
+            <div class="embla">
+              <div class="embla__container">
+                {
+                  galleryData?.map((item: any) => (
+                    <div class="embla__slide">
+                      <Image
+                        class="h-[790px] rounded object-cover w-full"
+                        height={100}
+                        width={100}
+                        src={item?.image ?? ""}
+                        alt="slide"
+                        loading="eager"
+                      />
+                    </div>
+                  ))
+                }
+              </div>
+            </div>
+
+          </div>
         </div>
-        <div class="col-span-12 lg:col-span-5 space-y-4 px-4 lg:px-0">
+        <div class="col-span-12 lg:col-span-6 space-y-4 px-4 lg:px-0">
           <div class="space-y-1">
             <div>
-              <p class="text-xl font-medium inline">{product?.name}</p>
-              <Button size="icon" variant="ghost" className="cursor-pointer"
-                ><Share2Icon /></Button
-              >
+              <h1 class="font-bold inline text-2xl">{product?.name}</h1>
             </div>
+            <hr class="border-t my-8" />
 
-            <div class="space-x-4">
-              <span class="space-x-1">
-                <StarRating rating={3} className="inline" />
-                <span class="text-sm font-bold text-blue-500">404 đánh giá</span
-                >
-              </span>
-
-              <span class="text-sm">
-                <span class="text-gray-600">Đã bán</span>
-                <span class="font-bold">1k</span>
-              </span>
-            </div>
             {
               product?.discount > 0 && (
                 <p class="text-gray-600 text-sm">
-                  <Badge className="font-bold">
-                    -{product?.discount * 100}%
-                  </Badge>
                   <span class="line-through">{formatVND(product?.price)}</span>
                 </p>
               )
             }
-            <p class="text-xl font-bold">
+            <span class="font-bold text-3xl">
               {formatVND(product?.price - product?.price * product?.discount)}
-            </p>
-          </div>
-          <div class="space-x-4 text-sm text-gray-600">
-            <span>Vận chuyển</span>
-            <span class=""> </span>
-          </div>
-          <div class="space-x-4 text-sm text-gray-600">
-            <span>Chính sách</span>
-            <span class="space-x-2">
-              <span class="">
-                <ShieldCheckIcon className="inline" size={18} />
-                Trả hàng miễn phí</span
-              >
-              <span>Miễn phí vẫn chuyển</span>
             </span>
-          </div>
-          <div>
-            <ProductOptionSelect
-              client:only
-              product_id={product?.id || ""}
-              optionData={options}
-            />
+            <span class="font-bold text-white bg-blue-500 px-2 py-1 rounded-2xl"
+              >-{product?.discount * 100}%</span
+            >
           </div>
 
-          <div class="flex gap-2">
-            <AddToCartButton
-              data={{ id: product?.id }}
-              client:load
-              className={cn(
-                buttonVariants({ variant: "outline", size: "lg" }),
-                "flex-1 cursor-pointer"
-              )}
-            />
-            <BuyNowButton
-              client:load
-              item={{
-                id: product?.id || "",
-                name: product?.name || "",
-                price: product?.price || 0,
-                discount: product?.discount || 0,
-                slug: product?.slug || "",
-                thumbnail: product?.gallery?.[0],
-                quantity: 1,
-                selected: true,
-              }}
-              className={cn(buttonVariants({ size: "lg" }), "flex-1")}
-            />
+          <div class="text-gray-600">
+            {
+              options?.map((item: any) => (
+                <div class="space-y-4 mt-4">
+                  <div>
+                    <p class="">{item?.attribute_name}</p>
+                  </div>
+                  <div class="space-x-4">
+                    {item?.values?.map((value: any) => {
+                      const index = galleryData?.findIndex(
+                        (item) => item.id == value.variant.id
+                      );
+                      return (
+                        <button class="px-4 py-2 rounded-lg cursor-pointer bg-gray-50 text-gray-800" 
+                          @click=`scrollTo(${index})`
+                        >
+                          {value?.name}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              ))
+            }
+          </div>
+
+          <button
+            class="bg-blue-500 py-3 cursor-pointer hover:bg-blue-600 rounded-full text-white font-bold w-full"
+          >
+            <ShoppingCartIcon size={16} class="inline" />
+            Thêm vào giỏ</button
+          >
+          <p class="text-center my-4">
+            <a href="#description" class="underline font-bold">Mô tả sản phẩm</a>
+          </p>
+          <hr class="border-t">
+
+          <div class="grid grid-cols-2 bg-gray-50 rounded-lg h-32 mt-2 text-sm p-4 text-gray-800">
+            <div class="flex items-center gap-4">
+              <Image src={FreeShipIcon} alt="" height={100} width={100} class="size-10"  />
+              <span>Free ship cho đơn từ 200k</span>
+            </div>
+            <div class="flex items-center gap-4">
+              <Image src={ReturnIcon} alt="" height={100} width={100} class="size-10"  />
+              <span>60 ngày đổi trả vì bất kỳ lý do gì</span>
+            </div>
+            <div class="flex items-center gap-4">
+              <Image src={PhoneIcon} alt="" height={100} width={100} class="size-10"  />
+              <span>Hotline hỗ trợ từ 8h30 - 22h</span>
+            </div>
+            <div class="flex items-center gap-4">
+              <Image src={LocationIcon} alt="" height={100} width={100} class="size-10"  />
+              <span>Đến tận nơi nhận hàng trả, hoàn tiền trong 24h</span>
+            </div>
           </div>
         </div>
       </div>
     </div>
-    <div class="bg-gray-50 py-4 px-4 lg:px-0">
-      <div
-        class="lg:max-w-6xl mx-auto text-sm font-semibold text-gray-700 space-x-2"
-      >
-        <a class="" href="#thong-tin">Thông tin sản phẩm</a>
-        <a class="" href="#danh-gia">Đánh giá</a>
+
+    <div class="mt-8" x-data="{ tab: 0 }">
+      <div class="flex lg:max-w-6xl mx-auto font-semibold text-gray-700">
+        <button
+          type="button"
+          class="cursor-pointer px-6 py-2 hover:bg-gray-50"
+          :class="tab == 0 ? 'bg-gray-50' : ''"
+          @click="tab = 0">Thông tin sản phẩm</button
+        >
+        <button
+          type="button"
+          class="cursor-pointer px-6 py-2 hover:bg-gray-50"
+          :class="tab == 1 ? 'bg-gray-50' : ''"
+          @click="tab = 1">Đánh giá</button
+        >
+      </div>
+      <div class="bg-gray-50 py-8" x-cloak x-show="tab == 0" id="description">
+        <h1 class="uppercase font-bold text-center text-xl">Mô tả sản phẩm</h1>
+        <div class="content px-56" set:html={product?.description} />
+      </div>
+      <div class="bg-gray-50 py-8" x-cloak x-show="tab == 1">
+        <h1 class="uppercase font-bold text-center text-xl">
+          Đánh giá sản phẩm
+        </h1>
       </div>
     </div>
-    <div>
-      <div class="max-w-6xl mx-auto px-2 lg:px-0">
-        <div class="content" set:html={product?.description} />
-      </div>
-    </div>
+
+    <section class="max-w-7xl mx-auto mt-16">
+      <h3 class="uppercase font-bold text-xl">Gợi ý sản phẩm</h3>
+      <div class="h-96"></div>
+    </section>
   </div>
 </Main>
+
+<style>
+  .embla {
+    overflow: hidden;
+  }
+  .embla__container {
+    display: flex;
+  }
+  .embla__slide {
+    flex: 0 0 100%;
+    min-width: 0;
+  }
+</style>

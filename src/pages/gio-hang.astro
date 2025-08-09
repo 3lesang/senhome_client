@@ -1,7 +1,10 @@
 ---
+import CODIcon from "@/assets/mceclip2_42.avif";
 import Main from "@/layouts/main.astro";
+import MinusIcon from "@lucide/astro/icons/minus";
+import PlusIcon from "@lucide/astro/icons/plus";
+import Trash2Icon from "@lucide/astro/icons/trash-2";
 import { Image } from "astro:assets";
-import { MinusIcon, PlusIcon, Trash2Icon } from "lucide-react";
 ---
 
 <script>
@@ -34,122 +37,168 @@ import { MinusIcon, PlusIcon, Trash2Icon } from "lucide-react";
         </p>
       </div>
     </div>
-    <div class="grid grid-cols-2">
-      <div class="col-span-1 mt-8">
-        <div>
-          <h3 class="text-2xl mb-8">Thông tin vận chuyển</h3>
-        </div>
-        <div>
-          <h3 class="text-2xl mb-8">Hình thức thanh toán</h3>
-        </div>
-      </div>
-      <div class="col-span-1 mt-8">
-        <h3 class="text-2xl font-bold mb-8">Giỏ hàng</h3>
-        <div class="flex items-center justify-between">
-          <div class="flex items-center mb-4">
-            <input
-              id="default-checkbox"
-              type="checkbox"
-              value=""
-              class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded-sm focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
-            />
-            <label
-              for="default-checkbox"
-              class="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300"
-              >Tất cả sản phẩm</label
-            >
-          </div>
-          <button class="text-sm cursor-pointer">Xóa tất cả</button>
-        </div>
-
-        <template x-for="(item) in $store.cart.items">
+    <div x-show="$store.cart.totalQuantity > 0">
+      <div class="grid grid-cols-2 gap-8">
+        <div class="col-span-1 mt-8">
           <div>
-            <div class="flex justify-between items-center">
-              <div class="flex items-center gap-4 w-2/3">
-                <input
-                  id="default-checkbox"
-                  type="checkbox"
-                  value=""
-                  class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded-sm focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
-                />
-                <Image
-                  height={100}
-                  width={100}
-                  src="/"
-                  :src="item.thumbnail"
-                  alt=""
-                  class="size-18 object-cover rounded"
-                  loading="eager"
-                />
-                <div>
-                  <div>
-                    <a
-                      :href="item?.slug"
-                      x-text="item?.name"
-                      class="text-sm text-gray-800"></a>
-                  </div>
-                  <button
-                    class="text-xs text-gray-600 cursor-pointer hover:text-red-500"
-                  >
-                    <Trash2Icon size={16} className="inline" />
-                    Xóa
-                  </button>
-                </div>
-              </div>
+            <h3 class="text-2xl mb-8">Thông tin vận chuyển</h3>
+            <div>
               <div>
-                <div class="flex items-center">
-                  <button type="button" class="cursor-pointer">
-                    <MinusIcon size={14} />
-                  </button>
-                  <p class="text-sm px-6" x-text="item.quantity"></p>
-                  <button class="cursor-pointer">
-                    <PlusIcon size={14} />
-                  </button>
-                </div>
-              </div>
-              <div>
-                <p class="font-bold" x-text="formatVND(item.price)"></p>
-                <p
-                  x-show="item?.discount"
-                  class="text-gray-500 line-through text-sm"
-                  x-text="formatVND(item.price)"
+                <label
+                  for="first_name"
+                  class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+                  >Họ tên</label
                 >
-                </p>
+                <input
+                  type="text"
+                  id="first_name"
+                  class="px-6 py-2 border rounded-full outline-0 hover:border-gray-500"
+                  placeholder="Nhập họ tên của bạn"
+                  required
+                />
               </div>
             </div>
-            <hr class="my-4 border-t" />
           </div>
-        </template>
+          <div class="mt-8">
+            <h3 class="text-2xl mb-8">Hình thức thanh toán</h3>
+            <div
+              class="border py-4 px-8 rounded-2xl cursor-pointer hover:bg-gray-50"
+            >
+              <input
+                id="default-radio-1"
+                type="radio"
+                value=""
+                name="default-radio"
+                class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300"
+              />
+              <Image
+                src={CODIcon}
+                alt=""
+                height={100}
+                width={100}
+                class="size-10 inline"
+              />
+              <label for="default-radio-1" class="font-bold text-sm"
+                >Thanh toán khi nhận hàng</label
+              >
+            </div>
+          </div>
+        </div>
+        <div class="col-span-1 mt-8">
+          <h3 class="text-2xl font-bold mb-8">Giỏ hàng</h3>
+          <div class="flex items-center justify-between">
+            <div class="flex items-center mb-4">
+              <input
+                id="default-checkbox"
+                type="checkbox"
+                value=""
+                class="size-4 cursor-pointer"
+              />
+              <label
+                for="default-checkbox"
+                class="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300"
+                >Tất cả sản phẩm</label
+              >
+            </div>
+            <button class="text-sm cursor-pointer">Xóa tất cả</button>
+          </div>
 
-        <div>
-          <h3 class="text-lg">Chi tiết thanh toán</h3>
-          <div class="flex justify-between my-8 text-gray-600 text-sm">
-            <span>Tạm tính</span>
-            <span>3.429.000đ</span>
+          <template x-for="(item) in $store.cart.items">
+            <div>
+              <div class="flex justify-between items-center">
+                <div class="flex items-center gap-4 w-2/3">
+                  <input
+                    id="default-checkbox"
+                    type="checkbox"
+                    value=""
+                    class="h-4 min-w-4 cursor-pointer"
+                  />
+                  <Image
+                    height={100}
+                    width={100}
+                    src="/"
+                    :src="item.thumbnail"
+                    alt=""
+                    class="size-18 object-cover rounded"
+                    loading="eager"
+                  />
+                  <div>
+                    <div>
+                      <a
+                        :href="item?.slug"
+                        x-text="item?.name"
+                        class="text-sm text-gray-800 line-clamp-1"></a>
+                    </div>
+                    <button
+                      class="text-xs text-gray-600 cursor-pointer hover:text-red-500"
+                    >
+                      <Trash2Icon size={16} class="inline" />
+                      Xóa
+                    </button>
+                  </div>
+                </div>
+                <div>
+                  <div class="flex items-center">
+                    <button type="button" class="cursor-pointer">
+                      <MinusIcon size={14} />
+                    </button>
+                    <p class="text-sm px-6" x-text="item.quantity"></p>
+                    <button class="cursor-pointer">
+                      <PlusIcon size={14} />
+                    </button>
+                  </div>
+                </div>
+                <div>
+                  <p class="font-bold" x-text="formatVND(item.price)"></p>
+                  <p
+                    x-show="item?.discount"
+                    class="text-gray-500 line-through text-sm"
+                    x-text="formatVND(item.price)"
+                  >
+                  </p>
+                </div>
+              </div>
+              <hr class="my-4 border-t" />
+            </div>
+          </template>
+
+          <div>
+            <h3 class="text-lg">Chi tiết thanh toán</h3>
+            <div class="flex justify-between my-8 text-gray-600 text-sm">
+              <span>Tạm tính</span>
+              <span>3.429.000đ</span>
+            </div>
+            <div class="flex justify-between text-gray-600 text-sm">
+              <span>Phí giao hàng</span>
+              <span>Miễn phí</span>
+            </div>
+            <hr class="border-t my-4" />
+            <div class="flex justify-between">
+              <span>Thành tiền</span>
+              <span class="font-bold">3.429.000đ</span>
+            </div>
           </div>
-          <div class="flex justify-between text-gray-600 text-sm">
-            <span>Phí giao hàng</span>
-            <span>Miễn phí</span>
-          </div>
-          <hr class="border-t my-4">
-          <div class="flex justify-between">
-            <span>Thành tiền</span>
-            <span class="font-bold">3.429.000đ</span>
+        </div>
+      </div>
+
+      <div
+        class="flex fixed shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] h-20 start-0 end-0 bottom-0 text-right"
+      >
+        <div class="grid grid-cols-2 w-full">
+          <div class="col-span-1 bg-blue-50"></div>
+          <div class="col-span-1 flex">
+            <div class="flex flex-1 justify-center items-center">
+              <p class="font-bold text-2xl">3.429.000đ</p>
+            </div>
+            <button
+              type="button"
+              class="h-full bg-blue-500 text-white font-bold uppercase px-8 cursor-pointer hover:bg-gray-950"
+            >
+              Đặt hàng
+            </button>
           </div>
         </div>
       </div>
     </div>
-  </div>
-  <div
-    class="fixed shadow-lg h-20 left-0 right-1/2 bottom-0 text-right bg-blue-100"
-  >
-  </div>
-  <div class="fixed shadow-lg h-20 right-0 left-1/2 bottom-0 text-right">
-    <button
-      type="button"
-      class="h-full bg-black text-white font-bold uppercase px-8 cursor-pointer hover:bg-gray-950"
-    >
-      Đặt hàng
-    </button>
   </div>
 </Main>

@@ -1,13 +1,6 @@
 ---
 export const prerender = false;
 import ProductCard from "@/components/product-card.astro";
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
 import Main from "@/layouts/main.astro";
 import { CATEGORY_COLLECTION, pb, PRODUCT_COLLECTION } from "@/lib/pocketbase";
 
@@ -44,27 +37,6 @@ const { category, products } = await getProductsByCategorySlug(slug);
 
 <Main title={category?.name}>
   <div class="max-w-6xl mx-auto">
-    <Breadcrumb className="my-4">
-      <BreadcrumbList>
-        <BreadcrumbItem>
-          <BreadcrumbLink
-            href="/"
-            className="hover:underline hover:text-blue-500"
-          >
-            Trang chủ
-          </BreadcrumbLink>
-        </BreadcrumbItem>
-        <BreadcrumbSeparator />
-        <BreadcrumbItem>
-          <BreadcrumbLink
-            href={`/danh-muc/${category?.slug}`}
-            className="hover:underline hover:text-blue-500"
-            >{category?.name}</BreadcrumbLink
-          >
-        </BreadcrumbItem>
-      </BreadcrumbList>
-    </Breadcrumb>
-
     <h3 class="text-xl font-bold">{category?.name}</h3>
     <div class="h-4"></div>
     {

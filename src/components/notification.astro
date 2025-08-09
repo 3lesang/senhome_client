@@ -1,85 +1,7 @@
 ---
-import { ArrowRightIcon, XIcon } from "lucide-react";
+import ArrowRightIcon from "@lucide/astro/icons/arrow-right";
+import XIcon from "@lucide/astro/icons/x";
 ---
-
-<script>
-  import Alpine from "alpinejs";
-
-  interface NotificationType {
-    position: "top-start" | "top-end" | "bottom-start" | "bottom-end";
-    autoClose: boolean;
-    autoCloseDelay: number;
-    nextId: number;
-    transitionClasses: any;
-    notifications: {
-      id: number;
-      data: any;
-      type: string;
-      visible: boolean;
-    }[];
-    triggerNotification: (message: string, type: string, link: string) => void;
-    dismissNotification: (id: number) => void;
-  }
-  Alpine.store("notification", {
-    position: "top-end",
-    autoClose: true,
-    autoCloseDelay: 5000,
-    notifications: [],
-    nextId: 1,
-
-    transitionClasses: {
-      "x-transition:enter-start"() {
-        if (this.position === "top-start" || this.position === "bottom-start") {
-          return "opacity-0 -translate-x-12 rtl:translate-x-12";
-        } else if (
-          this.position === "top-end" ||
-          this.position === "bottom-end"
-        ) {
-          return "opacity-0 translate-x-12 rtl:-translate-x-12";
-        }
-      },
-      "x-transition:leave-end"() {
-        if (this.position === "top-start" || this.position === "bottom-start") {
-          return "opacity-0 -translate-x-12 rtl:translate-x-12";
-        } else if (
-          this.position === "top-end" ||
-          this.position === "bottom-end"
-        ) {
-          return "opacity-0 translate-x-12 rtl:-translate-x-12";
-        }
-      },
-    },
-
-    triggerNotification(data: any, type: string) {
-      const id = this.nextId++;
-      this.notifications.push({ id, data, type, visible: false });
-      setTimeout(() => {
-        const index = this.notifications.findIndex((n: any) => n.id === id);
-
-        if (index > -1) {
-          this.notifications[index].visible = true;
-        }
-      }, 30);
-
-      if (this.autoClose) {
-        setTimeout(() => this.dismissNotification(id), this.autoCloseDelay);
-      }
-    },
-
-    dismissNotification(id: number) {
-      const index = this.notifications.findIndex((n: any) => n.id === id);
-
-      if (index > -1) {
-        this.notifications[index].visible = false;
-
-        setTimeout(() => {
-          this.notifications.splice(index, 1);
-        }, 300);
-      }
-    },
-  } as NotificationType);
-
-</script>
 
 <div x-data>
   <div
@@ -280,7 +202,7 @@ import { ArrowRightIcon, XIcon } from "lucide-react";
               <a
                 href="/gio-hang"
                 class="px-4 py-2 bg-blue-500 rounded-full hover:bg-blue-600 text-sm text-white"
-                >Xem giỏ hàng <ArrowRightIcon className="inline" size={16} /></a
+                >Xem giỏ hàng <ArrowRightIcon class="inline" size={16} /></a
               >
             </div>
           </div>

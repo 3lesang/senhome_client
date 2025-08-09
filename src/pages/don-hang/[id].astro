@@ -1,9 +1,6 @@
 ---
 export const prerender = false;
-import OrderInfo from "@/components/order-info";
 import Main from "@/layouts/main.astro";
-
-const { id } = Astro.params;
 ---
 
 <Main title="Đơn hàng">
@@ -17,7 +14,6 @@ const { id } = Astro.params;
         quý khách để kiểm tra đơn hàng một lần nữa. Nếu có thắc mắc hoặc điều
         chỉnh về đơn hàng xin hãy liên hệ SENHOME qua số 1900 27 27 37
       </p>
-      {id && <OrderInfo id={id} client:load />}
     </div>
   </div>
 </Main>

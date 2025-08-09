@@ -1,12 +1,6 @@
 ---
 export const prerender = false;
 import ProductCard from "@/components/product-card.astro";
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbList,
-  BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
 import Main from "@/layouts/main.astro";
 import { pb, PRODUCT_COLLECTION } from "@/lib/pocketbase";
 
@@ -20,16 +14,6 @@ const products = await pb.collection(PRODUCT_COLLECTION).getList(1, 20, {
 <Main title=`Kết quả tìm kiếm "${query}"`>
   <div class="h-full">
     <div class="max-w-6xl mx-auto py-4">
-      <Breadcrumb className="mb-2">
-        <BreadcrumbList>
-          <BreadcrumbItem>
-            <a href="/">Trang chủ</a>
-          </BreadcrumbItem>
-          <BreadcrumbSeparator />
-          <BreadcrumbItem>Kết quả tìm kiếm "{query}"</BreadcrumbItem>
-        </BreadcrumbList>
-      </Breadcrumb>
-
       <div class="flex justify-between">
         <div class="flex-1"></div>
       </div>

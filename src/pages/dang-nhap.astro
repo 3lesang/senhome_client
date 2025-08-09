@@ -1,36 +1,7 @@
 ---
-import SigninForm from "@/components/signin-form";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import Blank from "@/layouts/blank.astro";
 ---
 
 <Blank title="Đăng nhập">
-  <div class="sm:max-w-md mx-auto mt-8">
-    <Card className="w-full border-none shadow-none">
-      <CardHeader>
-        <CardTitle className="text-xl">Đăng nhập</CardTitle>
-        <CardDescription>
-          Vui lòng nhập thông tin tài khoản của bạn để đăng nhập vào hệ thống.
-        </CardDescription>
-      </CardHeader>
-      <CardContent className="mt-8">
-        <SigninForm client:load />
-      </CardContent>
-      <CardFooter>
-        <p class="text-sm text-muted-foreground">
-          Chưa có tài khoản?{" "}
-          <a href="/dang-ky" class="text-primary hover:underline">
-            Đăng ký ngay
-          </a>
-        </p>
-      </CardFooter>
-    </Card>
-  </div>
+  <div class="sm:max-w-md mx-auto mt-8"></div>
 </Blank>

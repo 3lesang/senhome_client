@@ -1,11 +1,12 @@
 ---
 import logo from "@/assets/logo.png";
+import MapPinIcon from "@lucide/astro/icons/map-pin";
+import PhoneIcon from "@lucide/astro/icons/phone";
 import { Image } from "astro:assets";
-import { MapPinIcon, PhoneIcon } from "lucide-react";
 ---
 
 <footer class="py-16">
-  <div class="max-w-6xl mx-auto">
+  <div class="max-w-7xl mx-auto">
     <div class="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4">
       <div class="col-span-2">
         <a href="/" class="flex items-center mb-4">
@@ -21,12 +22,11 @@ import { MapPinIcon, PhoneIcon } from "lucide-react";
 
         <div class="space-y-4">
           <a href="/" class="text-sm text-gray-600 block">
-            <MapPinIcon size={16} className="inline" /> Phú Xuân, Nhà Bè, Hồ Chí
-            Minh
+            <MapPinIcon size={16} class="inline" /> Phú Xuân, Nhà Bè, Hồ Chí Minh
           </a>
 
           <a href="tel:0933108680" class="text-sm text-gray-600 block">
-            <PhoneIcon size={16} className="inline fill-gray-600" /> 0933 108 680
+            <PhoneIcon size={16} class="inline fill-gray-600" /> 0933 108 680
           </a>
 
           <!-- Social Media and Copyright -->

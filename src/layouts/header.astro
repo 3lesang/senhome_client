@@ -2,14 +2,12 @@
 import logo from "@/assets/logo.png";
 import { FOLDER_COLLECTION, pb } from "@/lib/pocketbase";
 import { buildTree } from "@/lib/utils";
+import ChevronDownIcon from "@lucide/astro/icons/chevron-down";
+import SearchIcon from "@lucide/astro/icons/search";
+import ShoppingCartIcon from "@lucide/astro/icons/shopping-cart";
+import UserIcon from "@lucide/astro/icons/user";
+import XIcon from "@lucide/astro/icons/x";
 import { Image } from "astro:assets";
-import {
-  ChevronDownIcon,
-  SearchIcon,
-  ShoppingCartIcon,
-  UserIcon,
-  XIcon,
-} from "lucide-react";
 
 async function fetchFolders() {
   try {
@@ -26,87 +24,11 @@ async function fetchFolders() {
 const { data } = await fetchFolders();
 ---
 
-<script>
-  import { formatVND } from "@/lib/utils";
-  import Alpine from "alpinejs";
-
-  interface CartItem {
-    id: string;
-    name: string;
-    price: number;
-    discount: number;
-    thumbnail: string;
-    slug: string;
-    quantity: number;
-  }
-  interface CartType {
-    items: any;
-    totalQuantity: number | null;
-    addToCart: (item: CartItem) => void;
-  }
-
-  Alpine.store("cart", {
-    items: Alpine.$persist<CartItem[]>([]).as("cart"),
-    get totalQuantity() {
-      return this.items.reduce(
-        (sum: number, item: any) => sum + item.quantity,
-        0
-      );
-    },
-    addToCart(item: CartItem) {
-      const index = this.items.findIndex((i: any) => i.id === item.id);
-
-      if (index > -1) {
-        this.items[index].quantity += item.quantity;
-      } else {
-        this.items.push(item);
-      }
-      (Alpine.store("notification") as any)?.triggerNotification(
-        {
-          ...item,
-          price: formatVND(item.price),
-          priceDiscount: formatVND(item.price * (1 - item.discount)),
-        },
-        "cart"
-      );
-    },
-  } as CartType);
-
-  Alpine.data("search", () => ({
-    open: false,
-    position: "top",
-    size: "md",
-
-    transitionClasses: {
-      "x-transition:enter-start"() {
-        if (this.position === "start") {
-          return "-translate-x-full rtl:translate-x-full";
-        } else if (this.position === "end") {
-          return "translate-x-full rtl:-translate-x-full";
-        } else if (this.position === "top") {
-          return "-translate-y-full";
-        } else if (this.position === "bottom") {
-          return "translate-y-full";
-        }
-      },
-      "x-transition:leave-end"() {
-        if (this.position === "start") {
-          return "-translate-x-full rtl:translate-x-full";
-        } else if (this.position === "end") {
-          return "translate-x-full rtl:-translate-x-full";
-        } else if (this.position === "top") {
-          return "-translate-y-full";
-        } else if (this.position === "bottom") {
-          return "translate-y-full";
-        }
-      },
-    },
-  }));
-</script>
-
-<header class="fixed top-0 start-0 end-0 z-40 bg-white shadow-xs border-b border-gray-200">
+<header
+  class="fixed top-0 start-0 end-0 z-40 bg-white shadow-xs border-b border-gray-200"
+>
   <nav>
-    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
       <div class="flex justify-between items-center">
         <div class="flex items-center">
           <a href="/">
@@ -129,8 +51,15 @@ const { data } = await fetchFolders();
                 class={`h-full group/inner ${item?.children?.length > 0 ? "peer" : ""}`}
               >
                 <div class="h-full hover:cursor-pointer px-4 peer flex items-center">
-                  <p class="font-semibold text-sm">{item?.name}</p>
-                  {item?.children?.length > 0 && <ChevronDownIcon size={16} />}
+                  <p class="font-semibold  group-hover/inner:text-blue-500">
+                    {item?.name}
+                  </p>
+                  {item?.children?.length > 0 && (
+                    <ChevronDownIcon
+                      size={16}
+                      class="group-hover/inner:text-blue-500 group-hover/inner:rotate-180 transition duration-150"
+                    />
+                  )}
                 </div>
                 {item?.children?.length > 0 && (
                   <div class="hidden group-hover/inner:block absolute top-full start-0 end-0 h-96 z-60 p-4">
@@ -162,7 +91,7 @@ const { data } = await fetchFolders();
             ))
           }
           <div
-            class="hidden shadow-lg border peer-hover:block h-96 transition-all duration-200 absolute top-full start-0 end-0 z-50 bg-white rounded"
+            class="transform scale-0 peer-hover:scale-100 shadow-lg border h-96 transition duration-200 ease-in-out origin-top absolute top-full start-0 end-0 z-50 bg-white rounded-lg mt-1"
           >
           </div>
         </div>
@@ -180,7 +109,7 @@ const { data } = await fetchFolders();
             >
               <span class="inline text-sm">Tìm kiếm sản phẩm</span>
 
-              <SearchIcon size={16} className="inline" />
+              <SearchIcon size={16} class="inline" />
             </button>
 
             <button
@@ -188,7 +117,7 @@ const { data } = await fetchFolders();
               type="button"
               class="lg:hidden"
             >
-              <SearchIcon className="inline" size={16} />
+              <SearchIcon class="inline" size={16} />
             </button>
 
             <div
@@ -218,7 +147,7 @@ const { data } = await fetchFolders();
                   <div
                     class="flex items-center gap-2 px-4 py-2 bg-gray-50 rounded-full border w-96"
                   >
-                    <SearchIcon size={18} className="text-gray-400" />
+                    <SearchIcon size={18} class="text-gray-400" />
                     <input
                       x-ref="input"
                       class="outline-0"
@@ -245,13 +174,14 @@ const { data } = await fetchFolders();
           </div>
 
           <a href="/dang-ky" class="px-2 inline" aria-label="Go to Page">
-            <UserIcon className="inline" size={16} />
+            <UserIcon class="inline" size={16} />
           </a>
           <div class="relative inline" x-data>
             <a href="/gio-hang" class="px-2" aria-label="Go to Page">
-              <ShoppingCartIcon size={16} className="inline" />
+              <ShoppingCartIcon size={16} class="inline" />
             </a>
             <span
+              x-cloak
               x-show="$store.cart.totalQuantity > 0"
               x-text="$store.cart.totalQuantity"
               class="absolute -right-2 -bottom-2 rounded-full bg-blue-500 text-white font-bold text-xs inline-flex justify-center items-center size-5"

@@ -1,11 +1,6 @@
 ---
 export const prerender = false;
 import ProductCard from "@/components/product-card.astro";
-import CarouselContainer from "@/components/slider/carousel-container.astro";
-import CarouselItem from "@/components/slider/carousel-item.astro";
-import CarouselNext from "@/components/slider/carousel-next.astro";
-import CarouselPrevious from "@/components/slider/carousel-previous.astro";
-import Carousel from "@/components/slider/carousel.astro";
 import Footer from "@/layouts/footer.astro";
 import Main from "@/layouts/main.astro";
 import {
@@ -16,13 +11,13 @@ import {
   PRODUCT_VARIANT_ATTRIBUTES_COLLECTION,
 } from "@/lib/pocketbase";
 import { convertImageUrl, formatAttributes } from "@/lib/utils";
+import BadgePercentIcon from "@lucide/astro/icons/badge-percent";
+import ChevronLeftIcon from "@lucide/astro/icons/chevron-left";
+import ChevronRightIcon from "@lucide/astro/icons/chevron-right";
+import DollarSignIcon from "@lucide/astro/icons/dollar-sign";
+import HeadphonesIcon from "@lucide/astro/icons/headphones";
+import TruckIcon from "@lucide/astro/icons/truck";
 import { Image } from "astro:assets";
-import {
-  BadgePercentIcon,
-  DollarSignIcon,
-  HeadphonesIcon,
-  TruckIcon,
-} from "lucide-react";
 
 async function fetchBanners() {
   try {
@@ -93,37 +88,58 @@ const latestProducts = await fetchLatestProducts();
 ---
 
 <Main title="Trang chủ">
-  <Carousel
-    options={{ loop: false, align: "start", containScroll: "trimSnaps" }}
-  >
-    <CarouselContainer>
-      {
-        images?.map((item: any) => (
-          <CarouselItem>
-            <a href={item?.ctaUrl}>
-              <Image
-                class="h-[calc(100vh-80px)] object-cover w-full"
-                height={100}
-                width={100}
-                src={item?.imgSrc ?? ""}
-                alt="slide"
-                loading="eager"
-              />
-            </a>
-          </CarouselItem>
-        ))
-      }
-    </CarouselContainer>
-    <CarouselNext slot="next" />
-    <CarouselPrevious slot="previous" />
-  </Carousel>
+  <div x-data="carousel">
+    <div class="embla relative">
+      <div class="embla__container">
+        {
+          images?.map((item: any) => (
+            <div class="embla__slide">
+              <a href={item?.ctaUrl}>
+                <Image
+                  class="h-[calc(100vh-80px)] object-cover w-full"
+                  height={100}
+                  width={100}
+                  src={item?.imgSrc ?? ""}
+                  alt="slide"
+                  loading="eager"
+                />
+              </a>
+            </div>
+          ))
+        }
+      </div>
+      <button
+        x-cloak
+        x-show="canNext"
+        x-on:click="next"
+        type="button"
+        class="text-white justify-center group absolute lg:end-80 end-0 top-1/2 z-10 flex -translate-y-1/2 items-center rounded-full transition duration-150 ease-out active:bg-gray-100 cursor-pointer hover:bg-white hover:text-black size-10"
+        aria-label="Next Image Slide"
+      >
+        <ChevronRightIcon size={18} />
+        <span class="sr-only">Next</span>
+      </button>
 
-  <section class="grid grid-cols-4 gap-2 mt-16 max-w-6xl mx-auto">
+      <button
+        x-cloak
+        x-show="canPrev"
+        x-on:click="prev"
+        type="button"
+        class="text-white justify-center group absolute lg:start-80 start-0 top-1/2 z-10 flex -translate-y-1/2 items-center rounded-full transition duration-150 ease-out active:bg-gray-100 cursor-pointer hover:bg-white hover:text-black size-10"
+        aria-label="Previous Image Slide"
+      >
+        <ChevronLeftIcon size={18} />
+        <span class="sr-only">Previous</span>
+      </button>
+    </div>
+  </div>
+
+  <section class="grid grid-cols-4 gap-2 mt-16 max-w-7xl mx-auto">
     <div class="col-span-2 lg:col-span-1">
       <div
         class="flex bg-gray-50 items-center justify-center gap-2 py-4 px-4 rounded-md"
       >
-        <TruckIcon size={32} strokeWidth={1} />
+        <TruckIcon size={32} stroke-width={1} />
         <div>
           <p class="font-semibold text-sm">Miễn phí vận chuyển</p>
           <p class="text-gray-500 text-xs">Contact us 24 hours a day</p>
@@ -134,7 +150,7 @@ const latestProducts = await fetchLatestProducts();
       <div
         class="flex bg-gray-50 items-center justify-center gap-2 py-4 px-4 rounded-md"
       >
-        <DollarSignIcon size={32} strokeWidth={1} />
+        <DollarSignIcon size={32} stroke-width={1} />
         <div>
           <p class="font-semibold text-sm">Đổi trả & hoàn tiền</p>
           <p class="text-gray-500 text-xs">Contact us 24 hours a day</p>
@@ -145,7 +161,7 @@ const latestProducts = await fetchLatestProducts();
       <div
         class="flex bg-gray-50 items-center justify-center gap-2 py-4 px-4 rounded-md"
       >
-        <BadgePercentIcon size={32} strokeWidth={1} />
+        <BadgePercentIcon size={32} stroke-width={1} />
         <div>
           <p class="font-semibold text-sm">Giảm giá</p>
           <p class="text-gray-500 text-xs">Contact us 24 hours a day</p>
@@ -156,7 +172,7 @@ const latestProducts = await fetchLatestProducts();
       <div
         class="flex bg-gray-50 items-center justify-center gap-2 py-4 px-4 rounded-md"
       >
-        <HeadphonesIcon size={32} strokeWidth={1} />
+        <HeadphonesIcon size={32} stroke-width={1} />
         <div>
           <p class="font-semibold text-sm">Hỗ trợ 24/7</p>
           <p class="text-gray-500 text-xs">Contact us 24 hours a day</p>
@@ -166,13 +182,13 @@ const latestProducts = await fetchLatestProducts();
   </section>
 
   <section
-    class="mt-16 max-w-6xl mx-auto"
+    class="mt-16 max-w-7xl mx-auto"
     x-data=`{tabs: ${JSON.stringify(categories?.items)}, tab: 0}`
   >
     <div class="mb-6">
       <h3 class="text-xl font-bold">Danh mục</h3>
     </div>
-    <div class="flex lg:gap-6 gap-2 overflow-auto">
+    <div class="flex lg:gap-6 gap-2 overflow-auto no-scrollbar">
       <template x-for="(value, index) in tabs">
         <div>
           <button
@@ -216,7 +232,7 @@ const latestProducts = await fetchLatestProducts();
       ))
     }
   </section>
-  <section class="mt-16 max-w-6xl mx-auto">
+  <section class="mt-16 max-w-7xl mx-auto">
     <div class="mb-6">
       <h3 class="text-xl font-bold">Sản phẩm mới nhất</h3>
     </div>
@@ -258,3 +274,16 @@ const latestProducts = await fetchLatestProducts();
 
   <Footer slot="footer" />
 </Main>
+
+<style>
+  .embla {
+    overflow: hidden;
+  }
+  .embla__container {
+    display: flex;
+  }
+  .embla__slide {
+    flex: 0 0 100%;
+    min-width: 0;
+  }
+</style>
