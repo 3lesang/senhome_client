@@ -125,36 +125,6 @@ export default (Alpine: Alpine) => {
     },
   } as CartType);
 
-  Alpine.data("search", () => ({
-    open: false,
-    position: "top",
-    size: "md",
-
-    transitionClasses: {
-      "x-transition:enter-start"() {
-        if (this.position === "start") {
-          return "-translate-x-full rtl:translate-x-full";
-        } else if (this.position === "end") {
-          return "translate-x-full rtl:-translate-x-full";
-        } else if (this.position === "top") {
-          return "-translate-y-full";
-        } else if (this.position === "bottom") {
-          return "translate-y-full";
-        }
-      },
-      "x-transition:leave-end"() {
-        if (this.position === "start") {
-          return "-translate-x-full rtl:translate-x-full";
-        } else if (this.position === "end") {
-          return "translate-x-full rtl:-translate-x-full";
-        } else if (this.position === "top") {
-          return "-translate-y-full";
-        } else if (this.position === "bottom") {
-          return "translate-y-full";
-        }
-      },
-    },
-  }));
   interface ProductCarouselData {
     embla: EmblaCarouselType | null;
     index: number;

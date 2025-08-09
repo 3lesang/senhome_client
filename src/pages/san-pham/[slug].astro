@@ -282,7 +282,9 @@ const galleryData = images?.map((item) => ({
       </div>
       <div class="bg-gray-50 py-8" x-cloak x-show="tab == 0" id="description">
         <h1 class="uppercase font-bold text-center text-xl">Mô tả sản phẩm</h1>
-        <div class="content px-56" set:html={product?.description} />
+        <div class="max-w-7xl mx-auto">
+          <div class="content" set:html={product?.description} />
+        </div>
       </div>
       <div class="bg-gray-50 py-8" x-cloak x-show="tab == 1">
         <h1 class="uppercase font-bold text-center text-xl">

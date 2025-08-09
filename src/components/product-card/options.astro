@@ -1,0 +1,11 @@
+---
+const { data, name, checked } = Astro.props;
+---
+
+<button
+  @click.prevent=`select(${data})`
+  :class=`${checked} ? 'bg-blue-500 text-white' : 'bg-gray-50 hover:bg-blue-500 hover:text-white'`
+  class="px-2 py-1 rounded-2xl text-xs cursor-pointer"
+>
+  {name}
+</button>
