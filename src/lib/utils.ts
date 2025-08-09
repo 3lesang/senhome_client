@@ -13,22 +13,6 @@ export function formatVND(n: number = 0) {
   }).format(n);
 }
 
-export const getTotalDiscountPrice = (items: any[]) => {
-  return items.reduce((total, item) => {
-    if (item.discount) {
-      const discountAmount = item.price * item.quantity * item.discount;
-      return total + discountAmount;
-    }
-    return total;
-  }, 0);
-};
-
-export const getTotalPriceItems = (items: any[]) => {
-  return items.reduce((total, item) => {
-    return total + item.price * item.quantity;
-  }, 0);
-};
-
 export const convertImageUrl = (image: any) => {
   if (!image?.id) return;
   return `${API_URL}/api/files/${image?.collectionName}/${image?.id}/${image?.image}`;
@@ -82,40 +66,4 @@ export const formatAttributes = (data: any[]) => {
   }));
 
   return result;
-};
-
-export const formatVariantOption = (data: any, options: any) => {
-  const variantAttrMap = new Map<string, Map<string, string>>();
-  const variantStockMap = new Map<string, number>();
-
-  for (const item of data) {
-    const variantId = item.variant;
-    const attrId = item.attribute;
-    const valueId = item.attribute_value;
-    const variant = item.expand?.variant;
-
-    if (!variantId || !attrId || !valueId || !variant) continue;
-
-    if (!variantAttrMap.has(variantId)) {
-      variantAttrMap.set(variantId, new Map());
-      variantStockMap.set(variantId, Number(variant.stock_quantity) || 0);
-    }
-
-    variantAttrMap.get(variantId)?.set(attrId, valueId);
-  }
-
-  let total = 0;
-
-  for (const [variantId, attrMap] of variantAttrMap.entries()) {
-    const matches =
-      Object.keys(options).length === 0 ||
-      Object.entries(options).every(
-        ([attrId, valueId]) => attrMap.get(attrId) === valueId
-      );
-
-    if (matches) {
-      total += variantStockMap.get(variantId) ?? 0;
-    }
-  }
-  return total;
 };

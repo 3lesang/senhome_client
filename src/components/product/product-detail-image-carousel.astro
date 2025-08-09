@@ -1,0 +1,15 @@
+---
+import { Image } from "astro:assets";
+const { src, index } = Astro.props;
+---
+
+<Image
+  height={100}
+  width={100}
+  src={src}
+  alt=""
+  class="min-w-10 h-14 object-cover rounded cursor-pointer"
+  :class=`index == ${index} ? "opacity-100": "opacity-20"`
+  @click=`scrollTo(${index})`
+  loading="eager"
+/>

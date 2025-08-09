@@ -5,6 +5,9 @@ import FreeShipIcon from "@/assets/free-ship.svg";
 import LocationIcon from "@/assets/location.svg";
 import PhoneIcon from "@/assets/phone.svg";
 import ReturnIcon from "@/assets/return-60.svg";
+import ImageCarousel from "@/components/product/product-detail-image-carousel.astro";
+import ProductOption from "@/components/product/product-detail-option.astro";
+import Footer from "@/layouts/footer.astro";
 import Main from "@/layouts/main.astro";
 import {
   IMAGE_COLLECTION,
@@ -150,16 +153,7 @@ const galleryData = images?.map((item) => ({
             <div class="flex flex-col gap-2">
               {
                 galleryData?.map((item, index) => (
-                  <Image
-                    height={100}
-                    width={100}
-                    src={item?.image}
-                    alt=""
-                    class="min-w-10 h-14 object-cover rounded cursor-pointer"
-                    :class=`index == ${index} ? "opacity-100": "opacity-20"`
-                    @click=`scrollTo(${index})`
-                    loading="eager"
-                  />
+                  <ImageCarousel src={item?.image} index={index} />
                 ))
               }
             </div>
@@ -181,7 +175,6 @@ const galleryData = images?.map((item) => ({
                 }
               </div>
             </div>
-
           </div>
         </div>
         <div class="col-span-12 lg:col-span-6 space-y-4 px-4 lg:px-0">
@@ -218,13 +211,7 @@ const galleryData = images?.map((item) => ({
                       const index = galleryData?.findIndex(
                         (item) => item.id == value.variant.id
                       );
-                      return (
-                        <button class="px-4 py-2 rounded-lg cursor-pointer bg-gray-50 text-gray-800" 
-                          @click=`scrollTo(${index})`
-                        >
-                          {value?.name}
-                        </button>
-                      );
+                      return <ProductOption name={value?.name} index={index} />;
                     })}
                   </div>
                 </div>
@@ -239,25 +226,52 @@ const galleryData = images?.map((item) => ({
             Thêm vào giỏ</button
           >
           <p class="text-center my-4">
-            <a href="#description" class="underline font-bold">Mô tả sản phẩm</a>
+            <a href="#description" class="underline font-bold">Mô tả sản phẩm</a
+            >
           </p>
-          <hr class="border-t">
+          <hr class="border-t" />
 
-          <div class="grid grid-cols-2 bg-gray-50 rounded-lg h-32 mt-2 text-sm p-4 text-gray-800">
+          <div
+            class="grid grid-cols-2 bg-gray-50 rounded-lg h-32 mt-2 text-sm p-4 text-gray-800"
+          >
             <div class="flex items-center gap-4">
-              <Image src={FreeShipIcon} alt="" height={100} width={100} class="size-10"  />
+              <Image
+                src={FreeShipIcon}
+                alt=""
+                height={100}
+                width={100}
+                class="size-10"
+              />
               <span>Free ship cho đơn từ 200k</span>
             </div>
             <div class="flex items-center gap-4">
-              <Image src={ReturnIcon} alt="" height={100} width={100} class="size-10"  />
+              <Image
+                src={ReturnIcon}
+                alt=""
+                height={100}
+                width={100}
+                class="size-10"
+              />
               <span>60 ngày đổi trả vì bất kỳ lý do gì</span>
             </div>
             <div class="flex items-center gap-4">
-              <Image src={PhoneIcon} alt="" height={100} width={100} class="size-10"  />
+              <Image
+                src={PhoneIcon}
+                alt=""
+                height={100}
+                width={100}
+                class="size-10"
+              />
               <span>Hotline hỗ trợ từ 8h30 - 22h</span>
             </div>
             <div class="flex items-center gap-4">
-              <Image src={LocationIcon} alt="" height={100} width={100} class="size-10"  />
+              <Image
+                src={LocationIcon}
+                alt=""
+                height={100}
+                width={100}
+                class="size-10"
+              />
               <span>Đến tận nơi nhận hàng trả, hoàn tiền trong 24h</span>
             </div>
           </div>
@@ -298,6 +312,7 @@ const galleryData = images?.map((item) => ({
       <div class="h-96"></div>
     </section>
   </div>
+  <Footer slot="footer" />
 </Main>
 
 <style>

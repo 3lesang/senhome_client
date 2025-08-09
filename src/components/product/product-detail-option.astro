@@ -1,0 +1,10 @@
+---
+const { name, index } = Astro.props;
+---
+
+<button
+  class="px-4 py-2 rounded-lg cursor-pointer bg-gray-50 text-gray-800"
+  @click=`scrollTo(${index})`
+>
+  {name}
+</button>

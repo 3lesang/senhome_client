@@ -1,10 +1,10 @@
 ---
+import ProductCard from "@/components/product/product-card.astro";
 import { pb, PRODUCT_COLLECTION } from "@/lib/pocketbase";
 import { convertImageUrl } from "@/lib/utils";
 import SearchIcon from "@lucide/astro/icons/search";
 import XIcon from "@lucide/astro/icons/x";
 import { Image } from "astro:assets";
-import ProductCard from "./product-card/product-card.astro";
 
 async function fetchProduct() {
   try {
