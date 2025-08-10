@@ -40,7 +40,7 @@ export const buildTree = (data: any[]): any[] => {
   return tree;
 };
 
-export const formatAttributes = (data: any[]) => {
+export const groupByAttributes = (data: any[]) => {
   const attributeMap = new Map();
 
   data.forEach((record) => {
@@ -65,5 +65,28 @@ export const formatAttributes = (data: any[]) => {
     values: Array.from(data.values),
   }));
 
+  return result;
+};
+
+export const groupByVariant = (data: any[]) => {
+  const map = new Map();
+  data.forEach((record) => {
+    const variantId = record.variant;
+    const variant = record.expand?.variant;
+    const attribute_value = record.expand?.attribute_value;
+    if (variantId) {
+      if (!map.has(variantId)) {
+        map.set(variantId, { variant, values: [] });
+      }
+      map.get(variantId).values.push(attribute_value?.id);
+    }
+  });
+
+  const result = Array.from(map.entries())
+    .map(([id, data]) => ({
+      variant: data.variant,
+      values: data.values,
+    }))
+    .toSorted((a, b) => a.variant.price - b.variant.price);
   return result;
 };

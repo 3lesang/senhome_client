@@ -10,7 +10,7 @@ import {
   PRODUCT_COLLECTION,
   PRODUCT_VARIANT_ATTRIBUTES_COLLECTION,
 } from "@/lib/pocketbase";
-import { convertImageUrl, formatAttributes } from "@/lib/utils";
+import { convertImageUrl, groupByAttributes } from "@/lib/utils";
 import BadgePercentIcon from "@lucide/astro/icons/badge-percent";
 import ChevronLeftIcon from "@lucide/astro/icons/chevron-left";
 import ChevronRightIcon from "@lucide/astro/icons/chevron-right";
@@ -64,7 +64,7 @@ async function getProductOptions(id?: string) {
       sort: "-attribute.order",
     });
 
-  return formatAttributes(data);
+  return groupByAttributes(data);
 }
 
 async function fetchLatestProducts() {

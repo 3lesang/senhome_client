@@ -1,0 +1,14 @@
+---
+const { option, value, index } = Astro.props;
+
+const checked = `selected(${JSON.stringify(option?.attribute_id)}, ${JSON.stringify(value?.id)})`;
+const handleSelect = `handleSelect(${JSON.stringify(option.attribute_id)},${JSON.stringify(value)})`;
+---
+
+<button
+  class="px-4 py-2 rounded-lg cursor-pointer"
+  :class=`${checked} ? 'bg-blue-500 hover:bg-blue-600 text-white' : 'bg-gray-50 text-gray-800 hover:bg-gray-100'`
+  @click=`scrollTo(${index}); ${handleSelect}`
+>
+  {value?.name}
+</button>

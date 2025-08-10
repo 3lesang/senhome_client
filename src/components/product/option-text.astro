@@ -1,0 +1,5 @@
+---
+const { option_id } = Astro.props;
+---
+
+<span x-text=`options.get(${JSON.stringify(option_id)})?.name`></span>

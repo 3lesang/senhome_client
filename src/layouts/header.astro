@@ -24,7 +24,7 @@ const { data } = await fetchFolders();
 ---
 
 <header
-  class="fixed top-0 start-0 end-0 z-40 bg-white shadow-xs border-b border-gray-200"
+  class="fixed top-0 start-0 end-0 z-40 bg-white"
 >
   <nav>
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
@@ -90,7 +90,7 @@ const { data } = await fetchFolders();
             ))
           }
           <div
-            class="transform scale-0 peer-hover:scale-100 shadow-lg border h-96 transition duration-200 ease-in-out origin-top absolute top-full start-0 end-0 z-50 bg-white rounded-lg mt-1"
+            class="transform scale-0 peer-hover:scale-100 shadow-lg border h-96 transition ease-in-out origin-top absolute top-full start-0 end-0 z-50 bg-white rounded-lg mt-1"
           >
           </div>
         </div>
@@ -98,11 +98,11 @@ const { data } = await fetchFolders();
         <div class="flex items-center">
           <Search />
           <a href="/dang-ky" class="px-2 inline" aria-label="Go to Page">
-            <UserIcon class="inline" size={16} />
+            <UserIcon class="inline" size={18} />
           </a>
           <div class="relative inline" x-data>
             <a href="/gio-hang" class="px-2" aria-label="Go to Page">
-              <ShoppingCartIcon size={16} class="inline" />
+              <ShoppingCartIcon size={18} class="inline" />
             </a>
             <span
               x-cloak

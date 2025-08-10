@@ -3,7 +3,6 @@ export const prerender = false;
 import ProductCard from "@/components/product/product-card.astro";
 import Main from "@/layouts/main.astro";
 import { pb, PRODUCT_COLLECTION } from "@/lib/pocketbase";
-
 const query = Astro.url.searchParams.get("q");
 
 const products = await pb.collection(PRODUCT_COLLECTION).getList(1, 20, {
