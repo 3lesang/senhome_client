@@ -94,6 +94,55 @@ const galleryData = images?.map((item) => ({
 }));
 ---
 
+<script>
+  import { formatVND } from "@/lib/utils";
+  import Alpine from "alpinejs";
+
+  function arraysMatch(arr1: any, arr2: any) {
+    return (
+      arr1.length === arr2.length &&
+      arr1.every((value: string, index: number) => value === arr2[index])
+    );
+  }
+  Alpine.data("options", (variants: any[]) => ({
+    passed: false,
+    variant: {},
+    options: new Map<string, any>(),
+
+    handleSelect(option_id: string, data: any) {
+      this.options.set(option_id, data);
+      const options = Array.from(this.options.entries()).map(
+        ([id, data]) => data.id
+      );
+      const variant = variants.find((item) =>
+        arraysMatch(item.values, options)
+      );
+      if (!variant) {
+        this.variant = {};
+        return;
+      }
+      this.variant = {
+        id: variant?.variant?.id,
+        name: variant?.variant?.name,
+        price: formatVND(variant?.variant?.price),
+        priceDiscount: formatVND(
+          variant?.variant?.price * (1 - variant?.variant?.discount)
+        ),
+        discount: `-${variant?.variant?.discount * 100}%`,
+      };
+    },
+    selected(option_id: string, value_id: string) {
+      if (!this.options.has(option_id)) return;
+      return this.options.get(option_id).id == value_id;
+    },
+    checkScroll() {
+      const el = this?.$refs.target;
+      const rect = el.getBoundingClientRect();
+      this.passed = rect.top < 0;
+    },
+  }));
+</script>
+
 <Main title={product?.name}>
   <div>
     <div class="lg:max-w-7xl mx-auto">
@@ -593,5 +642,8 @@ const galleryData = images?.map((item) => ({
   .embla__slide {
     flex: 0 0 100%;
     min-width: 0;
+  }
+  [x-cloak] {
+    display: none;
   }
 </style>
