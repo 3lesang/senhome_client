@@ -94,56 +94,6 @@ const galleryData = images?.map((item) => ({
 }));
 ---
 
-<script>
-  import { formatVND } from "@/lib/utils";
-  import Alpine from "alpinejs";
-
-  function arraysMatch(arr1: any, arr2: any) {
-    return (
-      arr1.length === arr2.length &&
-      arr1.every((value: string, index: number) => value === arr2[index])
-    );
-  }
-
-  Alpine.data("options", (variants: any[]) => ({
-    passed: false,
-    variant: {},
-    options: new Map<string, any>(),
-
-    handleSelect(option_id: string, data: any) {
-      this.options.set(option_id, data);
-      const options = Array.from(this.options.entries()).map(
-        ([id, data]) => data.id
-      );
-      const variant = variants.find((item) =>
-        arraysMatch(item.values, options)
-      );
-      if (!variant) {
-        this.variant = {};
-        return;
-      }
-      this.variant = {
-        id: variant?.variant?.id,
-        name: variant?.variant?.name,
-        price: formatVND(variant?.variant?.price),
-        priceDiscount: formatVND(
-          variant?.variant?.price * (1 - variant?.variant?.discount)
-        ),
-        discount: `-${variant?.variant?.discount * 100}%`,
-      };
-    },
-    selected(option_id: string, value_id: string) {
-      if (!this.options.has(option_id)) return;
-      return this.options.get(option_id).id == value_id;
-    },
-    checkScroll() {
-      const el = this?.$refs.target;
-      const rect = el.getBoundingClientRect();
-      this.passed = rect.top < 0;
-    },
-  }));
-</script>
-
 <Main title={product?.name}>
   <div>
     <div class="lg:max-w-7xl mx-auto">
@@ -563,7 +513,7 @@ const galleryData = images?.map((item) => ({
         x-cloak
         x-show="tab == 0"
         id="description"
-        x-data="{ expanded: false, maxHeight: 2000 }"
+        x-data="{ expanded: false, maxHeight: 1000 }"
         class="py-8 relative"
         :class="expanded ? '' : 'overflow-hidden'"
       >
@@ -574,7 +524,8 @@ const galleryData = images?.map((item) => ({
         >
           <button
             @click="expanded = !expanded"
-            class="bg-gray-50 opacity-40 hover:opacity-60 px-4 py-2 rounded-full cursor-pointer text-sm"
+            class="bg-gray-50 hover:opacity-90 px-4 py-2 rounded-full cursor-pointer text-sm"
+            :class="expanded ? 'opacity-20' : 'opacity-90'"
             x-text="expanded ? 'Thu gọn' : 'Xem thêm'"></button>
         </div>
 
