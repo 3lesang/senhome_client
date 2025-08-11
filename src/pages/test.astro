@@ -1,15 +1,24 @@
 ---
-import Blank from "@/layouts/blank.astro";
+import LoadingIndicator from "astro-loading-indicator/component";
+import { ClientRouter } from "astro:transitions";
 ---
 
-<Blank>
-  <div class="relative">
-    <div
-      class="flex justify-center sticky top-96 z-99 left-1/2 -translate-x-1/2 bg-blue-300 w-fit"
-    >
-      <button class="bg-gray-50 px-4 py-2">Button</button>
+<html lang="en" transition:animate="none" transition:persist>
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <ClientRouter />
+    <LoadingIndicator color="#00a6f4" />
+  </head>
+  <body>
+    <div x-data="ComponentNotInline">
+      Component not inline 2
+      <div x-text="text">not rendered by alpine</div>
+      <a href="/test2"> test 2</a>
     </div>
-    <div class="h-[1000px] bg-blue-50"></div>
-  </div>
-  <div class="h-[1000px] bg-amber-50"></div>
-</Blank>
+  </body>
+</html>

@@ -34,8 +34,7 @@
     "pocketbase": "^0.26.2",
     "tailwind-merge": "^3.3.1",
     "tailwindcss": "^4.1.11",
-    "typescript": "^5.9.2",
-    "zod": "^4.0.14"
+    "typescript": "^5.9.2"
   },
   "devDependencies": {
     "@types/alpinejs__focus": "^3.13.4",
