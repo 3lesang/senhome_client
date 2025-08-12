@@ -83,7 +83,7 @@ export const groupByVariant = (data: any[]) => {
   });
 
   const result = Array.from(map.entries())
-    .map(([id, data]) => ({
+    .map(([_, data]) => ({
       variant: data.variant,
       values: data.values,
     }))

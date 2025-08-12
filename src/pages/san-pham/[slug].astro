@@ -5,10 +5,10 @@ import FreeShipIcon from "@/assets/free-ship.svg";
 import LocationIcon from "@/assets/location.svg";
 import PhoneIcon from "@/assets/phone.svg";
 import ReturnIcon from "@/assets/return-60.svg";
+import ImageCarousel from "@/components/product/image-carousel.astro";
 import OptionButton from "@/components/product/option-button.astro";
 import OptionText from "@/components/product/option-text.astro";
 import ProductCard from "@/components/product/product-card.astro";
-import ImageCarousel from "@/components/product/product-detail-image-carousel.astro";
 import Footer from "@/layouts/footer.astro";
 import Main from "@/layouts/main.astro";
 import {
@@ -24,6 +24,9 @@ import {
   groupByVariant,
 } from "@/lib/utils";
 import "@/styles/content.css";
+import Minus from "@lucide/astro/icons/minus";
+import Plus from "@lucide/astro/icons/plus";
+import ShareIcon from "@lucide/astro/icons/share";
 import ShoppingCartIcon from "@lucide/astro/icons/shopping-cart";
 import { Image } from "astro:assets";
 
@@ -92,26 +95,24 @@ const galleryData = images?.map((item) => ({
   id: item?.variant,
   image: convertImageUrl(item) || "",
 }));
+
+const cartData = JSON.stringify({
+  id: product?.id,
+  name: product?.name,
+  thumbnail: product?.expand?.thumbnail,
+});
 ---
 
 <script>
-  import { formatVND } from "@/lib/utils";
+  import type {
+    CartItem,
+    CartType,
+    OptionType,
+    ProductCarouselData,
+  } from "@/lib/type";
+  import { convertImageUrl, formatVND } from "@/lib/utils";
   import Alpine from "alpinejs";
-  import EmblaCarousel, { type EmblaCarouselType } from "embla-carousel";
-
-  interface ProductCarouselData {
-    embla: EmblaCarouselType | null;
-    index: number;
-    init(): void;
-    scrollTo(index: number, jump?: boolean): void;
-  }
-
-  function arraysMatch(arr1: any, arr2: any) {
-    return (
-      arr1.length === arr2.length &&
-      arr1.every((value: string, index: number) => value === arr2[index])
-    );
-  }
+  import EmblaCarousel from "embla-carousel";
 
   document.addEventListener("alpine:init", () => {
     Alpine.data(
@@ -136,43 +137,88 @@ const galleryData = images?.map((item) => ({
         },
       })
     );
-    Alpine.data("options", (variants: any[]) => ({
-      passed: false,
-      variant: {},
-      options: new Map<string, any>(),
 
-      handleSelect(option_id: string, data: any) {
-        this.options.set(option_id, data);
-        const options = Array.from(this.options.entries()).map(
-          ([id, data]) => data.id
-        );
-        const variant = variants.find((item) =>
-          arraysMatch(item.values, options)
-        );
-        if (!variant) {
-          this.variant = {};
-          return;
-        }
-        this.variant = {
-          id: variant?.variant?.id,
-          name: variant?.variant?.name,
-          price: formatVND(variant?.variant?.price),
-          priceDiscount: formatVND(
-            variant?.variant?.price * (1 - variant?.variant?.discount)
-          ),
-          discount: `-${variant?.variant?.discount * 100}%`,
-        };
-      },
-      selected(option_id: string, value_id: string) {
-        if (!this.options.has(option_id)) return;
-        return this.options.get(option_id).id == value_id;
-      },
-      checkScroll() {
-        const el = this?.$refs.target;
-        const rect = el.getBoundingClientRect();
-        this.passed = rect.top < 0;
-      },
-    }));
+    Alpine.data(
+      "options",
+      (variants: any[]): OptionType => ({
+        passed: false,
+        variant: null,
+        options: new Map<string, any>(),
+        quantity: 1,
+        $refs: { target: null! },
+        disabled: variants.length > 1,
+        handleSelect(option_id: string, data: any) {
+          this.options.set(option_id, data);
+
+          const valueIds = Array.from(this.options.entries()).map(
+            ([_, data]) => data.id
+          );
+
+          const arraysMatch = (arr1: string[], arr2: string[]) => {
+            return (
+              arr1.length === arr2.length &&
+              arr1.every((item: string) => arr2.includes(item))
+            );
+          };
+
+          const variant = variants.find((item) =>
+            arraysMatch(item.values, valueIds)
+          );
+
+          if (!variant) {
+            this.variant = {};
+            this.disabled = true;
+            return;
+          }
+
+          this.disabled = false;
+
+          this.variant = {
+            id: variant?.variant?.id,
+            name: variant?.variant?.name,
+            price: variant?.variant?.price,
+            formatPrice: formatVND(variant?.variant?.price),
+            formatPriceDiscount: formatVND(
+              variant?.variant?.price * (1 - variant?.variant?.discount)
+            ),
+            discount: variant?.variant?.discount,
+          };
+        },
+        selected(option_id: string, value_id: string) {
+          return this.options.get(option_id)?.id == value_id;
+        },
+        checkScroll() {
+          const el = this?.$refs.target;
+          if (!el) return;
+          const rect = el?.getBoundingClientRect();
+          this.passed = rect.top < 0;
+        },
+        handleAddToCart(item: CartItem) {
+          const cart = Alpine.store("cart") as CartType;
+
+          const options = Array.from(this.options.entries()).map(
+            ([_, data]) => ({
+              value_name: data.name,
+              value_id: data.id,
+              attribute_name: data.option.attribute_name,
+              attribute_id: data.option.attribute_id,
+            })
+          );
+
+          cart.addToCart({
+            id: item.id,
+            name: item.name,
+            variant: { id: this.variant?.id },
+            options,
+            price: this.variant?.price,
+            discount: this.variant?.discount,
+            thumbnail: convertImageUrl(item?.thumbnail),
+            slug: this.variant?.slug,
+            quantity: this.quantity,
+          });
+        },
+      })
+    );
   });
 </script>
 <Main title={product?.name}>
@@ -287,18 +333,25 @@ const galleryData = images?.map((item) => ({
           <div class="space-y-1">
             <div>
               <h1 class="font-bold inline text-2xl">{product?.name}</h1>
+              <button class="cursor-pointer ml-2">
+                <ShareIcon size={16} stroke-width={2} />
+              </button>
             </div>
             <hr class="border-t my-8" />
             <div x-show="variant?.id">
               <p class="text-gray-600 text-sm">
-                <span class="line-through" x-text="variant?.price"> </span>
+                <span class="line-through" x-text="variant?.formatPrice">
+                </span>
               </p>
-              <span class="font-bold text-3xl" x-text="variant?.priceDiscount">
+              <span
+                class="font-bold text-3xl"
+                x-text="variant?.formatPriceDiscount"
+              >
               </span>
               <span
                 x-cloak
                 x-show="variant?.discount"
-                x-text="variant?.discount"
+                x-text="`-${variant?.discount*100}%`"
                 class="font-bold text-white bg-blue-500 px-1 py-1 rounded-2xl"
               >
               </span>
@@ -385,8 +438,29 @@ const galleryData = images?.map((item) => ({
             }
           </div>
 
+          <div class="text-gray-600">
+            <span>Số lượng</span>
+            <div
+              class="flex items-center my-4 bg-gray-50 w-fit py-2 px-4 rounded"
+            >
+              <button
+                class="cursor-pointer"
+                @click="quantity > 1 && (quantity -= 1)"
+              >
+                <Minus size={16} />
+              </button>
+              <span class="w-16 text-center" x-text="quantity"></span>
+              <button class="cursor-pointer" @click="quantity += 1">
+                <Plus size={16} />
+              </button>
+            </div>
+          </div>
+
           <button
-            class="flex justify-center items-center gap-2 bg-blue-500 py-3 cursor-pointer hover:bg-blue-600 rounded-full text-white font-bold w-full"
+            x-cloak
+            @click=`handleAddToCart(${cartData})`
+            :disabled="disabled"
+            class="flex justify-center items-center gap-2 bg-blue-500 disabled:bg-gray-500 py-3 cursor-pointer disabled:cursor-default hover:bg-blue-600 rounded-full text-white font-bold w-full"
           >
             <ShoppingCartIcon size={16} />
             Thêm vào giỏ</button
@@ -445,7 +519,7 @@ const galleryData = images?.map((item) => ({
           <div
             x-cloak
             x-show="passed"
-            class="fixed top-0 start-0 end-0 bg-white z-99 shadow-lg"
+            class="fixed top-0 start-0 end-0 bg-white z-50 shadow-lg"
           >
             <div class="max-w-7xl mx-auto">
               <div class="flex justify-between">
@@ -462,14 +536,20 @@ const galleryData = images?.map((item) => ({
                     <p class="line-clamp-1 font-bold">{product?.name}</p>
                     <div x-show="variant?.id">
                       <p class="text-gray-600 text-xs">
-                        <span class="line-through" x-text="variant?.price">
+                        <span
+                          class="line-through"
+                          x-text="variant?.formatPrice"
+                        >
                         </span>
                       </p>
-                      <span class="font-bold" x-text="variant?.priceDiscount">
+                      <span
+                        class="font-bold"
+                        x-text="variant?.formatPriceDiscount"
+                      >
                       </span>
                       <span
                         x-show="variant?.discount"
-                        x-text="variant?.discount"
+                        x-text="`-${variant?.discount*100}%`"
                         class="font-bold text-white bg-blue-500 text-xs p-1 rounded-2xl"
                       >
                       </span>
@@ -562,8 +642,25 @@ const galleryData = images?.map((item) => ({
                 }
 
                 <div class="flex items-center border-l px-4">
+                  <div
+                    class="flex items-center my-4 bg-gray-50 w-fit py-2 px-4 rounded-lg mr-4"
+                  >
+                    <button
+                      class="cursor-pointer"
+                      @click="quantity > 1 && (quantity -= 1)"
+                    >
+                      <Minus size={16} />
+                    </button>
+                    <span class="w-16 text-center" x-text="quantity"></span>
+                    <button class="cursor-pointer" @click="quantity += 1">
+                      <Plus size={16} />
+                    </button>
+                  </div>
                   <button
-                    class="flex gap-2 cursor-pointer items-center bg-blue-500 hover:bg-blue-600 rounded-full font-bold text-white px-16 py-2"
+                    x-cloak
+                    @click=`handleAddToCart(${cartData})`
+                    :disabled="disabled"
+                    class="flex gap-2 cursor-pointer disabled:cursor-default items-center bg-blue-500 hover:bg-blue-600 disabled:bg-gray-500 rounded-full font-bold text-white px-16 py-2"
                   >
                     <ShoppingCartIcon size={16} />
                     Thêm vào giỏ</button
@@ -631,8 +728,8 @@ const galleryData = images?.map((item) => ({
     </div>
 
     <section class="max-w-7xl mx-auto mt-16">
-      <h3 class="uppercase font-bold text-xl mb-8">Gợi ý sản phẩm</h3>
-      <div class="grid grid-cols-4 gap-4">
+      <h3 class="font-bold text-xl mb-8">Sản phẩm liên quan</h3>
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {
           relateProducts?.items?.map((item) => (
             <ProductCard

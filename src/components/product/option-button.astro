@@ -1,8 +1,13 @@
 ---
 const { option, value, index } = Astro.props;
 
-const checked = `selected(${JSON.stringify(option?.attribute_id)}, ${JSON.stringify(value?.id)})`;
-const handleSelect = `handleSelect(${JSON.stringify(option.attribute_id)},${JSON.stringify(value)})`;
+const attributeId = JSON.stringify(option?.attribute_id);
+
+const valueId = JSON.stringify(value?.id);
+const data = JSON.stringify({ ...value, option });
+
+const checked = `selected(${attributeId}, ${valueId})`;
+const handleSelect = `handleSelect(${attributeId},${data})`;
 ---
 
 <button

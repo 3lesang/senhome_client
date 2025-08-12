@@ -15,7 +15,6 @@
     "@alpinejs/persist": "^3.14.9",
     "@astrojs/alpinejs": "^0.4.8",
     "@astrojs/check": "^0.9.4",
-    "@astrojs/mdx": "^4.3.3",
     "@astrojs/vercel": "^8.2.5",
     "@fontsource/inter": "^5.2.6",
     "@lucide/astro": "^0.539.0",

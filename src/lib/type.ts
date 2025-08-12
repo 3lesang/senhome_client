@@ -1,0 +1,61 @@
+import { type EmblaCarouselType } from "embla-carousel";
+
+export interface NotificationType {
+  position: "top-start" | "top-end" | "bottom-start" | "bottom-end";
+  autoClose: boolean;
+  autoCloseDelay: number;
+  nextId: number;
+  notifications: {
+    id: number;
+    data: any;
+    type: string;
+    visible: boolean;
+  }[];
+  notify: (data: any, type: string) => void;
+  dismiss: (id: number) => void;
+}
+
+export interface CartItem {
+  id?: string;
+  name?: string;
+  price?: number;
+  discount?: number;
+  thumbnail?: string;
+  slug?: string;
+  quantity?: number;
+  variant?: CartItem;
+  options?: {
+    attribute_name: string;
+    attribute_id: string;
+    value_name: string;
+    value_id: string;
+  }[];
+}
+
+export interface CartType {
+  items: any;
+  totalQuantity: number | null;
+  addToCart: (item: CartItem) => void;
+}
+
+export interface ProductCarouselData {
+  embla: EmblaCarouselType | null;
+  index: number;
+  init(): void;
+  scrollTo(index: number, jump?: boolean): void;
+}
+
+export interface OptionType {
+  passed: boolean;
+  variant: any | null;
+  options: Map<string, any>;
+  quantity: number;
+  disabled: boolean;
+  $refs: {
+    target: HTMLElement;
+  };
+  handleSelect(option_id: string, data: any): void;
+  selected(option_id: string, value_id: string): boolean;
+  checkScroll(): void;
+  handleAddToCart(item: CartItem): void;
+}

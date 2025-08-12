@@ -12,7 +12,7 @@ export default defineConfig({
   vite: {
     plugins: [tailwindcss()],
   },
-  integrations: [alpinejs({ entrypoint: "/src/entrypoint" })],
+  integrations: [alpinejs({ entrypoint: "/src/alpine" })],
   prefetch: {
     defaultStrategy: "hover",
     prefetchAll: true,
