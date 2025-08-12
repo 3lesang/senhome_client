@@ -44,7 +44,17 @@ const { title } = Astro.props;
   </body>
 </html>
 
-<style>
+<style is:global>
+  .embla {
+    overflow: hidden;
+  }
+  .embla__container {
+    display: flex;
+  }
+  .embla__slide {
+    flex: 0 0 100%;
+    min-width: 0;
+  }
   [x-cloak] {
     display: none;
   }

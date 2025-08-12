@@ -1,5 +1,6 @@
 ---
 import IconZalo from "@/assets/icon-zalo.webp";
+import ChevronUpIcon from "@lucide/astro/icons/chevron-up";
 import PhoneIcon from "@lucide/astro/icons/phone";
 import { Image } from "astro:assets";
 ---
@@ -9,28 +10,39 @@ import { Image } from "astro:assets";
     <a
       href="/"
       aria-label="Zalo"
-      class="relative flex items-center justify-center size-10 rounded-full shadow-lg"
+      class="size-10 rounded-full shadow-lg bg-white overflow-hidden hover:scale-95 transition-all duration-150"
     >
       <Image
         height={100}
         width={100}
-        class="w-full object-cover hover:scale-95 transition-all duration-150 peer"
+        class="w-full object-cover"
         src={IconZalo}
         alt=""
         loading="eager"
       />
     </a>
     <a href="tel:0933108680" aria-label="Phone" class="relative">
-      <span class="relative flex size-10">
-        <span
-          class="absolute inline-flex h-full w-full rounded-full bg-sky-400 opacity-75"
-        ></span>
-        <span
-          class="relative inline-flex justify-center items-center size-10 rounded-full bg-sky-500 hover:scale-95"
-        >
-          <PhoneIcon class="peer text-white fill-white" />
-        </span>
+      <span
+        class="relative inline-flex justify-center items-center size-10 rounded-full bg-sky-500 hover:scale-95"
+      >
+        <PhoneIcon class="peer text-white fill-white" />
       </span>
     </a>
+
+    <div
+      x-data="{ disabled: true }"
+      x-init="window.addEventListener('scroll', () => {
+        disabled = window.scrollY < 200;
+      })"
+    >
+      <button
+        x-cloak
+        :disabled="disabled"
+        @click="window.scrollTo({ top: 0, behavior: 'smooth' })"
+        class="flex opacity-100 disabled:opacity-0 justify-center items-center bg-white shadow rounded-full cursor-pointer size-10 text-gray-600"
+      >
+        <ChevronUpIcon />
+      </button>
+    </div>
   </div>
 </div>
