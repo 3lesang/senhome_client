@@ -41,7 +41,11 @@ export interface CartType {
 export interface ProductCarouselData {
   embla: EmblaCarouselType | null;
   index: number;
+  canPrev: boolean | undefined;
+  canNext: boolean | undefined;
   init(): void;
+  prev(): void;
+  next(): void;
   scrollTo(index: number, jump?: boolean): void;
 }
 

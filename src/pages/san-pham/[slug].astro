@@ -9,6 +9,7 @@ import ImageCarousel from "@/components/product/image-carousel.astro";
 import OptionButton from "@/components/product/option-button.astro";
 import OptionText from "@/components/product/option-text.astro";
 import ProductCard from "@/components/product/product-card.astro";
+import Tooltip from "@/components/tooltip.astro";
 import Footer from "@/layouts/footer.astro";
 import Main from "@/layouts/main.astro";
 import {
@@ -24,6 +25,8 @@ import {
   groupByVariant,
 } from "@/lib/utils";
 import "@/styles/content.css";
+import ChevronLeft from "@lucide/astro/icons/chevron-left";
+import ChevronRight from "@lucide/astro/icons/chevron-right";
 import Minus from "@lucide/astro/icons/minus";
 import Plus from "@lucide/astro/icons/plus";
 import ShareIcon from "@lucide/astro/icons/share";
@@ -120,6 +123,8 @@ const cartData = JSON.stringify({
       (): ProductCarouselData => ({
         embla: null,
         index: 0,
+        canPrev: false,
+        canNext: false,
         init() {
           const emblaNode = document.querySelector(".embla");
           if (!emblaNode) {
@@ -128,9 +133,21 @@ const cartData = JSON.stringify({
           const emblaApi = EmblaCarousel(emblaNode as HTMLElement);
 
           this.embla = emblaApi;
+
+          this.canPrev = this.embla.canScrollPrev();
+          this.canNext = this.embla.canScrollNext();
+
           this.embla.on("select", (value) => {
             this.index = value.selectedScrollSnap();
+            this.canPrev = this.embla?.canScrollPrev();
+            this.canNext = this.embla?.canScrollNext();
           });
+        },
+        prev() {
+          this.embla?.scrollPrev();
+        },
+        next() {
+          this.embla?.scrollNext();
         },
         scrollTo(index, jump) {
           this.embla?.scrollTo(index, jump);
@@ -305,7 +322,7 @@ const cartData = JSON.stringify({
                 ))
               }
             </div>
-            <div class="embla">
+            <div class="embla relative">
               <div class="embla__container">
                 {
                   galleryData?.map((item: any) => (
@@ -322,6 +339,22 @@ const cartData = JSON.stringify({
                   ))
                 }
               </div>
+              <div class="flex absolute bottom-4 right-4 gap-4">
+                <button
+                  :disabled="!canPrev"
+                  @click="prev"
+                  class="cursor-pointer disabled:cursor-default disabled:opacity-50 p-2 bg-white rounded-full flex items-center justify-center"
+                >
+                  <ChevronLeft size={16} />
+                </button>
+                <button
+                  :disabled="!canNext"
+                  @click="next"
+                  class="cursor-pointer disabled:cursor-default disabled:opacity-50 p-2 bg-white rounded-full flex items-center justify-center"
+                >
+                  <ChevronRight size={16} />
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -333,9 +366,30 @@ const cartData = JSON.stringify({
           <div class="space-y-1">
             <div>
               <h1 class="font-bold inline text-2xl">{product?.name}</h1>
-              <button class="cursor-pointer ml-2">
-                <ShareIcon size={16} stroke-width={2} />
-              </button>
+              <span
+                x-data="{copied:false, copyText() {
+                  navigator.clipboard.writeText(window.location.href).then(() => {
+                    this.copied = true;
+                    setTimeout(() => this.copied = false, 1500);
+                  });
+                }}"
+                class="relative"
+              >
+                <Tooltip text="Chia sẻ">
+                  <button
+                    @click="copyText"
+                    class="cursor-pointer ml-2 hover:bg-gray-50 p-2 rounded"
+                  >
+                    <ShareIcon size={16} stroke-width={2} />
+                  </button>
+                </Tooltip>
+                <div
+                  x-show="copied"
+                  class="absolute top-full shadow bg-white rounded py-2 px-4"
+                >
+                  Đã copy sản phẩm
+                </div>
+              </span>
             </div>
             <hr class="border-t my-8" />
             <div x-show="variant?.id">
@@ -698,7 +752,7 @@ const cartData = JSON.stringify({
       >
         <h1 class="uppercase font-bold text-center text-xl">Mô tả sản phẩm</h1>
         <div
-          class="flex justify-center z-60 left-1/2 -translate-x-1/2 w-fit absolute bottom-32"
+          class="flex justify-center z-40 left-1/2 -translate-x-1/2 w-fit absolute bottom-32"
           :class="expanded ? 'sticky top-[400px]' : ''"
         >
           <button
@@ -716,7 +770,7 @@ const cartData = JSON.stringify({
         </div>
         <div
           x-show="!expanded"
-          class="absolute bottom-0 left-0 z-40 right-0 h-96 bg-gradient-to-t from-white to-transparent"
+          class="absolute bottom-0 left-0 z-30 right-0 h-96 bg-gradient-to-t from-white to-transparent"
         >
         </div>
       </div>
