@@ -1,6 +1,6 @@
 ---
 import logo from "@/assets/logo.png";
-import Search from "@/components/search.astro";
+import SearchInput from "@/components/search-input.astro";
 import { FOLDER_COLLECTION, pb } from "@/lib/pocketbase";
 import { buildTree } from "@/lib/utils";
 import ChevronDownIcon from "@lucide/astro/icons/chevron-down";
@@ -23,9 +23,7 @@ async function fetchFolders() {
 const { data } = await fetchFolders();
 ---
 
-<header
-  class="fixed top-0 start-0 end-0 z-40 bg-white"
->
+<header class="fixed top-0 start-0 end-0 z-40 bg-white">
   <nav>
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
       <div class="flex justify-between items-center">
@@ -96,7 +94,7 @@ const { data } = await fetchFolders();
         </div>
 
         <div class="flex items-center">
-          <Search />
+          <SearchInput />
           <a href="/dang-ky" class="px-2 inline" aria-label="Go to Page">
             <UserIcon class="inline" size={18} />
           </a>

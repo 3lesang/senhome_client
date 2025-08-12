@@ -22,7 +22,6 @@ const products = await fetchProduct();
   import { pb, PRODUCT_COLLECTION } from "@/lib/pocketbase";
   import { convertImageUrl, formatVND } from "@/lib/utils";
   import Alpine from "alpinejs";
-
   interface SearchType {
     open: boolean;
     query: string;
@@ -70,7 +69,6 @@ const products = await fetchProduct();
     })
   );
 </script>
-
 <span x-data="search" x-on:keydown.esc.prevent="open = false">
   <button
     x-on:click="open = true; $nextTick(() => $refs.input.focus())"

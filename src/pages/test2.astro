@@ -1,24 +1,21 @@
 ---
-import LoadingIndicator from "astro-loading-indicator/component";
-import { ClientRouter } from "astro:transitions";
+import TestLayout from "@/layouts/test-layout.astro";
 ---
 
-<html lang="en" transition:animate="none" transition:persist>
-  <head>
-    <meta charset="utf-8" />
-    <meta
-      name="viewport"
-      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
-    />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <ClientRouter />
-    <LoadingIndicator color="#00a6f4" />
-  </head>
-  <body>
-    <div x-data="ComponentNotInline2">
-      Component not inline 2
-      <div x-text="text">not rendered by alpine</div>
-      <a href="/test"> test 1</a>
-    </div>
-  </body>
-</html>
+<script>
+  import Alpine from "alpinejs";
+
+  document.addEventListener("alpine:init", () => {
+    Alpine.data("test2", () => ({
+      text: "test 2",
+    }));
+  });
+</script>
+
+<TestLayout>
+  <div x-data="test2">
+    Component not inline 2
+    <div x-text="text">not rendered by alpine</div>
+    <a href="/test">link to test 1</a>
+  </div>
+</TestLayout>

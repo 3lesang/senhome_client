@@ -87,6 +87,66 @@ const categories = await fetchProductGroupByCategory();
 const latestProducts = await fetchLatestProducts();
 ---
 
+<script>
+  import Alpine from "alpinejs";
+  import EmblaCarousel, { type EmblaCarouselType } from "embla-carousel";
+  import Autoplay from "embla-carousel-autoplay";
+
+  interface CarouselData {
+    embla: EmblaCarouselType | null;
+    canPrev: boolean | undefined;
+    canNext: boolean | undefined;
+    init(): void;
+    prev(): void;
+    next(): void;
+    destroy(): void;
+  }
+
+  document.addEventListener("alpine:init", () => {
+    Alpine.data(
+      "carousel",
+      (): CarouselData => ({
+        embla: null,
+        canPrev: false,
+        canNext: false,
+
+        init() {
+          const emblaNode = document.querySelector(".embla");
+          if (!emblaNode) {
+            return;
+          }
+          const plugins = [Autoplay({ delay: 3000, stopOnInteraction: false })];
+          const options = { loop: false };
+          const emblaApi = EmblaCarousel(
+            emblaNode as HTMLElement,
+            options,
+            plugins
+          );
+
+          this.embla = emblaApi;
+
+          this.canPrev = this.embla.canScrollPrev();
+          this.canNext = this.embla.canScrollNext();
+
+          this.embla.on("select", () => {
+            this.canPrev = this.embla?.canScrollPrev();
+            this.canNext = this.embla?.canScrollNext();
+          });
+        },
+        prev() {
+          this.embla?.scrollPrev();
+        },
+        next() {
+          this.embla?.scrollNext();
+        },
+        destroy() {
+          this.embla?.destroy();
+        },
+      })
+    );
+  });
+</script>
+
 <Main title="Trang chủ">
   <div x-data="carousel">
     <div class="embla relative">

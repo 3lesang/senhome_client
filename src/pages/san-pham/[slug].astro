@@ -94,6 +94,87 @@ const galleryData = images?.map((item) => ({
 }));
 ---
 
+<script>
+  import { formatVND } from "@/lib/utils";
+  import Alpine from "alpinejs";
+  import EmblaCarousel, { type EmblaCarouselType } from "embla-carousel";
+
+  interface ProductCarouselData {
+    embla: EmblaCarouselType | null;
+    index: number;
+    init(): void;
+    scrollTo(index: number, jump?: boolean): void;
+  }
+
+  function arraysMatch(arr1: any, arr2: any) {
+    return (
+      arr1.length === arr2.length &&
+      arr1.every((value: string, index: number) => value === arr2[index])
+    );
+  }
+
+  document.addEventListener("alpine:init", () => {
+    Alpine.data(
+      "productCarousel",
+      (): ProductCarouselData => ({
+        embla: null,
+        index: 0,
+        init() {
+          const emblaNode = document.querySelector(".embla");
+          if (!emblaNode) {
+            return;
+          }
+          const emblaApi = EmblaCarousel(emblaNode as HTMLElement);
+
+          this.embla = emblaApi;
+          this.embla.on("select", (value) => {
+            this.index = value.selectedScrollSnap();
+          });
+        },
+        scrollTo(index, jump) {
+          this.embla?.scrollTo(index, jump);
+        },
+      })
+    );
+    Alpine.data("options", (variants: any[]) => ({
+      passed: false,
+      variant: {},
+      options: new Map<string, any>(),
+
+      handleSelect(option_id: string, data: any) {
+        this.options.set(option_id, data);
+        const options = Array.from(this.options.entries()).map(
+          ([id, data]) => data.id
+        );
+        const variant = variants.find((item) =>
+          arraysMatch(item.values, options)
+        );
+        if (!variant) {
+          this.variant = {};
+          return;
+        }
+        this.variant = {
+          id: variant?.variant?.id,
+          name: variant?.variant?.name,
+          price: formatVND(variant?.variant?.price),
+          priceDiscount: formatVND(
+            variant?.variant?.price * (1 - variant?.variant?.discount)
+          ),
+          discount: `-${variant?.variant?.discount * 100}%`,
+        };
+      },
+      selected(option_id: string, value_id: string) {
+        if (!this.options.has(option_id)) return;
+        return this.options.get(option_id).id == value_id;
+      },
+      checkScroll() {
+        const el = this?.$refs.target;
+        const rect = el.getBoundingClientRect();
+        this.passed = rect.top < 0;
+      },
+    }));
+  });
+</script>
 <Main title={product?.name}>
   <div>
     <div class="lg:max-w-7xl mx-auto">
@@ -215,6 +296,7 @@ const galleryData = images?.map((item) => ({
               <span class="font-bold text-3xl" x-text="variant?.priceDiscount">
               </span>
               <span
+                x-cloak
                 x-show="variant?.discount"
                 x-text="variant?.discount"
                 class="font-bold text-white bg-blue-500 px-1 py-1 rounded-2xl"
