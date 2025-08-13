@@ -23,43 +23,6 @@ async function fetchFolders() {
 const { data } = await fetchFolders();
 ---
 
-<script>
-  import type { CartItem, CartType, NotificationType } from "@/lib/type";
-  import { formatVND } from "@/lib/utils";
-  import Alpine from "alpinejs";
-
-  Alpine.store("cart", {
-    items: Alpine.$persist<CartItem[]>([]).as("cart"),
-    get totalQuantity() {
-      return this.items.reduce(
-        (sum: number, item: any) => sum + item.quantity,
-        0
-      );
-    },
-    addToCart(item: CartItem) {
-      const index = this.items.findIndex((i: any) => i.id === item.id);
-
-      if (index > -1) {
-        this.items[index].quantity += item.quantity;
-      } else {
-        this.items.push(item);
-      }
-
-      const notification = Alpine.store("notification") as NotificationType;
-
-      const data = {
-        ...item,
-        formatPrice: formatVND(item.price),
-        formatPriceDiscount: formatVND(
-          Number(item?.price) * (1 - Number(item?.discount))
-        ),
-      };
-
-      notification.notify(data, "cart");
-    },
-  } as CartType);
-</script>
-
 <header class="fixed top-0 start-0 end-0 z-40 bg-white">
   <nav>
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">

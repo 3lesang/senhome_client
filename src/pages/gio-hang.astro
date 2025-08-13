@@ -21,7 +21,7 @@ import { Image } from "astro:assets";
   <div x-data>
     <div
       x-cloak
-      class="flex h-full justify-center items-center text-center"
+      class="flex h-96 justify-center items-center text-center"
       x-show="!$store.cart.totalQuantity"
     >
       <div>
@@ -219,99 +219,83 @@ import { Image } from "astro:assets";
         </div>
         <div class="col-span-12 lg:col-span-6 mt-8">
           <h3 class="text-2xl font-bold mb-8">Giỏ hàng</h3>
-          <div class="flex items-center justify-between">
-            <div class="flex items-center mb-4">
-              <input
-                id="default-checkbox"
-                type="checkbox"
-                value=""
-                class="size-4 cursor-pointer"
-              />
-              <label
-                for="default-checkbox"
-                class="ms-2 font-medium text-gray-900 dark:text-gray-300"
-                >Tất cả sản phẩm</label
-              >
-            </div>
-            <button class="cursor-pointer">Xóa tất cả</button>
-          </div>
-
-          <template x-for="(item) in $store.cart.items">
-            <div>
-              <div class="flex justify-between items-center">
-                <div class="flex items-center gap-4 w-2/3">
-                  <input
-                    id="default-checkbox"
-                    type="checkbox"
-                    value=""
-                    class="h-4 min-w-4 cursor-pointer"
-                  />
-                  <Image
-                    height={100}
-                    width={100}
-                    src="/"
-                    :src="item.thumbnail"
-                    alt=""
-                    class="size-18 object-cover rounded"
-                    loading="eager"
-                  />
-                  <div>
-                    <div>
-                      <a
-                        :href="item?.slug"
-                        x-text="item?.name"
-                        class="text-gray-800 line-clamp-1"></a>
-                    </div>
-                    <div class="text-sm space-x-2 my-2">
-                      <template x-for="option in item.options">
-                        <span
-                          x-text="option.value_name"
-                          class="px-2 py-1 bg-gray-50 rounded-2xl text-gray-600"
-                        ></span>
-                      </template>
-                    </div>
-                    <button
-                      class="text-xs text-gray-600 cursor-pointer hover:text-red-500"
-                    >
-                      <Trash2Icon size={16} class="inline" />
-                      Xóa
-                    </button>
+          <template x-for="(item) in $store.cart.get">
+            <div class="flex justify-between items-center">
+              <div class="flex gap-4">
+                <Image
+                  height={100}
+                  width={100}
+                  src="/"
+                  :src="item.thumbnail"
+                  alt=""
+                  class="size-18 object-cover rounded"
+                  loading="eager"
+                />
+                <div>
+                  <p>
+                    <a
+                      :href="item?.slug"
+                      x-text="item?.name"
+                      class="text-gray-800 line-clamp-1"></a>
+                  </p>
+                  <div class="text-sm space-x-2 my-2">
+                    <template x-for="option in item.options">
+                      <span
+                        x-text="option.value_name"
+                        class="px-2 py-1 bg-gray-50 rounded-2xl text-gray-600"
+                      ></span>
+                    </template>
                   </div>
-                </div>
-                <div class="mx-2">
+                  <div>
+                    <span
+                      class="font-bold text-lg"
+                      x-text="item.formatPriceDiscount"
+                    >
+                    </span>
+                    <span
+                      x-show="item?.discount"
+                      class="text-gray-500 line-through text-sm"
+                      x-text="item.formatPrice"
+                    >
+                    </span>
+                  </div>
                   <div
-                    class="flex items-center bg-gray-50 px-2 rounded-md py-1"
+                    class="flex items-center bg-gray-50 px-2 rounded-md py-1 w-fit"
                   >
-                    <button type="button" class="cursor-pointer">
+                    <button
+                      type="button"
+                      class="cursor-pointer"
+                      @click="$store.cart.data.get(item.id).quantity > 1 && ($store.cart.data.get(item.id).quantity -= 1); $store.cart.save()"
+                    >
                       <MinusIcon size={14} />
                     </button>
                     <p class="text-sm w-8 text-center" x-text="item.quantity">
                     </p>
-                    <button class="cursor-pointer">
+                    <button
+                      class="cursor-pointer"
+                      @click="$store.cart.data.get(item.id).quantity += 1; $store.cart.save()"
+                    >
                       <PlusIcon size={14} />
                     </button>
                   </div>
-                </div>
-                <div>
-                  <p class="font-bold text-lg" x-text="formatVND(item.price)">
-                  </p>
-                  <p
-                    x-show="item?.discount"
-                    class="text-gray-500 line-through text-sm"
-                    x-text="formatVND(item.price)"
+
+                  <button
+                    @click="$store.cart.data.delete(item?.id); $store.cart.save()"
+                    class="text-xs text-gray-600 cursor-pointer hover:text-red-500"
                   >
-                  </p>
+                    <Trash2Icon size={16} class="inline" />
+                    Xóa
+                  </button>
                 </div>
               </div>
-              <hr class="my-4 border-t" />
             </div>
           </template>
 
-          <div>
-            <h3 class="text-lg">Chi tiết thanh toán</h3>
-            <div class="flex justify-between my-8 text-gray-600">
+          <div class="mt-8 space-y-4">
+            <h3 class="text-xl font-bold mb-4">Chi tiết thanh toán</h3>
+            <div class="flex justify-between text-gray-600">
               <span>Tạm tính</span>
-              <span>3.429.000đ</span>
+              <span x-text="$store.cart.calc.tmpPrice"></span>
             </div>
             <div class="flex justify-between text-gray-600">
               <span>Phí giao hàng</span>
@@ -320,7 +304,9 @@ import { Image } from "astro:assets";
             <hr class="border-t my-4" />
             <div class="flex justify-between">
               <span class="text-xl font-bold">Thành tiền</span>
-              <span class="font-bold text-xl">3.429.000đ</span>
+              <span
+                class="font-bold text-xl"
+                x-text="$store.cart.calc.finalPrice"></span>
             </div>
           </div>
         </div>
@@ -331,7 +317,11 @@ import { Image } from "astro:assets";
           <div class="col-span-1 flex items-center"></div>
           <div class="col-span-1 flex justify-between">
             <div class="flex flex-1 justify-center items-center">
-              <p class="font-bold text-2xl">3.429.000đ</p>
+              <p
+                class="font-bold text-2xl"
+                x-text="$store.cart.calc.finalPrice"
+              >
+              </p>
             </div>
             <button
               type="button"

@@ -30,12 +30,17 @@ export interface CartItem {
     value_name: string;
     value_id: string;
   }[];
+  formatPrice?: string;
+  formatPriceDiscount?: string;
 }
 
 export interface CartType {
-  items: any;
-  totalQuantity: number | null;
+  data: Map<string, CartItem>;
+  totalQuantity: number;
+  get: CartItem[];
   addToCart: (item: CartItem) => void;
+  save(): void;
+  calc: { tmpPrice: string; finalPrice: string };
 }
 
 export interface ProductCarouselData {

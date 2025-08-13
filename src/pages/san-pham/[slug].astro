@@ -9,7 +9,7 @@ import ImageCarousel from "@/components/product/image-carousel.astro";
 import OptionButton from "@/components/product/option-button.astro";
 import OptionText from "@/components/product/option-text.astro";
 import ProductCard from "@/components/product/product-card.astro";
-import Tooltip from "@/components/tooltip.astro";
+import Tooltip from "@/components/ui/tooltip.astro";
 import Footer from "@/layouts/footer.astro";
 import Main from "@/layouts/main.astro";
 import {
@@ -806,7 +806,7 @@ const cartData = JSON.stringify({
                 src={convertImageUrl(item?.expand?.thumbnail) ?? "/"}
                 loading="lazy"
                 alt={item?.name ?? "product_image"}
-                class="aspect-square w-full bg-gray-200 object-cover group-hover:scale-105 xl:aspect-1/1 transition-all duration-300 ease-in-out"
+                class="aspect-square w-full bg-gray-200 object-cover group-hover:hidden xl:aspect-1/1 transition-all duration-300 ease-in-out"
               />
             </ProductCard>
           ))
