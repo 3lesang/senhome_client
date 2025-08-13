@@ -1,11 +1,19 @@
 ---
-const { data, name, checked } = Astro.props;
+const { option, value } = Astro.props;
+
+const attributeId = JSON.stringify(option?.attribute_id);
+
+const valueId = JSON.stringify(value?.id);
+const data = JSON.stringify({ ...value, option });
+
+const checked = `selected(${attributeId}, ${valueId})`;
+const handleSelect = `handleSelect(${attributeId},${data})`;
 ---
 
 <button
-  @click.prevent=`select(${data})`
-  :class=`${checked} ? 'bg-blue-500 text-white' : 'bg-gray-50 hover:bg-blue-500 hover:text-white'`
+  @click.prevent=`${handleSelect}`
   class="px-2 py-1 rounded-2xl text-xs cursor-pointer"
+  :class=`${checked} ? 'bg-blue-500 text-white' : 'bg-gray-50 hover:bg-blue-500 hover:text-white'`
 >
-  {name}
+  {value?.name}
 </button>

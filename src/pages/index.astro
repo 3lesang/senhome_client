@@ -8,9 +8,8 @@ import {
   IMAGE_COLLECTION,
   pb,
   PRODUCT_COLLECTION,
-  PRODUCT_VARIANT_ATTRIBUTES_COLLECTION,
 } from "@/lib/pocketbase";
-import { convertImageUrl, groupByAttributes } from "@/lib/utils";
+import { convertImageUrl } from "@/lib/utils";
 import BadgePercentIcon from "@lucide/astro/icons/badge-percent";
 import ChevronLeftIcon from "@lucide/astro/icons/chevron-left";
 import ChevronRightIcon from "@lucide/astro/icons/chevron-right";
@@ -31,13 +30,6 @@ async function fetchBanners() {
   }
 }
 
-const { data: banners } = await fetchBanners();
-
-const images = banners?.items?.map((item) => ({
-  ctaUrl: item?.href,
-  imgSrc: convertImageUrl(item),
-}));
-
 async function fetchProductGroupByCategory() {
   try {
     const data = await pb.collection(CATEGORY_COLLECTION).getList(1, 5);
@@ -55,29 +47,12 @@ async function fetchProductGroupByCategory() {
   }
 }
 
-async function getProductOptions(id?: string) {
-  const data = await pb
-    .collection(PRODUCT_VARIANT_ATTRIBUTES_COLLECTION)
-    .getFullList({
-      filter: `variant.product = "${id}"`,
-      expand: "variant,attribute,attribute_value",
-      sort: "-attribute.order",
-    });
-
-  return groupByAttributes(data);
-}
-
 async function fetchLatestProducts() {
   try {
-    const data = await pb.collection(PRODUCT_COLLECTION).getList(1, 4, {
+    return await pb.collection(PRODUCT_COLLECTION).getList(1, 4, {
       sort: "-created",
       expand: "thumbnail",
     });
-    for (const item of data.items) {
-      const opts = await getProductOptions(item?.id);
-      item.options = opts;
-    }
-    return data;
   } catch (error) {
     return null;
   }
@@ -85,6 +60,12 @@ async function fetchLatestProducts() {
 
 const categories = await fetchProductGroupByCategory();
 const latestProducts = await fetchLatestProducts();
+const { data: banners } = await fetchBanners();
+
+const images = banners?.items?.map((item) => ({
+  ctaUrl: item?.href,
+  imgSrc: convertImageUrl(item),
+}));
 ---
 
 <script>
@@ -148,7 +129,7 @@ const latestProducts = await fetchLatestProducts();
 </script>
 
 <Main title="Trang chủ">
-  <div x-data="carousel">
+  <section x-data="carousel">
     <div class="embla relative">
       <div class="embla__container">
         {
@@ -192,7 +173,7 @@ const latestProducts = await fetchLatestProducts();
         <span class="sr-only">Previous</span>
       </button>
     </div>
-  </div>
+  </section>
 
   <section class="grid grid-cols-4 gap-2 mt-16 max-w-7xl mx-auto">
     <div class="col-span-2 lg:col-span-1">
@@ -293,6 +274,7 @@ const latestProducts = await fetchLatestProducts();
       ))
     }
   </section>
+
   <section class="mt-16 max-w-7xl mx-auto">
     <div class="mb-6">
       <h3 class="text-xl font-bold">Sản phẩm mới nhất</h3>
@@ -309,7 +291,6 @@ const latestProducts = await fetchLatestProducts();
               discount: item?.discount,
               slug: `/san-pham/${item?.slug}`,
               thumbnail: convertImageUrl(item?.expand?.thumbnail),
-              options: item?.options,
             }}
           >
             <Image

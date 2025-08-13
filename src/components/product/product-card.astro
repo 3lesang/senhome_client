@@ -1,8 +1,17 @@
 ---
-import { IMAGE_COLLECTION, pb } from "@/lib/pocketbase";
-import { convertImageUrl, formatVND } from "@/lib/utils";
+import {
+  IMAGE_COLLECTION,
+  pb,
+  PRODUCT_VARIANT_ATTRIBUTES_COLLECTION,
+} from "@/lib/pocketbase";
+import {
+  convertImageUrl,
+  formatVND,
+  groupByAttributes,
+  groupByVariant,
+} from "@/lib/utils";
+import PlusIcon from "@lucide/astro/icons/plus";
 import { Image } from "astro:assets";
-import CardCart from "./card-cart.astro";
 import CardOptions from "./card-options.astro";
 
 interface Props {
@@ -14,7 +23,6 @@ interface Props {
     price?: number;
     name?: string;
     slug?: string;
-    options?: any[];
   };
 }
 
@@ -32,33 +40,134 @@ async function getImage(productId?: string) {
   }
 }
 
+async function getProductOptions(id?: string) {
+  pb.autoCancellation(false);
+  try {
+    return await pb
+      .collection(PRODUCT_VARIANT_ATTRIBUTES_COLLECTION)
+      .getFullList({
+        filter: `variant.product="${id}"`,
+        expand: "variant,attribute,attribute_value",
+        sort: "-attribute.order",
+      });
+  } catch (error) {
+    return null;
+  }
+}
+
+const optionData = await getProductOptions(data?.id);
 const image = await getImage(data?.id);
+
+const options = groupByAttributes(optionData ?? []);
+const variants = groupByVariant(optionData ?? []);
 ---
 
 <script>
+  import type { CartItem, CartType } from "@/lib/type";
+  import { formatVND } from "@/lib/utils";
   import Alpine from "alpinejs";
 
-  Alpine.data("product", () => ({
-    options: new Map<string, any>(),
-    select(data: any) {
-      this.options.set(data.id, data.value);
-    },
-    selected(option_id: string, value_id: string) {
-      if (!this.options.has(option_id)) return;
-      return this.options.get(option_id).id == value_id;
-    },
-  }));
+  interface ProductType {
+    variant: any | null;
+    options: Map<string, any>;
+    disabled: boolean;
+    handleSelect(option_id: string, data: any): void;
+    selected(option_id: string, value_id: string): boolean;
+    handleAddToCart(item: CartItem): void;
+  }
+
+  Alpine.data(
+    "product",
+    (variants: any[]): ProductType => ({
+      options: new Map<string, any>(),
+      variant: null,
+      disabled: variants.length > 1,
+      handleSelect(option_id: string, data: any) {
+        this.options.set(option_id, data);
+
+        const valueIds = Array.from(this.options.entries()).map(
+          ([_, data]) => data.id
+        );
+
+        const arraysMatch = (arr1: string[], arr2: string[]) => {
+          return (
+            arr1.length === arr2.length &&
+            arr1.every((item: string) => arr2.includes(item))
+          );
+        };
+
+        const variant = variants.find((item) =>
+          arraysMatch(item.values, valueIds)
+        );
+
+        if (!variant) {
+          this.variant = {};
+          this.disabled = true;
+          return;
+        }
+
+        this.disabled = false;
+
+        this.variant = {
+          id: variant?.variant?.id,
+          name: variant?.variant?.name,
+          price: variant?.variant?.price,
+          formatPrice: formatVND(variant?.variant?.price),
+          formatPriceDiscount: formatVND(
+            variant?.variant?.price * (1 - variant?.variant?.discount)
+          ),
+          discount: variant?.variant?.discount,
+        };
+      },
+      selected(option_id: string, value_id: string) {
+        return this.options.get(option_id)?.id == value_id;
+      },
+      handleAddToCart(item: CartItem) {
+        const cart = Alpine.store("cart") as CartType;
+
+        if (!this.disabled && this.variant.id) {
+          const options = Array.from(this.options.entries()).map(
+            ([_, data]) => ({
+              value_name: data.name,
+              value_id: data.id,
+              attribute_name: data.option.attribute_name,
+              attribute_id: data.option.attribute_id,
+            })
+          );
+
+          cart.addToCart({
+            id: this.variant.id,
+            name: item.name,
+            variant: { id: this.variant?.id },
+            options,
+            price: this.variant?.price,
+            discount: this.variant?.discount,
+            thumbnail: item?.thumbnail,
+            slug: item?.slug,
+            quantity: 1,
+          });
+        }
+      },
+    })
+  );
 </script>
 <a href={data?.slug}>
-  <article x-data="product">
+  <article x-data={`product(${JSON.stringify(variants)})`}>
     <div class="rounded overflow-hidden relative group">
-      {
-        isBtn && (
-          <div class="opacity-0 group-hover:opacity-100 transition-opacity duration-150 absolute bottom-2 start-2 end-2 rounded backdrop-blur-2xl z-50 text-center py-2">
-            <CardCart data={data} />
-          </div>
-        )
-      }
+      <div
+        class="opacity-0 group-hover:opacity-100 transition-opacity duration-150 absolute bottom-2 start-2 end-2 z-50 text-center"
+      >
+        <button
+          :disabled="disabled"
+          @click.prevent=`handleAddToCart(${JSON.stringify(data)})`
+          class="cursor-pointer text-center text-sm disabled:bg-gray-600 disabled:cursor-default bg-blue-500 hover:to-blue-600 rounded-md px-8 py-2 text-white"
+        >
+          <span x-text="disabled ? 'Chọn mẫu sản phẩm' : 'Thêm vào giỏ hàng'">
+          </span>
+          <PlusIcon size={16} class="inline" />
+        </button>
+      </div>
+
       <slot name="image" />
       <Image
         height={100}
@@ -77,27 +186,12 @@ const image = await getImage(data?.id);
 
       <div>
         {
-          data?.options?.map((item: any) => (
+          options?.map((item: any) => (
             <div class="space-x-2 mt-2">
               <span class="text-xs">{item?.attribute_name}</span>
-              {item?.values?.map((value: any) => {
-                const data = JSON.stringify({
-                  id: item?.attribute_id,
-                  value: {
-                    id: value?.id,
-                    name: value?.name,
-                    attribute_name: item?.attribute_name,
-                  },
-                });
-                const checked = `selected(${JSON.stringify(item?.attribute_id)}, ${JSON.stringify(value?.id)})`;
-                return (
-                  <CardOptions
-                    name={value?.name}
-                    checked={checked}
-                    data={data}
-                  />
-                );
-              })}
+              {item?.values?.map((value: any) => (
+                <CardOptions value={value} option={item} />
+              ))}
             </div>
           ))
         }
