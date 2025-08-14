@@ -16,6 +16,7 @@ export interface NotificationType {
 }
 
 export interface CartItem {
+  product_id?: string;
   id?: string;
   name?: string;
   price?: number;
@@ -40,7 +41,13 @@ export interface CartType {
   get: CartItem[];
   addToCart: (item: CartItem) => void;
   save(): void;
-  calc: { tmpPrice: string; finalPrice: string };
+  calc: {
+    totalDiscount?: number;
+    tmpPrice?: number;
+    finalPrice?: number;
+    formatTmpPrice?: string;
+    formatFinalPrice?: string;
+  };
 }
 
 export interface ProductCarouselData {

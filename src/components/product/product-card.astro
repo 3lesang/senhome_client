@@ -125,27 +125,40 @@ const variants = groupByVariant(optionData ?? []);
       handleAddToCart(item: CartItem) {
         const cart = Alpine.store("cart") as CartType;
 
-        if (!this.disabled && this.variant.id) {
-          const options = Array.from(this.options.entries()).map(
-            ([_, data]) => ({
-              value_name: data.name,
-              value_id: data.id,
-              attribute_name: data.option.attribute_name,
-              attribute_id: data.option.attribute_id,
-            })
-          );
-
-          cart.addToCart({
-            id: this.variant.id,
-            name: item.name,
-            variant: { id: this.variant?.id },
-            options,
-            price: this.variant?.price,
-            discount: this.variant?.discount,
-            thumbnail: item?.thumbnail,
-            slug: item?.slug,
-            quantity: 1,
-          });
+        if (!this.disabled) {
+          if (this.variant?.id) {
+            const options = Array.from(this.options.entries()).map(
+              ([_, data]) => ({
+                value_name: data.name,
+                value_id: data.id,
+                attribute_name: data.option.attribute_name,
+                attribute_id: data.option.attribute_id,
+              })
+            );
+            cart.addToCart({
+              product_id: item.id,
+              id: this.variant.id,
+              name: item.name,
+              variant: { id: this.variant?.id },
+              options,
+              price: this.variant?.price,
+              discount: this.variant?.discount,
+              thumbnail: item?.thumbnail,
+              slug: item?.slug,
+              quantity: 1,
+            });
+          } else {
+            cart.addToCart({
+              product_id: item?.id,
+              id: item?.id,
+              name: item.name,
+              price: item?.price,
+              discount: item?.discount,
+              thumbnail: item?.thumbnail,
+              slug: item?.slug,
+              quantity: 1,
+            });
+          }
         }
       },
     })
@@ -160,7 +173,7 @@ const variants = groupByVariant(optionData ?? []);
         <button
           :disabled="disabled"
           @click.prevent=`handleAddToCart(${JSON.stringify(data)})`
-          class="cursor-pointer text-center text-sm disabled:bg-gray-600 disabled:cursor-default bg-blue-500 hover:to-blue-600 rounded-md px-8 py-2 text-white"
+          class={`${!isBtn && "hidden"} cursor-pointer text-center text-sm disabled:bg-gray-600 disabled:cursor-default bg-blue-500 hover:to-blue-600 rounded-md px-8 py-2 text-white`}
         >
           <span x-text="disabled ? 'Chọn mẫu sản phẩm' : 'Thêm vào giỏ hàng'">
           </span>
@@ -169,6 +182,7 @@ const variants = groupByVariant(optionData ?? []);
       </div>
 
       <slot name="image" />
+
       <Image
         height={100}
         width={100}

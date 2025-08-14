@@ -1,6 +1,7 @@
 ---
 import CODIcon from "@/assets/mceclip2_42.avif";
 import Main from "@/layouts/main.astro";
+import Loader2Icon from "@lucide/astro/icons/loader-circle";
 import MinusIcon from "@lucide/astro/icons/minus";
 import PlusIcon from "@lucide/astro/icons/plus";
 import Trash2Icon from "@lucide/astro/icons/trash-2";
@@ -8,211 +9,370 @@ import { Image } from "astro:assets";
 ---
 
 <script>
-  import { formatVND } from "@/lib/utils";
-  declare global {
-    interface Window {
-      formatVND: (price: number) => string;
-    }
+  import {
+    ORDER_COLLECTION,
+    ORDER_ITEM_COLLECTION,
+    pb,
+  } from "@/lib/pocketbase";
+  import type { CartType } from "@/lib/type";
+  import Alpine from "alpinejs";
+  import { navigate } from "astro:transitions/client";
+
+  function orderForm() {
+    return {
+      isPending: false,
+      form: {
+        name: "",
+        phone: "",
+        email: "",
+        street: "",
+        note: "",
+        province: "",
+        district: "",
+        ward: "",
+        provinceCode: null,
+        districtCode: null,
+        payment: "crash",
+      },
+
+      // Province
+      provinceOpen: false,
+      provinceSearch: "",
+      provinces: [],
+      filteredProvinces: [],
+      async fetchProvinces() {
+        if (this.provinces.length) return;
+        const res = await fetch("https://provinces.open-api.vn/api/p/");
+        this.provinces = await res.json();
+        this.filteredProvinces = this.provinces;
+      },
+      filterProvinces() {
+        const q = this.provinceSearch.toLowerCase();
+        this.filteredProvinces = this.provinces.filter((p: any) =>
+          p.name.toLowerCase().includes(q)
+        );
+      },
+      selectProvince(p: any) {
+        this.form.province = p.name;
+        this.form.provinceCode = p.code;
+        this.provinceSearch = p.name;
+        this.provinceOpen = false;
+        this.fetchDistricts(p.code);
+      },
+
+      // District
+      districtOpen: false,
+      districtSearch: "",
+      districts: [],
+      filteredDistricts: [],
+      async fetchDistricts(code: any) {
+        const res = await fetch(
+          `https://provinces.open-api.vn/api/p/${code}?depth=2`
+        );
+        const data = await res.json();
+        this.districts = data.districts || [];
+        this.filteredDistricts = this.districts;
+        this.form.district = "";
+        this.form.districtCode = null;
+        this.wards = [];
+        this.filteredWards = [];
+      },
+      filterDistricts() {
+        const q = this.districtSearch.toLowerCase();
+        this.filteredDistricts = this.districts.filter((d: any) =>
+          d.name.toLowerCase().includes(q)
+        );
+      },
+      selectDistrict(d: any) {
+        this.form.district = d.name;
+        this.form.districtCode = d.code;
+        this.districtSearch = d.name;
+        this.districtOpen = false;
+        this.fetchWards(d.code);
+      },
+
+      // Ward
+      wardOpen: false,
+      wardSearch: "",
+      wards: [],
+      filteredWards: [],
+      async fetchWards(code: any) {
+        const res = await fetch(
+          `https://provinces.open-api.vn/api/d/${code}?depth=2`
+        );
+        const data = await res.json();
+        this.wards = data.wards || [];
+        this.filteredWards = this.wards;
+      },
+      filterWards() {
+        const q = this.wardSearch.toLowerCase();
+        this.filteredWards = this.wards.filter((w: any) =>
+          w.name.toLowerCase().includes(q)
+        );
+      },
+      selectWard(w: any) {
+        this.form.ward = w.name;
+        this.wardSearch = w.name;
+        this.wardOpen = false;
+      },
+
+      // Submit
+      async submitForm() {
+        const cart = Alpine.store("cart") as CartType;
+        this.isPending = true;
+        try {
+          const res = await pb.collection(ORDER_COLLECTION).create({
+            name: this.form.name,
+            phone: this.form.phone,
+            email: this.form.email,
+            note: this.form.note,
+            payment_method: this.form.payment,
+            total_price: cart.calc.tmpPrice,
+            total_discount: cart.calc.totalDiscount,
+            final_price: cart.calc.finalPrice,
+            shipping_address: `${this.form.street}, ${this.form.ward}, ${this.form.district}, ${this.form.province}`,
+            status: "created",
+          });
+
+          const orderItems = cart.get;
+          const batch = pb.createBatch();
+
+          for (const item of orderItems) {
+            const data = {
+              name: item.name,
+              price: item.price,
+              quantity: item.quantity,
+              discount: item.discount,
+              order: res.id,
+              product: item.product_id,
+              variant: item.variant?.id,
+              thumbnail: item.thumbnail,
+            };
+            batch.collection(ORDER_ITEM_COLLECTION).create(data);
+          }
+          const result = await batch.send();
+          this.isPending = false;
+          if (result.length) {
+            navigate(`/don-hang/${res.id}`);
+            cart.data.clear();
+            cart.save();
+          }
+        } catch (error) {
+          this.isPending = false;
+        }
+      },
+    };
   }
-  window.formatVND = formatVND;
+
+  document.addEventListener("alpine:init", () => {
+    Alpine.data("orderForm", () => orderForm());
+  });
 </script>
 
 <Main title="Giỏ hàng">
   <div x-data>
     <div
       x-cloak
-      class="flex h-96 justify-center items-center text-center"
+      class="flex h-[calc(100vh-72px)] justify-center items-center text-center"
       x-show="!$store.cart.totalQuantity"
     >
       <div>
         <Image
           height={100}
           width={100}
-          class="size-24 object-cover mx-auto"
+          class="size-44 object-cover mx-auto"
           src="https://cdn-icons-png.flaticon.com/512/11329/11329060.png"
           alt=""
           loading="eager"
         />
-        <p class="text-center text-gray-600 leading-12">Giỏ hàng trống</p>
+        <p class="text-center text-gray-600 leading-12">Chưa có sản phẩm</p>
+        <a
+          href="/"
+          class="bg-blue-500 rounded-lg hover:bg-blue-600 text-sm px-4 py-2 text-white"
+          >Mua hàng</a
+        >
       </div>
     </div>
     <div x-cloak x-show="$store.cart.totalQuantity > 0">
-      <div class="max-w-7xl mx-auto grid grid-cols-12 gap-8 mb-32" dir="ltr">
-        <div class="col-span-12 lg:col-span-6 mt-8 relative">
+      <div
+        class="max-w-7xl mx-auto grid grid-cols-12 gap-8 mb-32"
+        x-data="orderForm"
+      >
+        <div class="col-span-12 lg:col-span-6 relative">
           <div class="sticky top-28">
-            <div class="">
-              <h3 class="text-xl font-bold mb-4">Thông tin vận chuyển</h3>
-              <div class="grid grid-cols-12 gap-4">
-                <div class="col-span-6">
-                  <div
-                    class="flex w-full flex-col gap-1 text-on-surface dark:text-on-surface-dark"
-                  >
-                    <label for="name" class="w-fit pl-0.5 text-sm text-gray-600"
-                      >Họ tên</label
+            <h3 class="text-xl font-bold mb-4 mt-8">Thông tin vận chuyển</h3>
+            <div class="grid grid-cols-12 gap-4">
+              <!-- Name -->
+              <div class="col-span-6">
+                <label for="name" class="text-sm text-gray-600">Họ tên</label>
+                <input
+                  id="name"
+                  type="text"
+                  class="w-full rounded-md border px-4 py-2"
+                  placeholder="Nhập họ tên"
+                  x-model="form.name"
+                />
+              </div>
+
+              <!-- Phone -->
+              <div class="col-span-6">
+                <label for="phone" class="text-sm text-gray-600"
+                  >Số điện thoại</label
+                >
+                <input
+                  id="phone"
+                  type="text"
+                  class="w-full rounded-md border px-4 py-2"
+                  placeholder="Nhập số điện thoại"
+                  x-model="form.phone"
+                />
+              </div>
+
+              <!-- Email -->
+              <div class="col-span-12">
+                <label for="email" class="text-sm text-gray-600">Email</label>
+                <input
+                  id="email"
+                  type="text"
+                  class="w-full rounded-md border px-4 py-2"
+                  placeholder="Nhập email"
+                  x-model="form.email"
+                />
+              </div>
+
+              <!-- Address -->
+              <div class="col-span-12">
+                <label for="street" class="text-sm text-gray-600">Địa chỉ</label
+                >
+                <input
+                  id="street"
+                  type="text"
+                  class="w-full rounded-md border px-4 py-2"
+                  placeholder="Nhập địa chỉ"
+                  x-model="form.street"
+                />
+              </div>
+
+              <!-- Province -->
+              <div
+                class="col-span-4 relative"
+                @click.away="provinceOpen = false"
+              >
+                <label for="province" class="text-sm text-gray-600"
+                  >Tỉnh/Thành phố</label
+                >
+                <input
+                  id="province"
+                  type="text"
+                  class="w-full rounded-md border px-4 py-2"
+                  placeholder="Chọn tỉnh/thành phố"
+                  x-model="provinceSearch"
+                  @focus="provinceOpen = true; fetchProvinces()"
+                  @input="filterProvinces"
+                />
+                <ul
+                  x-cloak
+                  x-show="provinceOpen"
+                  class="absolute top-full left-0 right-0 mt-1 max-h-48 overflow-auto rounded-md border bg-white shadow-lg z-50"
+                >
+                  <template x-for="p in filteredProvinces" :key="p.code">
+                    <li
+                      class="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                      @click="selectProvince(p)"
+                      x-text="p.name"
                     >
-                    <input
-                      id="name"
-                      type="text"
-                      class="w-full rounded border px-4 py-2"
-                      name="name"
-                      placeholder="Nhập họ tên của bạn"
-                      autocomplete="name"
-                    />
-                  </div>
-                </div>
-                <div class="col-span-6">
-                  <div
-                    class="flex w-full flex-col gap-1 text-on-surface dark:text-on-surface-dark"
-                  >
-                    <label
-                      for="phone"
-                      class="w-fit pl-0.5 text-sm text-gray-600"
-                      >Số điện thoại</label
+                    </li>
+                  </template>
+                </ul>
+              </div>
+
+              <!-- District -->
+              <div
+                class="col-span-4 relative"
+                @click.away="districtOpen = false"
+              >
+                <label for="district" class="text-sm text-gray-600"
+                  >Quận/Huyện</label
+                >
+                <input
+                  id="district"
+                  type="text"
+                  class="w-full rounded-md border px-4 py-2"
+                  placeholder="Chọn quận/huyện"
+                  x-model="districtSearch"
+                  @focus="districtOpen = true"
+                  @input="filterDistricts"
+                  :disabled="!form.provinceCode"
+                />
+                <ul
+                  x-show="districtOpen"
+                  class="absolute top-full left-0 right-0 mt-1 max-h-48 overflow-auto rounded-md border bg-white shadow-lg z-50"
+                >
+                  <template x-for="d in filteredDistricts" :key="d.code">
+                    <li
+                      class="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                      @click="selectDistrict(d)"
+                      x-text="d.name"
                     >
-                    <input
-                      id="phone"
-                      type="text"
-                      class="w-full rounded border px-4 py-2"
-                      name="name"
-                      placeholder="Nhập số điện thoại"
-                      autocomplete="name"
-                    />
-                  </div>
-                </div>
-                <div class="col-span-12">
-                  <div
-                    class="flex w-full flex-col gap-1 text-on-surface dark:text-on-surface-dark"
-                  >
-                    <label
-                      for="email"
-                      class="w-fit pl-0.5 text-sm text-gray-600">Email</label
+                    </li>
+                  </template>
+                </ul>
+              </div>
+
+              <!-- Ward -->
+              <div class="col-span-4 relative" @click.away="wardOpen = false">
+                <label for="ward" class="text-sm text-gray-600">Phường/Xã</label
+                >
+                <input
+                  id="ward"
+                  type="text"
+                  class="w-full rounded-md border px-4 py-2"
+                  placeholder="Chọn phường/xã"
+                  x-model="wardSearch"
+                  @focus="wardOpen = true"
+                  @input="filterWards"
+                  :disabled="!form.districtCode"
+                />
+                <ul
+                  x-show="wardOpen"
+                  class="absolute top-full left-0 right-0 mt-1 max-h-48 overflow-auto rounded-md border bg-white shadow-lg z-50"
+                >
+                  <template x-for="w in filteredWards" :key="w.code">
+                    <li
+                      class="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                      @click="selectWard(w)"
+                      x-text="w.name"
                     >
-                    <input
-                      id="email"
-                      type="text"
-                      class="w-full rounded border px-4 py-2"
-                      name="name"
-                      placeholder="Nhập email của bạn"
-                      autocomplete="name"
-                    />
-                  </div>
-                </div>
-                <div class="col-span-12">
-                  <div
-                    class="flex w-full flex-col gap-1 text-on-surface dark:text-on-surface-dark"
-                  >
-                    <label
-                      for="street"
-                      class="w-fit pl-0.5 text-sm text-gray-600">Địa chỉ</label
-                    >
-                    <input
-                      id="street"
-                      type="text"
-                      class="w-full rounded border px-4 py-2"
-                      name="name"
-                      placeholder="Nhập địa chỉ"
-                      autocomplete="name"
-                    />
-                  </div>
-                </div>
-                <div class="col-span-4">
-                  <div
-                    class="flex w-full flex-col gap-1 text-on-surface dark:text-on-surface-dark"
-                  >
-                    <label
-                      for="province"
-                      class="w-fit pl-0.5 text-sm text-gray-600"
-                      >Tỉnh/Thành phố</label
-                    >
-                    <input
-                      id="province"
-                      type="text"
-                      class="w-full rounded border px-4 py-2"
-                      name="name"
-                      placeholder="Chọn tỉnh/thành phố"
-                      autocomplete="name"
-                    />
-                  </div>
-                </div>
-                <div class="col-span-4">
-                  <div
-                    class="flex w-full flex-col gap-1 text-on-surface dark:text-on-surface-dark"
-                  >
-                    <label
-                      for="district"
-                      class="w-fit pl-0.5 text-sm text-gray-600"
-                      >Quận/Huyện</label
-                    >
-                    <input
-                      id="district"
-                      type="text"
-                      class="w-full rounded border px-4 py-2"
-                      name="name"
-                      placeholder="Chọn quận/huyện"
-                      autocomplete="name"
-                    />
-                  </div>
-                </div>
-                <div class="col-span-4">
-                  <div
-                    class="flex w-full flex-col gap-1 text-on-surface dark:text-on-surface-dark"
-                  >
-                    <label for="ward" class="w-fit pl-0.5 text-sm text-gray-600"
-                      >Phường/Xã</label
-                    >
-                    <input
-                      id="ward"
-                      type="text"
-                      class="w-full rounded border px-4 py-2"
-                      name="name"
-                      placeholder="Chọn phường/xã"
-                      autocomplete="name"
-                    />
-                  </div>
-                </div>
-                <div class="col-span-12">
-                  <div
-                    class="flex w-full flex-col gap-1 text-on-surface dark:text-on-surface-dark"
-                  >
-                    <label
-                      for="street"
-                      class="w-fit pl-0.5 text-sm text-gray-600">Ghi chú</label
-                    >
-                    <input
-                      id="street"
-                      type="text"
-                      class="w-full rounded border px-4 py-2"
-                      name="name"
-                      placeholder="Nhập ghi chú"
-                      autocomplete="name"
-                    />
-                  </div>
-                </div>
+                    </li>
+                  </template>
+                </ul>
+              </div>
+
+              <!-- Note -->
+              <div class="col-span-12">
+                <label for="note" class="text-sm text-gray-600">Ghi chú</label>
+                <textarea
+                  id="note"
+                  class="w-full rounded-md border px-4 py-2"
+                  placeholder="Nhập ghi chú"
+                  x-model="form.note"></textarea>
               </div>
             </div>
-            <div class="mt-8">
-              <h3 class="text-xl font-bold mb-4">Hình thức thanh toán</h3>
+
+            <h3 class="text-xl font-bold mb-4 mt-8">Phương thức thanh toán</h3>
+            <div class="grid grid-cols-12 gap-4">
               <div
-                class="flex items-center gap-2 border py-2 px-4 rounded cursor-pointer hover:bg-gray-50"
+                class="flex items-center gap-2 col-span-12 bg-gray-50 hover:bg-gray-100 px-8 py-4 rounded-md"
               >
-                <input
-                  id="default-radio-1"
-                  type="radio"
-                  value=""
-                  name="default-radio"
-                  class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300"
-                />
+                <input type="radio" :checked="payment = 'crash'" />
                 <Image
-                  src={CODIcon}
-                  alt=""
                   height={100}
                   width={100}
-                  class="size-10 inline"
-                  loading="eager"
+                  alt=""
+                  src={CODIcon}
+                  class="size-8 object-cover"
                 />
-                <label for="default-radio-1" class="font-bold text-sm"
-                  >Thanh toán khi nhận hàng</label
-                >
+                <p>Thanh toán khi nhận hàng</p>
               </div>
             </div>
           </div>
@@ -228,7 +388,7 @@ import { Image } from "astro:assets";
                   src="/"
                   :src="item.thumbnail"
                   alt=""
-                  class="size-18 object-cover rounded"
+                  class="size-18 object-cover rounded-md"
                   loading="eager"
                 />
                 <div>
@@ -242,7 +402,7 @@ import { Image } from "astro:assets";
                     <template x-for="option in item.options">
                       <span
                         x-text="option.value_name"
-                        class="px-2 py-1 bg-gray-50 rounded-2xl text-gray-600"
+                        class="px-2 py-1 bg-gray-50 rounded-md-2xl text-gray-600"
                       ></span>
                     </template>
                   </div>
@@ -260,7 +420,7 @@ import { Image } from "astro:assets";
                     </span>
                   </div>
                   <div
-                    class="flex items-center bg-gray-50 px-2 rounded-md py-1 w-fit"
+                    class="flex items-center bg-gray-50 px-2 rounded-md-md py-1 w-fit"
                   >
                     <button
                       type="button"
@@ -295,7 +455,7 @@ import { Image } from "astro:assets";
             <h3 class="text-xl font-bold mb-4">Chi tiết thanh toán</h3>
             <div class="flex justify-between text-gray-600">
               <span>Tạm tính</span>
-              <span x-text="$store.cart.calc.tmpPrice"></span>
+              <span x-text="$store.cart.calc.formatTmpPrice"></span>
             </div>
             <div class="flex justify-between text-gray-600">
               <span>Phí giao hàng</span>
@@ -306,29 +466,43 @@ import { Image } from "astro:assets";
               <span class="text-xl font-bold">Thành tiền</span>
               <span
                 class="font-bold text-xl"
-                x-text="$store.cart.calc.finalPrice"></span>
+                x-text="$store.cart.calc.formatFinalPrice"></span>
             </div>
           </div>
         </div>
-      </div>
-
-      <div class="flex fixed h-20 start-0 end-0 bottom-0 text-right bg-white">
-        <div class="grid grid-cols-2 w-full max-w-7xl mx-auto">
-          <div class="col-span-1 flex items-center"></div>
-          <div class="col-span-1 flex justify-between">
-            <div class="flex flex-1 justify-center items-center">
-              <p
-                class="font-bold text-2xl"
-                x-text="$store.cart.calc.finalPrice"
-              >
-              </p>
+        <div class="flex fixed h-20 start-0 end-0 bottom-0 text-right bg-white">
+          <div class="grid grid-cols-2 w-full max-w-7xl mx-auto">
+            <div class="col-span-1 flex items-center">
+              <Image
+                height={100}
+                width={100}
+                alt=""
+                src={CODIcon}
+                class="size-8 object-cover"
+              />
+              <p class="font-bold text-lg">Thanh toán khi nhận hàng</p>
             </div>
-            <button
-              type="button"
-              class="h-full bg-blue-500 text-white font-bold uppercase px-8 cursor-pointer hover:bg-blue-600"
-            >
-              Đặt hàng
-            </button>
+            <div class="col-span-1 flex justify-between">
+              <div class="flex flex-1 justify-center items-center">
+                <p
+                  class="font-bold text-2xl"
+                  x-text="$store.cart.calc.formatFinalPrice"
+                >
+                </p>
+              </div>
+              <button
+                :disabled="isPending"
+                type="button"
+                @click="submitForm"
+                class="flex items-center h-full disabled:cursor-default disabled:bg-gray-500 bg-blue-500 text-white font-bold uppercase px-8 cursor-pointer hover:bg-blue-600"
+              >
+                <Loader2Icon
+                  x-show="isPending"
+                  class="mr-2 h-4 w-4 animate-spin"
+                />
+                Đặt hàng
+              </button>
+            </div>
           </div>
         </div>
       </div>

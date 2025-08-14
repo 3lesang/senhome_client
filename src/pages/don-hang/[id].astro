@@ -1,11 +1,63 @@
 ---
 export const prerender = false;
 import Main from "@/layouts/main.astro";
+import {
+  ORDER_COLLECTION,
+  ORDER_ITEM_COLLECTION,
+  pb,
+  PRODUCT_VARIANT_ATTRIBUTES_COLLECTION,
+} from "@/lib/pocketbase";
+import { formatVND } from "@/lib/utils";
+import { Image } from "astro:assets";
+
+const { id } = Astro.params;
+async function getOrder(id?: string) {
+  try {
+    if (!id) return null;
+    return await pb.collection(ORDER_COLLECTION).getOne(id);
+  } catch (error) {
+    return null;
+  }
+}
+
+async function getProductVariant(id: string) {
+  try {
+    return await pb
+      .collection(PRODUCT_VARIANT_ATTRIBUTES_COLLECTION)
+      .getFullList({ filter: `variant="${id}"`, expand: "attribute_value" });
+  } catch (error) {
+    return null;
+  }
+}
+
+async function getOrderItems(id?: string) {
+  try {
+    const items = await pb.collection(ORDER_ITEM_COLLECTION).getFullList({
+      filter: `order="${id}"`,
+    });
+
+    for (const item of items) {
+      const variant = await getProductVariant(item.variant);
+      item.variant = variant;
+    }
+
+    return items;
+  } catch (error) {
+    return null;
+  }
+}
+
+const order = await getOrder(id);
+const orderItems = await getOrderItems(order?.id);
+
+const ORDER_STATUS: Record<string, string> = {
+  created: "Đã đặt",
+};
 ---
 
 <Main title="Đơn hàng">
-  <div class="bg-gray-50 py-4">
-    <div class="max-w-4xl mx-auto">
+  <div>
+    <div class="max-w-4xl mx-auto py-16">
       <p class="text-center text-gray-700">
         Cảm ơn quý khách đã đặt niềm tin vào dịch vụ của SENHOME
       </p>
@@ -14,6 +66,117 @@ import Main from "@/layouts/main.astro";
         quý khách để kiểm tra đơn hàng một lần nữa. Nếu có thắc mắc hoặc điều
         chỉnh về đơn hàng xin hãy liên hệ SENHOME qua số 1900 27 27 37
       </p>
+
+      <table class="w-full text-left table-auto">
+        <caption class="text-lg font-bold">Thông tin nhận hàng</caption>
+        <tbody>
+          <tr>
+            <td class="px-4 py-1">Tên</td>
+            <td class="px-4 py-1 text-right">{order?.name}</td>
+          </tr>
+          <tr>
+            <td class="px-4 py-1">Số điện thoại</td>
+            <td class="px-4 py-1 text-right">{order?.phone}</td>
+          </tr>
+          <tr>
+            <td class="px-4 py-1">Email</td>
+            <td class="px-4 py-1 text-right">{order?.email}</td>
+          </tr>
+          <tr>
+            <td class="px-4 py-1">Địa chỉ</td>
+            <td class="px-4 py-1 text-right">{order?.shipping_address}</td>
+          </tr>
+          <tr>
+            <td class="px-4 py-1">Ghi chú</td>
+            <td class="px-4 py-1 text-right">{order?.note}</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <table class="w-full text-left table-auto">
+        <caption class="text-lg font-bold">Thông tin đơn hàng</caption>
+        <thead>
+          <tr>
+            <th class="px-4 py-2 space-x-4">
+              <span>
+                Ngày mua: {new Date(order?.created).toLocaleDateString()}
+              </span>
+              <span>Trạng thái: {ORDER_STATUS[order?.status]}</span>
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          {
+            orderItems?.map((item) => (
+              <tr class="border-b">
+                <td class="flex gap-2 px-4 py-2">
+                  <Image
+                    height={100}
+                    width={100}
+                    alt=""
+                    src={item?.thumbnail}
+                    class="size-16 min-w-16 object-center rounded overflow-hidden"
+                  />
+                  <div>
+                    <p class="line-clamp-1">{item?.name}</p>
+                    <div class="space-x-2">
+                      {item?.variant?.map((v: any) => (
+                        <span class="bg-gray-50 py-1 px-2 rounded-full text-sm">
+                          {v?.expand.attribute_value?.name}
+                        </span>
+                      ))}
+                      <span class="text-sm">Số lượng: {item?.quantity}</span>
+                    </div>
+                    <p class="space-x-2">
+                      <span class="font-bold text-lg">
+                        {formatVND(item?.price * (1 - item?.discount))}
+                      </span>
+                      <span class="line-through text-gray-600 text-sm">
+                        {formatVND(item?.price)}
+                      </span>
+                      <span class="bg-blue-500 rounded-full p-1 text-white text-xs font-bold">
+                        -{item?.discount * 100}%
+                      </span>
+                    </p>
+                  </div>
+                </td>
+              </tr>
+            ))
+          }
+        </tbody>
+        <tfoot>
+          <tr>
+            <td class="px-4 py-2">Tạm tính</td>
+            <td class="text-right px-4 py-2">
+              {formatVND(order?.total_price)}
+            </td>
+          </tr>
+          <tr>
+            <td class="px-4 py-2">Phí vận chuyển</td>
+            <td class="text-right px-4 py-2">
+              {
+                order?.shipping_fee ? (
+                  <span>{formatVND(order?.shipping_fee)}</span>
+                ) : (
+                  <span>Miễn phí</span>
+                )
+              }
+            </td>
+          </tr>
+          <tr>
+            <td class="px-4 py-2">Thành tiền</td>
+            <td class="text-right text-lg font-bold px-4 py-2">
+              {formatVND(order?.final_price)}
+            </td>
+          </tr>
+        </tfoot>
+      </table>
+
+      <a
+        href="/"
+        class="text-white font-bold text-center py-4 w-full bg-blue-500 hover:bg-blue-600 inline-block rounded-lg mt-8"
+        >Tiếp tục mua hàng</a
+      >
     </div>
   </div>
 </Main>

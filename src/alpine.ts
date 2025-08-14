@@ -32,7 +32,7 @@ export default (Alpine: Alpine) => {
       return Array.from(this.data.values());
     },
     addToCart(item) {
-      if (!item.id) return;
+      if (!item?.id) return;
       const existingItem = this.data.get(item.id);
 
       const formatData = {
@@ -65,6 +65,7 @@ export default (Alpine: Alpine) => {
     get calc() {
       let tmpPrice = 0;
       let finalPrice = 0;
+      let totalDiscount = 0;
 
       for (const { quantity, price, discount } of this.data.values()) {
         const qty = Number(quantity);
@@ -73,11 +74,15 @@ export default (Alpine: Alpine) => {
 
         tmpPrice += qty * pr;
         finalPrice += qty * pr * (1 - dis);
+        totalDiscount += qty * pr * dis;
       }
 
       return {
-        tmpPrice: formatVND(tmpPrice),
-        finalPrice: formatVND(finalPrice),
+        tmpPrice,
+        finalPrice,
+        totalDiscount,
+        formatTmpPrice: formatVND(tmpPrice),
+        formatFinalPrice: formatVND(finalPrice),
       };
     },
   };

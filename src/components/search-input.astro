@@ -73,7 +73,7 @@ const products = await fetchProduct();
   <button
     x-on:click="open = true; $nextTick(() => $refs.input.focus())"
     type="button"
-    class="hidden lg:inline-flex items-center cursor-pointer px-4 py-3 border border-gray-100 hover:border-gray-200 rounded-full text-gray-500 space-x-16"
+    class="hidden lg:inline-flex items-center cursor-pointer px-4 py-2 border border-gray-100 hover:border-gray-200 rounded-full text-gray-500 space-x-16"
   >
     <span class="inline text-sm">Tìm kiếm sản phẩm</span>
 
@@ -153,7 +153,7 @@ const products = await fetchProduct();
                     src={convertImageUrl(item?.expand?.thumbnail) ?? "/"}
                     loading="lazy"
                     alt={item?.name ?? "product_image"}
-                    class="aspect-square rounded overflow-hidden w-full bg-gray-200 object-cover group-hover:scale-105 xl:aspect-1/1 transition-all duration-300 ease-in-out"
+                    class="aspect-square rounded overflow-hidden w-full bg-gray-200 object-cover group-hover:hidden xl:aspect-1/1 transition-all duration-300 ease-in-out"
                   />
                 </ProductCard>
               ))
