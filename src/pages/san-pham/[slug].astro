@@ -13,13 +13,13 @@ import Tooltip from "@/components/ui/tooltip.astro";
 import Footer from "@/layouts/footer.astro";
 import Main from "@/layouts/main.astro";
 import {
-  IMAGE_COLLECTION,
+  FILE_GRAPH_COLLECTION,
   pb,
   PRODUCT_COLLECTION,
   PRODUCT_VARIANT_ATTRIBUTES_COLLECTION,
 } from "@/lib/pocketbase";
 import {
-  convertImageUrl,
+  convertToFileUrl,
   formatVND,
   groupByAttributes,
   groupByVariant,
@@ -73,10 +73,12 @@ async function getProductOptions(id?: string) {
   }
 }
 
-async function getImages(productId?: string) {
+async function getFiles(entityIds?: string[]) {
+  const filter = entityIds?.map((id) => `entity_id="${id}"`).join("||");
   try {
-    return await pb.collection(IMAGE_COLLECTION).getFullList({
-      filter: `product="${productId}"||variant.product="${productId}"`,
+    return await pb.collection(FILE_GRAPH_COLLECTION).getFullList({
+      filter: filter,
+      expand: "file",
     });
   } catch (error) {
     return null;
@@ -86,23 +88,27 @@ async function getImages(productId?: string) {
 const product = await getProduct(slug);
 const relateProducts = await getRelateProduct(product?.id, product?.category);
 const optionData = await getProductOptions(product?.id);
-const images = await getImages(product?.id);
 
 const options = groupByAttributes(optionData ?? []);
 const variants = groupByVariant(optionData ?? []);
+
+const entityIds = variants.map((item) => item.variant.id);
+entityIds.push(product?.id);
+
+const images = await getFiles(entityIds);
 
 const cheapProduct = variants?.[0]?.variant;
 const expensiveProduct = variants?.[variants?.length - 1]?.variant;
 
 const galleryData = images?.map((item) => ({
   id: item?.variant,
-  image: convertImageUrl(item) || "",
+  image: convertToFileUrl(item?.expand?.file) || "",
 }));
 
 const cartData = JSON.stringify({
   id: product?.id,
   name: product?.name,
-  thumbnail: convertImageUrl(product?.expand?.thumbnail),
+  thumbnail: convertToFileUrl(product?.expand?.thumbnail),
 });
 ---
 
@@ -599,7 +605,7 @@ const cartData = JSON.stringify({
                     height={100}
                     width={100}
                     alt=""
-                    src={convertImageUrl(product?.expand?.thumbnail) ?? "/"}
+                    src={convertToFileUrl(product?.expand?.thumbnail) ?? "/"}
                     loading="lazy"
                     class="w-18 h-24 rounded-md object-cover"
                   />
@@ -811,14 +817,14 @@ const cartData = JSON.stringify({
                 price: item?.price,
                 discount: item?.discount,
                 slug: `/san-pham/${item?.slug}`,
-                thumbnail: convertImageUrl(item?.expand?.thumbnail),
+                thumbnail: convertToFileUrl(item?.expand?.thumbnail),
               }}
             >
               <Image
                 slot="image"
                 width={100}
                 height={100}
-                src={convertImageUrl(item?.expand?.thumbnail) ?? "/"}
+                src={convertToFileUrl(item?.expand?.thumbnail) ?? "/"}
                 loading="lazy"
                 alt={item?.name ?? "product_image"}
                 class="aspect-square w-full bg-gray-200 object-cover group-hover:hidden xl:aspect-1/1 transition-all duration-300 ease-in-out"

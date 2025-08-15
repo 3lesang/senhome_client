@@ -13,9 +13,9 @@ export function formatVND(n: number = 0) {
   }).format(n);
 }
 
-export const convertImageUrl = (image: any) => {
-  if (!image?.id) return;
-  return `${API_URL}/api/files/${image?.collectionName}/${image?.id}/${image?.image}`;
+export const convertToFileUrl = (record: any) => {
+  if (!record?.id) return;
+  return `${API_URL}/api/files/${record?.collectionName}/${record?.id}/${record?.file}`;
 };
 
 export const buildTree = (data: any[]): any[] => {

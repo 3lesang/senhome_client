@@ -1,11 +1,11 @@
 ---
 import {
-  IMAGE_COLLECTION,
+  FILE_GRAPH_COLLECTION,
   pb,
   PRODUCT_VARIANT_ATTRIBUTES_COLLECTION,
 } from "@/lib/pocketbase";
 import {
-  convertImageUrl,
+  convertToFileUrl,
   formatVND,
   groupByAttributes,
   groupByVariant,
@@ -28,13 +28,13 @@ interface Props {
 
 const { data, isBtn = false } = Astro.props;
 
-async function getImage(productId?: string) {
+async function getFile(entityId?: string[]) {
   try {
     return await pb
-      .collection(IMAGE_COLLECTION)
-      .getFirstListItem(
-        `product="${productId}"||variant.product="${productId}"`
-      );
+      .collection(FILE_GRAPH_COLLECTION)
+      .getFirstListItem(`entity_id="${entityId}"`, {
+        expand: "file",
+      });
   } catch (error) {
     return null;
   }
@@ -56,10 +56,11 @@ async function getProductOptions(id?: string) {
 }
 
 const optionData = await getProductOptions(data?.id);
-const image = await getImage(data?.id);
 
 const options = groupByAttributes(optionData ?? []);
 const variants = groupByVariant(optionData ?? []);
+
+const image = await getFile(variants?.[0]?.variant?.id);
 ---
 
 <script>
@@ -187,7 +188,7 @@ const variants = groupByVariant(optionData ?? []);
         height={100}
         width={100}
         alt=""
-        src={convertImageUrl(image) ?? "/"}
+        src={convertToFileUrl(image?.expand?.file) ?? "/"}
         loading="lazy"
         class="object-cover hidden group-hover:block aspect-square w-full bg-gray-200 xl:aspect-1/1 transition-all duration-300 ease-in-out"
       />
