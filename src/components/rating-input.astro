@@ -1,0 +1,27 @@
+---
+import Star from "@lucide/astro/icons/star";
+
+const { model } = Astro.props;
+---
+
+<div x-data="{ max: 5 }" class="flex items-center gap-1">
+  <template x-for="n in max" :key="n">
+    <label
+      class="transition hover:scale-125 has-focus:scale-125 hover:cursor-pointer"
+      :for="'star-' + n"
+    >
+      <span class="sr-only" x-text="n + ' star'"></span>
+      <input
+        :id="'star-' + n"
+        type="radio"
+        class="sr-only"
+        name="rating"
+        :value="n"
+        x-model={`${model}`}
+      />
+      <Star
+        x-bind:class={`${model} >= n ? 'text-blue-500 fill-blue-500' : 'text-on-surface dark:text-on-surface-dark'`}
+      />
+    </label>
+  </template>
+</div>

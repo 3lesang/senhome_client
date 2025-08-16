@@ -1,0 +1,74 @@
+---
+import ChevronLeft from "@lucide/astro/icons/chevron-left";
+import ChevronRight from "@lucide/astro/icons/chevron-right";
+import X from "@lucide/astro/icons/x";
+---
+
+<script>
+  import Alpine from "alpinejs";
+  import EmblaCarousel, { type EmblaCarouselType } from "embla-carousel";
+
+  export interface ModalCarouselData {
+    open: boolean;
+    embla: EmblaCarouselType | null;
+    init(): void;
+    prev(): void;
+    next(): void;
+  }
+
+  document.addEventListener("alpine:init", () => {
+    Alpine.data(
+      "modalReview",
+      (): ModalCarouselData => ({
+        open: false,
+        embla: null,
+        init() {
+          const emblaNode = document.querySelector("#modelReview");
+          if (!emblaNode) {
+            return;
+          }
+          const emblaApi = EmblaCarousel(emblaNode as HTMLElement);
+
+          this.embla = emblaApi;
+        },
+        prev() {
+          this.embla?.scrollPrev();
+        },
+        next() {
+          this.embla?.scrollNext();
+        },
+      })
+    );
+  });
+</script>
+<div x-data="modalReview">
+  <button @click="open = true" class="hover:cursor-pointer">
+    <slot name="trigger" />
+  </button>
+
+  <div x-show="open" class="fixed inset-0 bg-black/50 z-99">
+    <div class="embla h-full" id="modelReview">
+      <div class="embla__container h-full">
+        <slot />
+      </div>
+    </div>
+    <button
+      @click="prev"
+      class="absolute left-32 top-1/2 -translate-y-1/2 cursor-pointer disabled:cursor-default disabled:opacity-50 p-2 bg-white rounded-full flex items-center justify-center"
+    >
+      <ChevronLeft size={16} />
+    </button>
+    <button
+      @click="next"
+      class="absolute right-32 top-1/2 -translate-y-1/2 cursor-pointer disabled:cursor-default disabled:opacity-50 p-2 bg-white rounded-full flex items-center justify-center"
+    >
+      <ChevronRight size={16} />
+    </button>
+    <button
+      @click="open = false"
+      class="absolute top-4 right-4 flex justify-center items-center text-white hover:cursor-pointer"
+    >
+      <X />
+    </button>
+  </div>
+</div>

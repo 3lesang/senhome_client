@@ -1,0 +1,170 @@
+---
+import User from "@lucide/astro/icons/user";
+import X from "@lucide/astro/icons/x";
+import SigninForm from "./signin-form.astro";
+import SignUpForm from "./signup-form.astro";
+---
+
+<script>
+  import { pb, USER_COLLECTION } from "@/lib/pocketbase";
+  import type { AuthType } from "@/lib/type";
+  import Alpine from "alpinejs";
+
+  function authModal() {
+    return {
+      open: false,
+      tab: 0,
+      closeModal() {
+        this.open = false;
+      },
+    };
+  }
+  function signUpForm(): {
+    isPending: boolean;
+    isError: boolean;
+    isSuccess: boolean;
+    name: string;
+    phone: string;
+    email: string;
+    password: string;
+    $dispatch?: (event: string) => void;
+    submit(): void;
+  } {
+    return {
+      isPending: false,
+      isError: false,
+      isSuccess: false,
+      name: "",
+      phone: "",
+      email: "",
+      password: "",
+      async submit() {
+        try {
+          this.isPending = true;
+          const res = await pb.collection(USER_COLLECTION).create({
+            name: this.name,
+            phone: this.phone,
+            email: this.email,
+            password: this.password,
+            passwordConfirm: this.password,
+          });
+          this.isPending = false;
+          if (res.id) {
+            this.isSuccess = true;
+            this.name = "";
+            this.phone = "";
+            this.email = "";
+            this.password = "";
+          }
+        } catch (error) {
+          this.isError = true;
+          this.isPending = false;
+        }
+      },
+    };
+  }
+
+  function signInForm(): {
+    isPending: boolean;
+    isSuccess: boolean;
+    isError: boolean;
+    email: string;
+    password: string;
+    submit(): void;
+    $dispatch?: (event: string) => void;
+  } {
+    return {
+      isPending: false,
+      isSuccess: false,
+      isError: false,
+      email: "",
+      password: "",
+      async submit() {
+        const auth = Alpine.store("auth") as AuthType;
+        try {
+          this.isPending = true;
+          const res = await pb
+            .collection(USER_COLLECTION)
+            .authWithPassword(this.email, this.password);
+          this.isPending = false;
+
+          if (res.token) {
+            this.isSuccess = true;
+            this.$dispatch?.("close-modal");
+
+            const cookieValue = pb.authStore.exportToCookie().split(";")[0];
+            const cookieString = `${cookieValue}; Path=/; SameSite=Lax; ${import.meta.env.PROD ? "Secure" : ""}; Max-Age=${60 * 60 * 24 * 7}`;
+            document.cookie = cookieString;
+
+            auth.user = {
+              id: pb.authStore.record?.id,
+              name: pb.authStore.record?.name[0],
+            };
+          }
+        } catch (error) {
+          this.isError = true;
+          this.isPending = false;
+        }
+      },
+    };
+  }
+
+  document.addEventListener("alpine:init", () => {
+    Alpine.data("authModal", () => authModal());
+    Alpine.data("signUpForm", () => signUpForm());
+    Alpine.data("signInForm", () => signInForm());
+  });
+</script>
+
+<div x-data="authModal">
+  <button
+    @click="open = !open"
+    class="hover:bg-gray-50 rounded-md p-2 hover:cursor-pointer size-8 flex items-center justify-center"
+  >
+    <User class="inline" size={18} />
+  </button>
+
+  <template x-teleport="body">
+    <div
+      x-show="open"
+      @click.self="open = false"
+      class="fixed inset-0 bg-black/20 z-50 flex justify-center items-center"
+    >
+      <div class="w-[480px] mx-auto bg-white p-8 rounded-lg shadow relative">
+        <div x-cloak x-show="tab == 0">
+          <h3 class="font-bold text-xl mb-8">Đăng ký tài khoản</h3>
+          <SignUpForm />
+          <div class="flex justify-between mt-8">
+            <button
+              @click="tab = 1"
+              class="text-blue-500 text-sm hover:cursor-pointer"
+              >Đăng nhập</button
+            >
+            <button class="text-blue-500 text-sm hover:cursor-pointer"
+              >Quên mật khẩu</button
+            >
+          </div>
+        </div>
+        <div x-cloak x-show="tab == 1">
+          <h3 class="font-bold text-xl mb-8">Đăng nhập</h3>
+          <SigninForm />
+          <div class="flex justify-between mt-8">
+            <button
+              @click="tab = 0"
+              class="text-blue-500 text-sm hover:cursor-pointer">Đăng ký</button
+            >
+            <button class="text-blue-500 text-sm hover:cursor-pointer"
+              >Quên mật khẩu</button
+            >
+          </div>
+        </div>
+        <button
+          @click="open = false"
+          class="absolute -top-2 -right-2 p-1 bg-gray-800 hover:bg-gray-900 text-white rounded-full hover:cursor-pointer"
+        >
+          <X size={16} />
+        </button>
+      </div>
+    </div>
+  </template>
+</div>

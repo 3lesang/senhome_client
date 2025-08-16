@@ -1,0 +1,85 @@
+---
+import ChevronLeft from "@lucide/astro/icons/chevron-left";
+import ChevronRight from "@lucide/astro/icons/chevron-right";
+
+interface Props {
+  currentPage: number;
+  totalPages: number;
+  baseUrl: string;
+}
+
+const { currentPage, totalPages, baseUrl } = Astro.props;
+
+function getPages(current: number, total: number) {
+  const pages: (number | "...")[] = [];
+  const delta = 1;
+
+  for (let i = 1; i <= total; i++) {
+    if (
+      i === 1 ||
+      i === total ||
+      (i >= current - delta && i <= current + delta)
+    ) {
+      pages.push(i);
+    } else if (pages[pages.length - 1] !== "...") {
+      pages.push("...");
+    }
+  }
+  return pages;
+}
+
+const pages = getPages(currentPage, totalPages);
+---
+
+<nav id="pagination" aria-label="pagination">
+  <ul class="flex shrink-0 items-center gap-2 text-sm font-medium">
+    <!-- Previous -->
+    <li>
+      <a
+        href={currentPage > 1 ? `${baseUrl}${currentPage - 1}` : "#"}
+        class="flex items-center rounded-radius p-1 text-on-surface hover:text-primary dark:text-on-surface-dark dark:hover:text-primary-dark"
+        aria-label="previous page"
+      >
+        <ChevronLeft />
+        Sau
+      </a>
+    </li>
+
+    <!-- Pages -->
+    {
+      pages.map((p) => (
+        <li>
+          {p === "..." ? (
+            <span class="flex size-6 items-center justify-center rounded-radius p-1 text-on-surface dark:text-on-surface-dark">
+              ...
+            </span>
+          ) : (
+            <a
+              href={`${baseUrl}${p}`}
+              class={`flex size-6 items-center justify-center rounded-radius p-1 ${
+                p === currentPage
+                  ? "bg-primary font-bold text-white dark:bg-primary-dark dark:text-on-primary-dark"
+                  : "text-on-surface hover:text-primary dark:text-on-surface-dark dark:hover:text-primary-dark"
+              }`}
+              aria-current={p === currentPage ? "page" : undefined}
+            >
+              {p}
+            </a>
+          )}
+        </li>
+      ))
+    }
+
+    <!-- Next -->
+    <li>
+      <a
+        href={currentPage < totalPages ? `${baseUrl}${currentPage + 1}` : "#"}
+        class="flex items-center rounded-radius p-1 text-on-surface hover:text-primary dark:text-on-surface-dark dark:hover:text-primary-dark"
+        aria-label="next page"
+      >
+        Tiếp
+        <ChevronRight />
+      </a>
+    </li>
+  </ul>
+</nav>

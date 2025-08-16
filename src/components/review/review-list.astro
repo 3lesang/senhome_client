@@ -1,0 +1,27 @@
+---
+import { pb, PRODUCT_REVIEW_COLLECTION } from "@/lib/pocketbase";
+import ReviewItem from "./review-item.astro";
+
+interface Props {
+  productId: string;
+}
+
+const { productId } = Astro.props;
+
+async function getReviewByProduct(productId: string) {
+  try {
+    return await pb.collection(PRODUCT_REVIEW_COLLECTION).getList(1, 20, {
+      expand: "user",
+      filter: `product="${productId}"`,
+    });
+  } catch (error) {
+    return null;
+  }
+}
+
+const reviews = await getReviewByProduct(productId);
+---
+
+<div class="space-y-8">
+  {reviews?.items?.map((item) => <ReviewItem data={item} />)}
+</div>

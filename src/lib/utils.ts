@@ -90,3 +90,35 @@ export const groupByVariant = (data: any[]) => {
     .toSorted((a, b) => a.variant.price - b.variant.price);
   return result;
 };
+
+type RatingBreakdown = { stars: number; count: number; percent: number };
+
+interface RatingResult {
+  average: number;
+  breakdown: RatingBreakdown[];
+}
+
+export const calculateRatingStats = (ratings: any[]): RatingResult => {
+  const total = ratings.length;
+
+  const counts: Record<number, number> = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
+
+  let sum = 0;
+  for (const r of ratings) {
+    if (counts[r.rating] !== undefined) {
+      counts[r.rating] += 1;
+      sum += r.rating;
+    }
+  }
+
+  const average = total > 0 ? parseFloat((sum / total).toFixed(1)) : 0;
+
+  const breakdown = Array.from({ length: 5 }, (_, i) => {
+    const stars = 5 - i;
+    const count = counts[stars];
+    const percent = total > 0 ? Math.round((count / total) * 100) : 0;
+    return { stars, count, percent };
+  });
+
+  return { average, breakdown };
+};

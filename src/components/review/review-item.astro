@@ -1,0 +1,63 @@
+---
+import RatingStar from "@/components/rating-star.astro";
+import { FILE_GRAPH_COLLECTION, pb } from "@/lib/pocketbase";
+import { convertToFileUrl } from "@/lib/utils";
+import { Image } from "astro:assets";
+
+interface Props {
+  data: any;
+}
+
+const { data } = Astro.props;
+
+async function getFiles() {
+  try {
+    return await pb.collection(FILE_GRAPH_COLLECTION).getFullList({
+      filter: `entity_id="${data?.id}"`,
+      expand: "file",
+    });
+  } catch (error) {
+    return null;
+  }
+}
+
+const files = await getFiles();
+const formatFiles = files?.map((item) => convertToFileUrl(item.expand?.file));
+---
+
+<div class="space-y-8">
+  <div class="flex gap-4">
+    <Image
+      src="https://image.ohousecdn.com/i/bucketplace-v2-development/uploads/users/profile_images/162530231862304592.jpeg?w=240&webp=1"
+      height={50}
+      width={50}
+      class="size-6 object-cover rounded-full"
+      alt=""
+    />
+    <div class="space-y-2">
+      <p class="text-sm">{data?.expand?.user?.name}</p>
+      <RatingStar size="sm" rating={5} />
+    </div>
+    <p class="text-sm text-gray-500">
+      {new Date(data?.created).toLocaleDateString()}
+    </p>
+  </div>
+  <div class="space-y-4">
+    <div class="flex">
+      {
+        formatFiles?.map((item) => (
+          <Image
+            src={item ?? "/"}
+            alt=""
+            height={50}
+            width={50}
+            class="size-32 object-cover rounded"
+            slot="trigger"
+          />
+        ))
+      }
+    </div>
+
+    <p class="text-sm text-gray-600">{data?.content}</p>
+  </div>
+</div>

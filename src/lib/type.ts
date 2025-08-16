@@ -50,6 +50,13 @@ export interface CartType {
   };
 }
 
+export interface AuthType {
+  user?: {
+    id?: string;
+    name: string;
+  };
+}
+
 export interface ProductCarouselData {
   embla: EmblaCarouselType | null;
   index: number;

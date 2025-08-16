@@ -1,0 +1,44 @@
+---
+import Star from "@lucide/astro/icons/star";
+
+interface Props {
+  rating?: number;
+  size?: "sm" | "md" | "lg";
+  isText?: boolean;
+}
+const { rating = 0, size = "sm", isText = false } = Astro.props;
+
+const sizeMap = {
+  sm: "size-4",
+  md: "size-6",
+  lg: "size-8",
+};
+
+const fullStars = Math.floor(rating);
+const fraction = rating - fullStars;
+---
+
+<div class="flex items-center">
+  {
+    Array.from({ length: 5 }, (_, index) => {
+      if (index < fullStars) {
+        return <Star class={`${sizeMap[size]} text-blue-400 fill-blue-400`} />;
+      }
+      if (index === fullStars && fraction > 0) {
+        return (
+          <div class={`relative ${sizeMap[size]}`}>
+            <Star class="absolute inset-0 text-gray-300 fill-gray-300" />
+            <div
+              class="absolute inset-0 overflow-hidden"
+              style={`width: ${fraction * 100}%;`}
+            >
+              <Star class="text-blue-400 fill-blue-400" />
+            </div>
+          </div>
+        );
+      }
+      return <Star class={`${sizeMap[size]} text-gray-300 fill-gray-300`} />;
+    })
+  }
+  {isText && <p class="font-bold text-2xl ml-8">{rating}</p>}
+</div>

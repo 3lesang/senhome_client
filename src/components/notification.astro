@@ -1,6 +1,6 @@
 ---
 import ArrowRightIcon from "@lucide/astro/icons/arrow-right";
-import XIcon from "@lucide/astro/icons/x";
+import { default as X, default as XIcon } from "@lucide/astro/icons/x";
 import { Image } from "astro:assets";
 ---
 
@@ -121,6 +121,21 @@ import { Image } from "astro:assets";
           </div>
         </template>
         <!-- END Info Cart -->
+
+        <!-- Info -->
+        <template x-if="notification.type === 'info'">
+          <div class="bg-white shadow-lg rounded-md border relative px-4 py-2">
+            <p x-text="notification.data.message"></p>
+            <button
+              @click="$store.notification.dismiss(notification.id)"
+              type="button"
+              class="absolute -top-2 -right-2 flex p-1 rounded-full items-center justify-center bg-white shadow text-black hover:cursor-pointer"
+            >
+              <X size={16} />
+            </button>
+          </div>
+        </template>
+        <!-- END Info -->
       </div>
     </template>
   </div>

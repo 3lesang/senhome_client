@@ -1,0 +1,192 @@
+---
+import RatingInput from "@/components/rating-input.astro";
+import LoaderCircle from "@lucide/astro/icons/loader-circle";
+import Upload from "@lucide/astro/icons/upload";
+import X from "@lucide/astro/icons/x";
+
+interface Props {
+  productId: string;
+}
+
+const { productId } = Astro.props;
+---
+
+<script>
+  import {
+    FILE_COLLECTION,
+    FILE_GRAPH_COLLECTION,
+    pb,
+    PRODUCT_REVIEW_COLLECTION,
+  } from "@/lib/pocketbase";
+  import type { NotificationType } from "@/lib/type";
+  import Alpine from "alpinejs";
+  type PreviewFile = File & { preview: string };
+
+  function reviewForm(productId: string) {
+    return {
+      isPending: false as boolean,
+      isError: false as boolean,
+      isSuccess: false as boolean,
+      rating: 3,
+      content: "",
+      dragover: false as boolean,
+      files: [] as PreviewFile[],
+      maxFiles: 5 as number,
+
+      handleDrop(e: DragEvent) {
+        this.dragover = false;
+        if (e.dataTransfer?.files) {
+          this.addFiles(e.dataTransfer.files);
+        }
+      },
+      handleFile(e: Event) {
+        const target = e.target as HTMLInputElement;
+        if (target.files) {
+          this.addFiles(target.files);
+        }
+      },
+      addFiles(fileList: FileList) {
+        const newFiles: PreviewFile[] = Array.from(fileList)
+          .slice(0, this.maxFiles - this.files.length)
+          .map((file) => {
+            const f = file as PreviewFile;
+            f.preview = URL.createObjectURL(file);
+            return f;
+          });
+
+        this.files.push(...newFiles);
+      },
+      removeFile(index: number) {
+        this.files.splice(index, 1);
+      },
+      async submit() {
+        try {
+          this.isPending = true;
+
+          const resReview = await pb
+            .collection(PRODUCT_REVIEW_COLLECTION)
+            .create({
+              product: productId,
+              user: pb.authStore.record?.id,
+              rating: this.rating,
+              content: this.content,
+            });
+
+          if (this.files.length > 0) {
+            const batchFile = pb.createBatch();
+            for (const file of this.files) {
+              const formData = new FormData();
+              formData.append("file", file);
+              batchFile.collection(FILE_COLLECTION).create(formData);
+            }
+            const resFile = await batchFile.send();
+            const batchFileGraph = pb.createBatch();
+            for (const file of resFile) {
+              batchFileGraph.collection(FILE_GRAPH_COLLECTION).create({
+                file: file.body.id,
+                entity_id: resReview.id,
+                entity_type: "review",
+              });
+            }
+            batchFileGraph.send();
+          }
+
+          if (resReview.id) {
+            const notification = Alpine.store(
+              "notification"
+            ) as NotificationType;
+            notification.notify({ message: "Đánh giá thành công!" }, "info");
+            this.content = "";
+            this.files = [];
+            this.isSuccess = true;
+          }
+          this.isPending = false;
+        } catch (error) {
+          this.isPending = false;
+        }
+      },
+    };
+  }
+
+  document.addEventListener("alpine:init", () => {
+    Alpine.data("reviewForm", (productId: string) => reviewForm(productId));
+  });
+</script>
+<form
+  class="mt-4"
+  x-data={`reviewForm(${JSON.stringify(productId)})`}
+  @submit.prevent="submit"
+>
+  <div class="flex mt-4 gap-4">
+    <RatingInput model="rating" />
+    <p x-text="`${rating} trên 5`" class="font-bold text-xl"></p>
+  </div>
+  <div class="my-4"></div>
+  <label for="content" class="">Nội dung</label>
+  <textarea
+    x-data
+    x-model="content"
+    rows="6"
+    x-ref="textarea"
+    @input="$refs.textarea.style.height = 'auto'; $refs.textarea.style.height = $refs.textarea.scrollHeight + 'px'"
+    name=""
+    id="content"
+    class="block w-full border p-4 rounded-lg resize-none bg-white overflow-hidden"
+    placeholder="Nội dung đánh giá..."></textarea>
+  <div class="my-4"></div>
+  <label for="">Hình ảnh thực tế</label>
+  <div
+    @dragover.prevent="dragover = true"
+    @dragleave.prevent="dragover = false"
+    @drop.prevent="handleDrop($event)"
+    class="w-full border-2 border-dashed rounded-lg p-8 bg-white cursor-pointer"
+    :class="dragover ? 'border-blue-400 bg-blue-50' : 'border-gray-300'"
+  >
+    <!-- Hidden File Input -->
+    <input
+      type="file"
+      x-ref="fileInput"
+      class="hidden"
+      @change="handleFile($event)"
+      accept="image/*"
+      multiple
+    />
+
+    <!-- Upload Prompt -->
+    <div class="text-center text-gray-500" @click="$refs.fileInput.click()">
+      <Upload class="inline" />
+      <p class="mb-2">Kéo và thả hình ảnh vào đây hoặc nhấp để tải lên</p>
+      <p class="text-xs">Tối đa 5 hình ảnh</p>
+    </div>
+
+    <!-- Preview Images -->
+    <template x-if="files.length">
+      <div class="mt-4 space-x-4 grid grid-cols-5 gap-2">
+        <template x-for="(file, index) in files" :key="file.name + index">
+          <div class="relative group w-fit">
+            <img
+              :src="file.preview"
+              class="object-cover rounded aspect-square"
+            />
+            <button
+              @click="removeFile(index)"
+              class="absolute top-1 right-1 bg-black p-1 bg-opacity-50 text-white text-xs rounded px-1 hidden group-hover:block cursor-pointer"
+            >
+              <X size={16} />
+            </button>
+          </div>
+        </template>
+      </div>
+    </template>
+  </div>
+  <div class="mt-8">
+    <button
+      :disabled="isPending"
+      type="submit"
+      class="ml-auto flex items-center justify-center gap-2 disabled:bg-gray-400 disabled:cursor-default bg-blue-500 text-white font-bold px-4 py-2 rounded-lg hover:cursor-pointer"
+    >
+      <LoaderCircle size={16} class="animate-spin" x-show="isPending" />
+      <span>Gửi đánh giá</span>
+    </button>
+  </div>
+</form>
