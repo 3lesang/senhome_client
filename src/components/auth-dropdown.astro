@@ -1,0 +1,40 @@
+<script>
+  import { pb } from "@/lib/pocketbase";
+  import type { AuthType } from "@/lib/type";
+  import Alpine from "alpinejs";
+
+  function getAuth() {
+    return {
+      open: false,
+      handleLogout() {
+        const auth = Alpine.store("auth") as AuthType;
+        pb.authStore.clear();
+        auth.handleLogout();
+      },
+    };
+  }
+  document.addEventListener("alpine:init", () => {
+    Alpine.data("auth", getAuth);
+  });
+</script>
+<div x-data="auth" x-cloak x-show="$store.auth?.user?.id" class="relative">
+  <span
+    @click="open = true"
+    class="flex size-6 items-center justify-center overflow-hidden rounded-full bg-blue-500 text-white hover:cursor-pointer select-none"
+    x-text="$store.auth?.user?.name"
+  >
+  </span>
+
+  <div
+    x-cloak
+    x-show="open"
+    @click.outside="open = false"
+    class="absolute top-full right-1/2 translate-x-1/2 mt-1 rounded border bg-white shadow z-20"
+  >
+    <button
+      @click="handleLogout"
+      class="px-4 py-2 hover:bg-gray-50 hover:cursor-pointer w-max text-sm"
+      >Đăng xuất</button
+    >
+  </div>
+</div>

@@ -53,8 +53,9 @@ export interface CartType {
 export interface AuthType {
   user?: {
     id?: string;
-    name: string;
+    name?: string;
   };
+  handleLogout(): void;
 }
 
 export interface ProductCarouselData {

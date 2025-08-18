@@ -101,6 +101,9 @@ export default (Alpine: Alpine) => {
         id: pb.authStore.record?.id,
         name: pb.authStore.record?.name[0],
       },
+      handleLogout() {
+        this.user = {};
+      },
     };
   }
 

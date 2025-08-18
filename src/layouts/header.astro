@@ -1,5 +1,6 @@
 ---
 import logo from "@/assets/logo.png";
+import AuthDropdown from "@/components/auth-dropdown.astro";
 import AuthModal from "@/components/auth-modal.astro";
 import SearchInput from "@/components/search-input.astro";
 import { FOLDER_COLLECTION, pb } from "@/lib/pocketbase";
@@ -100,13 +101,8 @@ const { data } = await fetchFolders();
           <div x-cloak x-show="!$store.auth?.user?.id">
             <AuthModal />
           </div>
-          <span
-            x-cloak
-            x-show="$store.auth?.user?.id"
-            class="flex size-6 items-center justify-center overflow-hidden rounded-full bg-blue-500 text-white hover:cursor-pointer"
-            x-text="$store.auth?.user?.name"
-          >
-          </span>
+          <AuthDropdown />
+
           <a
             href="/gio-hang"
             class="relative hover:bg-gray-50 rounded-md p-2 hover:cursor-pointer size-8 flex items-center justify-center"
