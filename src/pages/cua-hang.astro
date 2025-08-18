@@ -1,0 +1,144 @@
+---
+export const prerender = false;
+import ProductCard from "@/components/product/product-card.astro";
+import Pagination from "@/components/ui/pagination.astro";
+import Main from "@/layouts/main.astro";
+import { CATEGORY_COLLECTION, pb, PRODUCT_COLLECTION } from "@/lib/pocketbase";
+import { convertToFileUrl, formatSearchParam } from "@/lib/utils";
+import ArrowDownWideNarrow from "@lucide/astro/icons/arrow-down-wide-narrow";
+import ArrowUpWideNarrow from "@lucide/astro/icons/arrow-up-wide-narrow";
+import Star from "@lucide/astro/icons/star";
+import { Image } from "astro:assets";
+
+async function getProducts({ page = 1 }: { page?: number; sort: string }) {
+  try {
+    return await pb.collection(PRODUCT_COLLECTION).getList(page, 20, {
+      expand: "thumbnail",
+      sort,
+    });
+  } catch (error) {
+    return null;
+  }
+}
+
+async function getCategories() {
+  try {
+    return await pb.collection(CATEGORY_COLLECTION).getFullList();
+  } catch (error) {
+    return null;
+  }
+}
+
+function buildSort(order?: string | null, value?: string | null): string {
+  if (!order || !value) return "";
+  switch (order) {
+    case "price": {
+      switch (value) {
+        case "desc":
+          return "price";
+        case "asc":
+          return "-price";
+      }
+    }
+    case "view":
+      return "";
+  }
+  return "";
+}
+
+const order = Astro.url.searchParams.get("order");
+const dir = Astro.url.searchParams.get("dir");
+const sort = buildSort(order, dir);
+const page = Astro.url.searchParams.get("page");
+
+const search = Astro.url.searchParams;
+const products = await getProducts({ page: Number(page), sort });
+const categories = await getCategories();
+---
+
+<Main title="Cửa hàng nội thất">
+  <div class="max-w-7xl mx-auto mb-8">
+    <div class="grid grid-cols-12 gap-4">
+      <div class="col-span-3">
+        <div class="sticky top-28 bg-gray-50 p-4 rounded">
+          <p class="font-bold text-xl">Danh mục</p>
+          <ul class="mt-2">
+            {
+              categories?.map((item) => (
+                <li class="p-2 hover:bg-gray-100 rounded">
+                  <a>{item?.name}</a>
+                </li>
+              ))
+            }
+          </ul>
+        </div>
+      </div>
+      <div class="col-span-9">
+        <div class="flex justify-between mt-8">
+          <p class="font-bold text-lg">Sắp xếp theo</p>
+          <div class="flex items-center gap-4">
+            <a
+              href={formatSearchParam(search, { order: "view" })}
+              class="flex items-center gap-2 border px-4 py-2 bg-gray-50 rounded-full text-sm hover:bg-gray-100"
+            >
+              <Star size={16} />
+              <span>Phổ biến</span>
+            </a>
+            <a
+              href={formatSearchParam(search, { order: "price", dir: "desc" })}
+              class="flex items-center gap-2 border px-4 py-2 bg-gray-50 rounded-full text-sm hover:bg-gray-100"
+            >
+              <ArrowUpWideNarrow size={16} />
+              <span>Gía Thấp - Cao</span>
+            </a>
+            <a
+              href={formatSearchParam(search, { order: "price", dir: "asc" })}
+              class="flex items-center gap-2 border px-4 py-2 bg-gray-50 rounded-full text-sm hover:bg-gray-100"
+            >
+              <ArrowDownWideNarrow size={16} />
+              <span>Gía Cao - Thấp</span>
+            </a>
+          </div>
+        </div>
+        <div class="grid grid-cols-3 gap-4 mt-8">
+          {
+            products?.items?.map((item) => (
+              <ProductCard
+                isBtn
+                data={{
+                  id: item?.id,
+                  name: item?.name,
+                  price: item?.price,
+                  discount: item?.discount,
+                  slug: `/san-pham/${item?.slug}`,
+                  thumbnail: convertToFileUrl(item?.expand?.thumbnail),
+                }}
+              >
+                <Image
+                  slot="image"
+                  width={100}
+                  height={100}
+                  src={convertToFileUrl(item?.expand?.thumbnail) ?? "/"}
+                  loading="lazy"
+                  alt={item?.name ?? "product_image"}
+                  class="aspect-square w-full bg-gray-200 object-cover group-hover:hidden xl:aspect-1/1 transition-all duration-300 ease-in-out"
+                />
+              </ProductCard>
+            ))
+          }
+        </div>
+        <div class="mt-8 flex justify-center">
+          {
+            Number(products?.totalItems) > 20 && (
+              <Pagination
+                currentPage={Number(page ?? 1)}
+                totalPages={10}
+                baseUrl={formatSearchParam(search, { page: "" })}
+              />
+            )
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+</Main>

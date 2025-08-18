@@ -122,3 +122,13 @@ export const calculateRatingStats = (ratings: any[]): RatingResult => {
 
   return { average, breakdown };
 };
+
+export const formatSearchParam = (
+  searchParams: URLSearchParams,
+  data: Record<string, string>
+) => {
+  for (const [key, value] of Object.entries(data)) {
+    searchParams.set(key, value);
+  }
+  return "?" + searchParams.toString();
+};

@@ -48,9 +48,12 @@ const { data } = await fetchFolders();
                 class={`h-full group/inner ${item?.children?.length > 0 ? "peer" : ""}`}
               >
                 <div class="h-full hover:cursor-pointer px-4 peer flex items-center">
-                  <p class="font-semibold  group-hover/inner:text-blue-500">
+                  <a
+                    href={item?.link}
+                    class="font-semibold  group-hover/inner:text-blue-500"
+                  >
                     {item?.name}
-                  </p>
+                  </a>
                   {item?.children?.length > 0 && (
                     <ChevronDownIcon
                       size={16}
