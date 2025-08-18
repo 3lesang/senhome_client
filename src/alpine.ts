@@ -97,6 +97,11 @@ export default (Alpine: Alpine) => {
 
   function auth(): AuthType {
     return {
+      openModal: false,
+      tab: 0,
+      closeModal() {
+        this.openModal = false;
+      },
       user: {
         id: pb.authStore.record?.id,
         name: pb.authStore.record?.name[0],

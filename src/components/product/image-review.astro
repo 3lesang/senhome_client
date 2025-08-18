@@ -1,0 +1,34 @@
+---
+import { FILE_GRAPH_COLLECTION, pb } from "@/lib/pocketbase";
+import { convertToFileUrl } from "@/lib/utils";
+import { Image } from "astro:assets";
+
+interface Props {
+  productId?: string;
+}
+async function getImageReviewProduct(productId?: string) {
+  try {
+    return await pb.collection(FILE_GRAPH_COLLECTION).getFullList({
+      filter: `entity_id="${productId}"&&entity_type="review"`,
+      expand: "file",
+    });
+  } catch (error) {
+    return null;
+  }
+}
+const { productId } = Astro.props;
+
+const images = await getImageReviewProduct(productId);
+const formatImages = images?.map((item) => convertToFileUrl(item.expand?.file));
+---
+
+<div class="max-w-7xl mx-auto">
+  <p class="font-bold">Hình ảnh đánh giá từ khách hàng</p>
+  <div class="grid grid-cols-4 gap-2">
+    {
+      formatImages?.map((item) => (
+        <Image height={100} width={100} src={item ?? "/"} alt="" />
+      ))
+    }
+  </div>
+</div>

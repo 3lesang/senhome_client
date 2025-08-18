@@ -2,7 +2,59 @@
 import LoaderCircle from "@lucide/astro/icons/loader-circle";
 ---
 
-<form x-data="signInForm" @submit.prevent="submit" @close-modal="closeModal">
+<script>
+  import { pb, USER_COLLECTION } from "@/lib/pocketbase";
+  import type { AuthType } from "@/lib/type";
+  import Alpine from "alpinejs";
+
+  function signInForm(): {
+    isPending: boolean;
+    isSuccess: boolean;
+    isError: boolean;
+    email: string;
+    password: string;
+    submit(): void;
+    $dispatch?: (event: string) => void;
+  } {
+    return {
+      isPending: false,
+      isSuccess: false,
+      isError: false,
+      email: "",
+      password: "",
+      async submit() {
+        const auth = Alpine.store("auth") as AuthType;
+        try {
+          this.isPending = true;
+          const res = await pb
+            .collection(USER_COLLECTION)
+            .authWithPassword(this.email, this.password);
+          this.isPending = false;
+
+          if (res.token) {
+            this.isSuccess = true;
+            auth.closeModal();
+            const cookieValue = pb.authStore.exportToCookie().split(";")[0];
+            const cookieString = `${cookieValue}; Path=/; SameSite=Lax; ${import.meta.env.PROD ? "Secure" : ""}; Max-Age=${60 * 60 * 24 * 7}`;
+            document.cookie = cookieString;
+
+            auth.user = {
+              id: pb.authStore.record?.id,
+              name: pb.authStore.record?.name[0],
+            };
+          }
+        } catch (error) {
+          this.isError = true;
+          this.isPending = false;
+        }
+      },
+    };
+  }
+  document.addEventListener("alpine:init", () => {
+    Alpine.data("signInForm", () => signInForm());
+  });
+</script>
+<form x-data="signInForm" @submit.prevent="submit">
   <div class="grid grid-cols-2 gap-4">
     <div class="col-span-2">
       <div class="flex flex-col gap-1">

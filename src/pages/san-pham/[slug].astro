@@ -5,8 +5,8 @@ import FreeShipIcon from "@/assets/free-ship.svg";
 import LocationIcon from "@/assets/location.svg";
 import PhoneIcon from "@/assets/phone.svg";
 import ReturnIcon from "@/assets/return-60.svg";
-import Pagination from "@/components/ui/pagination.astro";
 import ImageCarousel from "@/components/product/image-carousel.astro";
+import ImageReview from "@/components/product/image-review.astro";
 import OptionButton from "@/components/product/option-button.astro";
 import OptionText from "@/components/product/option-text.astro";
 import ProductCard from "@/components/product/product-card.astro";
@@ -14,6 +14,7 @@ import RatingCount from "@/components/rating-count.astro";
 import RatingStar from "@/components/rating-star.astro";
 import ReviewForm from "@/components/review/review-form.astro";
 import ReviewList from "@/components/review/review-list.astro";
+import Pagination from "@/components/ui/pagination.astro";
 import Tooltip from "@/components/ui/tooltip.astro";
 import Footer from "@/layouts/footer.astro";
 import Main from "@/layouts/main.astro";
@@ -80,8 +81,11 @@ async function getProductOptions(id?: string) {
   }
 }
 
-async function getFiles(entityIds?: string[]) {
-  const filter = entityIds?.map((id) => `entity_id="${id}"`).join("||");
+async function getFiles(productId?: string, variantIds?: string[]) {
+  const variantFilter = variantIds?.map((id) => `variant="${id}"`).join("||");
+  const filter = `product="${productId}"` + "||" + variantFilter;
+
+  console.log(filter);
   try {
     return await pb.collection(FILE_GRAPH_COLLECTION).getFullList({
       filter: filter,
@@ -112,10 +116,9 @@ const reviews = await getReviewByProduct(product?.id);
 const options = groupByAttributes(optionData ?? []);
 const variants = groupByVariant(optionData ?? []);
 
-const entityIds = variants.map((item) => item.variant.id);
-entityIds.push(product?.id);
+const variantIds = variants.map((item) => item.variant.id);
 
-const images = await getFiles(entityIds);
+const images = await getFiles(product?.id, variantIds);
 
 const cheapProduct = variants?.[0]?.variant;
 const expensiveProduct = variants?.[variants?.length - 1]?.variant;
@@ -817,6 +820,7 @@ const { average, breakdown } = calculateRatingStats(reviews ?? []);
         class="py-8 relative"
         :class="expanded ? '' : 'overflow-hidden'"
       >
+        <ImageReview productId={product?.id} />
         <h1 class="uppercase font-bold text-center text-xl">Mô tả sản phẩm</h1>
         <div
           class="flex justify-center z-40 left-1/2 -translate-x-1/2 w-fit absolute bottom-32"
@@ -846,11 +850,18 @@ const { average, breakdown } = calculateRatingStats(reviews ?? []);
           <div class="flex justify-between">
             <p class="font-bold">{reviews?.length} đánh giá</p>
             <button
+              x-data
+              @click="!$store.auth.user?.id && ($store.auth.openModal = true) && ($store.auth.tab = 1)"
               class="text-white bg-blue-500 rounded-full px-4 py-2 text-sm font-bold hover:cursor-pointer"
               >Đánh giá</button
             >
           </div>
-          <div class="rounded-lg bg-gray-50 p-4 mt-4">
+          <div
+            class="rounded-lg bg-gray-50 p-4 mt-4"
+            x-data
+            x-cloak
+            x-show="$store.auth.user.id"
+          >
             <p class="font-bold text-xl">Viết đánh giá</p>
             <ReviewForm productId={product?.id ?? ""} />
           </div>

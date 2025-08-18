@@ -51,6 +51,9 @@ export interface CartType {
 }
 
 export interface AuthType {
+  openModal: boolean;
+  tab: number;
+  closeModal(): void;
   user?: {
     id?: string;
     name?: string;

@@ -2,7 +2,59 @@
 import LoaderCircle from "@lucide/astro/icons/loader-circle";
 ---
 
-<form x-data="signUpForm" @submit.prevent="submit" @close-modal="closeModal">
+<script>
+  import { pb, USER_COLLECTION } from "@/lib/pocketbase";
+  import Alpine from "alpinejs";
+
+  function signUpForm(): {
+    isPending: boolean;
+    isError: boolean;
+    isSuccess: boolean;
+    name: string;
+    phone: string;
+    email: string;
+    password: string;
+    $dispatch?: (event: string) => void;
+    submit(): void;
+  } {
+    return {
+      isPending: false,
+      isError: false,
+      isSuccess: false,
+      name: "",
+      phone: "",
+      email: "",
+      password: "",
+      async submit() {
+        try {
+          this.isPending = true;
+          const res = await pb.collection(USER_COLLECTION).create({
+            name: this.name,
+            phone: this.phone,
+            email: this.email,
+            password: this.password,
+            passwordConfirm: this.password,
+          });
+          this.isPending = false;
+          if (res.id) {
+            this.isSuccess = true;
+            this.name = "";
+            this.phone = "";
+            this.email = "";
+            this.password = "";
+          }
+        } catch (error) {
+          this.isError = true;
+          this.isPending = false;
+        }
+      },
+    };
+  }
+  document.addEventListener("alpine:init", () => {
+    Alpine.data("signUpForm", () => signUpForm());
+  });
+</script>
+<form x-data="signUpForm" @submit.prevent="submit">
   <div class="grid grid-cols-2 gap-4">
     <div class="col-span-1">
       <div class="flex flex-col gap-1">

@@ -13,7 +13,7 @@ const { data } = Astro.props;
 async function getFiles() {
   try {
     return await pb.collection(FILE_GRAPH_COLLECTION).getFullList({
-      filter: `entity_id="${data?.id}"`,
+      filter: `review="${data?.id}"`,
       expand: "file",
     });
   } catch (error) {
