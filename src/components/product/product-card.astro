@@ -28,11 +28,11 @@ interface Props {
 
 const { data, isBtn = false } = Astro.props;
 
-async function getFile(entityId?: string[]) {
+async function getFile(productId?: string) {
   try {
     return await pb
       .collection(FILE_GRAPH_COLLECTION)
-      .getFirstListItem(`entity_id="${entityId}"`, {
+      .getFirstListItem(`product="${productId}"`, {
         expand: "file",
       });
   } catch (error) {
@@ -60,7 +60,7 @@ const optionData = await getProductOptions(data?.id);
 const options = groupByAttributes(optionData ?? []);
 const variants = groupByVariant(optionData ?? []);
 
-const image = await getFile(variants?.[0]?.variant?.id);
+const image = await getFile(data?.id);
 ---
 
 <script>
