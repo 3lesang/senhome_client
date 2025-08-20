@@ -33,7 +33,7 @@
     "@types/canvas-confetti": "^1.9.0",
     "@types/react": "^19.1.9",
     "@types/react-dom": "^19.1.7",
-    "astro": "^5.12.8",
+    "astro": "^5.13.1",
     "astro-loading-indicator": "^0.7.0",
     "axios": "^1.11.0",
     "canvas-confetti": "^1.9.3",
